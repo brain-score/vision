@@ -1,0 +1,162 @@
+schema_version: '2.0'
+domain: vision
+models:
+  resnet50_original_iteration=5:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_original_5
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet50_original_5
+      kapoor2025:
+        kind: other
+        url: https://iclr.cc/media/iclr-2025/Slides/36853_r86bRFq.pdf
+        citation: 'Kapoor & Egger (2025), ICLR 2025 workshop slides: controlled synthetic
+          training data (Blender renders of ~37K object meshes, one appearance or
+          rotation factor varied per dataset), alignment evaluated with Brain-Score,
+          RSA and CKA'
+    model:
+      display_name: resnet50_original_iteration=5
+      version: Dataset condition "original", iteration 5
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 (torchvision resnet50 definition via torch.hub, 1000-way
+          classifier); the plugin downloads the checkpoint but has no branch that
+          loads it into resnet50, so the scored network keeps its random initialization
+      parameter_count: 25557032
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: none
+        description: Untrained (random initialization) as loaded by the plugin
+    training:
+      process: 'Intended checkpoint: Trained (PyTorch Lightning checkpoint) on a synthetic
+        Blender-rendered object dataset, condition "original" (base dataset with maximal
+        variation), iteration 5. Not loaded by the plugin: the scored ResNet-50 is
+        randomly initialized.'
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits from the final classifier layer
+    provenance:
+      weights_provider: Shreya Kapoor / Bernhard Egger (eggerbernhard.ch web server)
+      checkpoint: https://eggerbernhard.ch/shreya/latest_resnet50/original_5.ckpt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet50_original_5
+    people:
+      creators:
+      - Shreya Kapoor
+      - Bernhard Egger
+      organizations:
+      - Friedrich-Alexander-Universität Erlangen-Nürnberg
+    use:
+      applications:
+      - Studying how rendering factors of synthetic training data affect brain alignment
+      limitations:
+      - 'Plugin bug: the downloaded checkpoint is never loaded, so scores reflect
+        a randomly initialized ResNet-50'
+    lineage:
+      base_models:
+      - name: ResNet-50
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - kapoor2025
+      - plugin_code
+    - path: /people/organizations
+      status: probable
+      sources:
+      - kapoor2025
+    - path: /use/applications
+      status: probable
+      sources:
+      - kapoor2025
+    - path: /use/limitations
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code

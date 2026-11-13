@@ -1,0 +1,152 @@
+schema_version: '2.0'
+domain: vision
+models:
+  convnext_tiny_imagenet1k_GELU_PS:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/convnext_tiny_imagenet1k_GELU_PS
+        citation: Brain-Score vision plugin code, brainscore_vision/models/convnext_tiny_imagenet1k_GELU_PS
+      hand_repo:
+        kind: other
+        url: https://codeberg.org/mwspratling/HAND
+        citation: mwspratling/HAND repository on Codeberg (checkpoints of the HAND
+          experiments)
+      convnext:
+        kind: paper
+        url: https://arxiv.org/abs/2201.03545
+        citation: Liu et al. (2022), A ConvNet for the 2020s, CVPR 2022
+    model:
+      display_name: convnext_tiny_imagenet1k_GELU_PS
+      version: Checkpoint ConvNeXt-tiny_ImageNet_None_None_None_GELU_Conv_LayerNorm_StridedConv_CELoss_None.pt
+      architecture:
+        family: convolutional_neural_network
+        description: ConvNeXt-tiny re-implemented in the plugin with activation GELU,
+          normalization LayerNorm, downsampling StridedConv
+      parameter_count: 28589128
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: ImageNet-1k classification with CELoss loss
+    training:
+      process: 'Trained on ImageNet-1k (task tag "ImageNet"), augmentation: no extra
+        augmentation tag; configuration taken from the checkpoint name ConvNeXt-tiny_ImageNet_None_None_None_GELU_Conv_LayerNorm_StridedConv_CELoss_None'
+      loss: Cross-entropy (CELoss tag in the checkpoint name)
+    data:
+      summary: ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 256 px (short side), center-cropped to 224x224,
+        scaled to [0, 1] without mean/std normalization
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: M. W. Spratling (codeberg.org/mwspratling/HAND)
+      checkpoint: https://codeberg.org/mwspratling/HAND/raw/branch/main/ConvNeXt-tiny_ImageNet_None_None_None_GELU_Conv_LayerNorm_StridedConv_CELoss_None.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/convnext_tiny_imagenet1k_GELU_PS
+    people:
+      creators:
+      - Michael W. Spratling
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - convnext
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - hand_repo
+    - path: /training/loss
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - hand_repo

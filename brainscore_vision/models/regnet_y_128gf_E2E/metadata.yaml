@@ -1,0 +1,191 @@
+schema_version: '2.0'
+domain: vision
+models:
+  regnet_y_128gf_E2E:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/regnet_y_128gf_E2E
+        citation: Brain-Score vision plugin code, brainscore_vision/models/regnet_y_128gf_E2E
+      swag:
+        kind: paper
+        url: https://arxiv.org/abs/2201.08371
+        citation: Singh et al. (2022), Revisiting Weakly Supervised Pre-Training of
+          Visual Perception Models, CVPR 2022
+      torchvision:
+        kind: other
+        url: https://pytorch.org/vision/stable/models.html
+        citation: torchvision model zoo documentation
+    model:
+      display_name: RegNetY-128GF (SWAG, end-to-end fine-tuned)
+      version: IMAGENET1K_SWAG_E2E_V1
+      architecture:
+        family: convolutional_neural_network
+        description: RegNetY-128GF (torchvision)
+      parameter_count: 644812894
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 384
+        width: 384
+      supervision:
+        type: weakly_supervised
+        description: Weakly supervised hashtag prediction pretraining, then supervised
+          end-to-end ImageNet-1k fine-tuning
+    training:
+      process: 'SWAG: weakly supervised pretraining on Instagram images with hashtags,
+        then end-to-end fine-tuning on ImageNet-1k at 384x384'
+    data:
+      summary: Instagram ~3.6B images with hashtags (SWAG), ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: other
+        name: Instagram ~3.6B images with hashtags (SWAG)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 384x384 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: torchvision (PyTorch)
+      checkpoint: torchvision regnet_y_128gf weights IMAGENET1K_SWAG_E2E_V1
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/regnet_y_128gf_E2E
+    legal:
+      license: CC-BY-NC-4.0
+    people:
+      creators:
+      - Mannat Singh
+      - Laura Gustafson
+      - Aaron Adcock
+      - Vinicius de Freitas Reis
+      - Bugra Gedik
+      - Raj Prateek Kosaraju
+      - Dhruv Mahajan
+      - Ross Girshick
+      - Piotr Dollár
+      - Laurens van der Maaten
+      organizations:
+      - Meta AI
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    lineage:
+      base_models:
+      - name: RegNetY-128GF
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - swag
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - swag
+      - torchvision
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - swag
+      - torchvision
+    - path: /training/process
+      status: probable
+      sources:
+      - swag
+      - torchvision
+    - path: /data/summary
+      status: probable
+      sources:
+      - swag
+      - torchvision
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - torchvision
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - swag
+      - torchvision
+    - path: /people/creators
+      status: probable
+      sources:
+      - swag
+    - path: /people/organizations
+      status: probable
+      sources:
+      - swag
+    - path: /use/applications
+      status: probable
+      sources:
+      - swag
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - swag

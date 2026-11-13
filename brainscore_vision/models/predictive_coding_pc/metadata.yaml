@@ -1,0 +1,109 @@
+schema_version: '2.0'
+domain: vision
+models:
+  predictive_coding_pc:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/predictive_coding_pc
+        citation: Brain-Score vision plugin code, brainscore_vision/models/predictive_coding_pc
+      repo:
+        kind: other
+        url: https://github.com/nilsleut/Predictive-Coding-and-the-Visual-Cortex
+        citation: Leutenegger (2025), Predictive Coding and the Visual Cortex
+    model:
+      display_name: predictive_coding_pc
+      architecture:
+        family: convolutional_neural_network
+        description: Hierarchical predictive coding network (Rao & Ballard style)
+          whose layers r0-r3 sit on torchvision ResNet-50 (IMAGENET1K_V1) layer1-layer4
+          features
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+    training:
+      process: Predictive coding inference on top of a pretrained ResNet-50; see the
+        linked repository
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: torchvision ResNet-50 weights plus the submitter code
+      checkpoint: torchvision resnet50 IMAGENET1K_V1 (no other weights are loaded)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/predictive_coding_pc
+    people:
+      creators:
+      - Nils Leutenegger
+    lineage:
+      base_models:
+      - name: ResNet-50
+        relationship: derived_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - repo
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - repo
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - repo
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - plugin_code
+      - repo
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+      - repo

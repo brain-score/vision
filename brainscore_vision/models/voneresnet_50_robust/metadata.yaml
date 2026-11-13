@@ -1,0 +1,151 @@
+schema_version: '2.0'
+domain: vision
+models:
+  voneresnet-50-robust:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_robust
+        citation: Brain-Score vision plugin code, brainscore_vision/models/voneresnet_50_robust
+      dapello2020:
+        kind: paper
+        url: https://doi.org/10.1101/2020.06.16.154542
+        citation: Dapello, Marques, Schrimpf, Geiger, Cox & DiCarlo (2020), Simulating
+          a Primary Visual Cortex at the Front of CNNs Improves Robustness to Image
+          Perturbations, NeurIPS 2020
+      vonenet_repo:
+        kind: other
+        url: https://github.com/dicarlolab/vonenet
+        citation: dicarlolab/vonenet repository
+    model:
+      display_name: VOneResNet50 (adversarially trained)
+      architecture:
+        family: hybrid_biological_convolutional
+        description: VOneBlock followed by a ResNet-50 back-end
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: ImageNet-1k classification with a fixed V1-like VOneBlock front-end
+    training:
+      process: Published adversarially trained VOneResNet50 weights (vonenet "resnet50_at")
+        on ImageNet-1k
+    data:
+      summary: ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224, normalized with mean = std = 0.5
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: DiCarlo lab (vonenet package, dicarlolab/vonenet)
+      checkpoint: vonenet.get_model('resnet50_at') pretrained weights
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/voneresnet_50_robust
+    people:
+      creators:
+      - Joel Dapello
+      - Tiago Marques
+      - Martin Schrimpf
+      - Franziska Geiger
+      - David D. Cox
+      - James J. DiCarlo
+      organizations:
+      - Massachusetts Institute of Technology
+      - MIT-IBM Watson AI Lab
+    use:
+      applications:
+      - Robustness to image perturbations
+      - Modeling primate V1
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - dapello2020
+      - vonenet_repo
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - dapello2020
+    - path: /training/process
+      status: probable
+      sources:
+      - dapello2020
+      - vonenet_repo
+    - path: /data/summary
+      status: probable
+      sources:
+      - dapello2020
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - dapello2020
+    - path: /people/creators
+      status: probable
+      sources:
+      - dapello2020
+    - path: /people/organizations
+      status: probable
+      sources:
+      - dapello2020
+    - path: /use/applications
+      status: probable
+      sources:
+      - dapello2020

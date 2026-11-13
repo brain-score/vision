@@ -1,0 +1,175 @@
+schema_version: '2.0'
+domain: vision
+models:
+  vit_huge_clip336_laion:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vit_huge_clip336_laion
+        citation: Brain-Score vision plugin code, brainscore_vision/models/vit_huge_clip336_laion
+      vit:
+        kind: paper
+        url: https://arxiv.org/abs/2010.11929
+        citation: 'Dosovitskiy et al. (2021), An Image is Worth 16x16 Words: Transformers
+          for Image Recognition at Scale, ICLR 2021'
+      clip:
+        kind: paper
+        url: https://arxiv.org/abs/2103.00020
+        citation: Radford et al. (2021), Learning Transferable Visual Models From
+          Natural Language Supervision, ICML 2021
+      openclip:
+        kind: paper
+        url: https://arxiv.org/abs/2212.07143
+        citation: Cherti et al. (2023), Reproducible scaling laws for contrastive
+          language-image learning, CVPR 2023
+      timm_card:
+        kind: huggingface
+        url: https://huggingface.co/timm/vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+        citation: timm model card vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+    model:
+      display_name: vit_huge_clip336_laion
+      version: timm vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+      architecture:
+        family: vision_transformer
+        description: vit_huge_patch14_clip_336 (timm)
+      parameter_count: 632456680
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 336
+        width: 336
+      supervision:
+        type: contrastive_pretrain_supervised_finetune
+        description: CLIP image-text contrastive pretraining, then supervised fine-tuning
+    training:
+      process: OpenCLIP (LAION-2B) image tower pretrained with an image-text contrastive
+        objective, then fine-tuned in timm on ImageNet-12k and then ImageNet-1k
+    data:
+      summary: LAION-2B-en -> ImageNet-12k (timm 11,821-class subset) -> ImageNet-1k
+        (ILSVRC-2012)
+      training_datasets:
+      - identifier: laion-2b
+        name: LAION-2B-en
+        role: pretraining
+      - identifier: imagenet-12k
+        name: ImageNet-12k (timm 11,821-class subset)
+        role: fine_tuning
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 336x336 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: 'timm / Hugging Face Hub: OpenCLIP (LAION-2B) pretraining;
+        timm (Ross Wightman) fine-tuning'
+      checkpoint: timm/vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vit_huge_clip336_laion
+    legal:
+      license: Apache-2.0
+    use:
+      applications:
+      - Image classification
+      - Backbone for downstream vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /training/process
+      status: probable
+      sources:
+      - timm_card
+      - vit
+      - clip
+      - openclip
+    - path: /data/summary
+      status: probable
+      sources:
+      - timm_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /use/applications
+      status: probable
+      sources:
+      - timm_card

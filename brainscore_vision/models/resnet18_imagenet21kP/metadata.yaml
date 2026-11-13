@@ -2,6 +2,141 @@ schema_version: '2.0'
 domain: vision
 models:
   resnet18_imagenet21kP:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_imagenet21kP
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet18_imagenet21kP
+    model:
+      display_name: resnet18_imagenet21kP
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 (torchvision definition) with a 10,450-way head
+      parameter_count: 16537362
+      parameter_count_exact: true
+      trainable_layers: '21'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Classification over the 10,450 ImageNet-21K-P classes
+    training:
+      process: Trained on ImageNet-21K-P (winter 2021 release, 10,450 classes; per
+        identifier and head size)
+    data:
+      summary: ImageNet-21K-P (winter21, 10,450 classes)
+      training_datasets:
+      - identifier: other
+        name: ImageNet-21K-P (winter21, 10,450 classes)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 256 px (bicubic), center-cropped to 224x224,
+        ImageNet mean/std normalization
+      output_format: 10,450-way logits
+    provenance:
+      weights_provider: Submitter (Azure blob storage)
+      checkpoint: https://adf349cdkj2349.blob.core.windows.net/model-checkpoints/resnet18_imagenet21kP.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_imagenet21kP
+    lineage:
+      base_models:
+      - name: ResNet-18
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
     legacy:
       architecture: DCNN
       model_family: resnet
@@ -12,31 +147,3 @@ models:
       model_size_mb: 66.15
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_imagenet21kP
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 16537362
-      trainable_layers: '21'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_imagenet21kP

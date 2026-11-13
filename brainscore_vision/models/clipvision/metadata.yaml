@@ -1,15 +1,189 @@
+schema_version: '2.0'
+domain: vision
 models:
-    model-lecs:
-        architecture: DCNN, Transformer
-        model_family: null
-        total_parameter_count: 87456000
-        trainable_parameter_count: 87456000
-        total_layers: 153
-        trainable_layers: 74
-        model_size_mb: 349.82
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/clipvision
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  model-lecs:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/clipvision
+        citation: Brain-Score vision plugin code, brainscore_vision/models/clipvision
+      clip:
+        kind: paper
+        url: https://arxiv.org/abs/2103.00020
+        citation: Radford et al. (2021), Learning Transferable Visual Models From
+          Natural Language Supervision, ICML 2021
+      card:
+        kind: huggingface
+        url: https://huggingface.co/openai/clip-vit-base-patch32
+        citation: openai/clip-vit-base-patch32 model card
+    model:
+      display_name: model-lecs
+      architecture:
+        family: vision_transformer
+        description: CLIP ViT-B/32 image encoder (Hugging Face CLIPVisionModel)
+      parameter_count: 87456000
+      trainable_layers: '74'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: weakly_supervised
+        description: Contrastive image-text pretraining (CLIP)
+    training:
+      process: OpenAI CLIP contrastive pretraining on 400M image-text pairs
+    data:
+      summary: WIT-400M (OpenAI WebImageText)
+      training_datasets:
+      - identifier: wit-400m
+        name: WIT-400M (OpenAI WebImageText)
+        role: pretraining
+    io:
+      modality: image
+      input_format: RGB image processed with the openai/clip-vit-base-patch32 CLIPProcessor
+        (224x224)
+      output_format: Image encoder hidden states / pooled embedding
+    provenance:
+      weights_provider: OpenAI (Hugging Face Hub)
+      checkpoint: openai/clip-vit-base-patch32
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/clipvision
+    people:
+      creators:
+      - Alec Radford
+      - Jong Wook Kim
+      - Chris Hallacy
+      - Aditya Ramesh
+      - Gabriel Goh
+      - Sandhini Agarwal
+      - Girish Sastry
+      - Amanda Askell
+      - Pamela Mishkin
+      - Jack Clark
+      - Gretchen Krueger
+      - Ilya Sutskever
+      organizations:
+      - OpenAI
+    use:
+      limitations:
+      - The plugin bibtex cites CvT, not CLIP
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /training/process
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /data/summary
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /people/creators
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /people/organizations
+      status: probable
+      sources:
+      - clip
+      - card
+    - path: /use/limitations
+      status: probable
+      sources:
+      - clip
+      - card
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: null
+      total_parameter_count: 87456000
+      trainable_parameter_count: 87456000
+      total_layers: 153
+      trainable_layers: 74
+      model_size_mb: 349.82
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/clipvision
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

@@ -1,0 +1,134 @@
+schema_version: '2.0'
+domain: vision
+models:
+  hk_model_2:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hk_model_2
+        citation: Brain-Score vision plugin code, brainscore_vision/models/hk_model_2
+      method:
+        kind: paper
+        url: https://arxiv.org/abs/2006.09882
+        citation: Caron et al. (2020), Unsupervised Learning of Visual Features by
+          Contrasting Cluster Assignments, NeurIPS 2020
+      repo:
+        kind: other
+        url: https://github.com/facebookresearch/swav
+        citation: facebookresearch/swav
+    model:
+      display_name: hk_model_2
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-50 from torch.hub facebookresearch/swav:main
+      parameter_count: 25557032
+      parameter_count_exact: false
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: SwAV self-supervised pretraining, no labels
+    training:
+      process: SwAV self-supervised pretraining of ResNet-50 on ImageNet-1k (released
+        weights)
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Meta AI (torch.hub facebookresearch/swav)
+      checkpoint: torch.hub facebookresearch/swav:main resnet50
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/hk_model_2
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - method
+      - repo
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - method
+      - repo
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - method
+      - repo
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - method
+      - repo
+    - path: /training/process
+      status: probable
+      sources:
+      - method
+      - repo
+    - path: /data/summary
+      status: probable
+      sources:
+      - method
+      - repo
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - method
+      - repo

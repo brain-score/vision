@@ -1,0 +1,143 @@
+schema_version: '2.0'
+domain: vision
+models:
+  alexnet_altahan_05:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_altahan_05
+        citation: Brain-Score vision plugin code, brainscore_vision/models/alexnet_altahan_05
+    model:
+      display_name: alexnet_altahan_05
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNet (torchvision definition): AlexNet with batch normalisation
+          and a cosine-softmax classifier, trained from random initialisation on ImageNet
+          with 1/n eigenspectrum priors on two layers; fc7 and the logits are averaged
+          over the image and its mirror.'
+      parameter_count: 61102144
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised ImageNet-1k classification
+    training:
+      process: 'torchvision AlexNet with BatchNorm2d after every convolution (each
+        conv features.N becomes Sequential(conv, BN), so every other module name is
+        torchvision''s) and a bias-free cosine-softmax classifier, logits = (W/||W||_row)
+        . (h/||h||) / 0.05, which gives 61,102,144 parameters. Trained from random
+        initialisation on ImageNet-1k only: 5.12M images (40k steps at batch 128),
+        SGD with momentum 0.9 and weight decay 5e-4, peak lr 0.01 reached by a linear
+        warmup over the first 5% of the images and then cosine-decayed to 0, random-resized-crop
+        with area scale 0.35-1 and horizontal flip. Loss: cross-entropy plus, with
+        weight 0.1 each, a 1/n power-law prior (Nassar et al. 2020) on the top 64
+        eigenvalues of the batch covariance of the globally average-pooled conv3 ReLU
+        (features.7) and pool5 (features.12) outputs. fc7 (classifier.5) and the logits
+        (classifier.6) are the mean over the image and its horizontal mirror, in training
+        and at test time; the features.* and classifier.0-4 hooks hold the unmirrored
+        image''s activations. Read out with Brain-Score''s committed ''alexnet'' layer
+        map (V1 features.2, V2 and V4 features.7, IT features.12); behaviour from
+        the flip-averaged logits (classifier.6). The wrapper adds no modules, so Brain-Score''s
+        default `logits` layer (the last-registered module) is classifier.6, the output
+        of forward().'
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_873)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_873/alexnet_altahan_05.pt
+        (version ccxNj0XGN3Kcm4j0NZJG9oiwbPZFCXx7)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_altahan_05
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code

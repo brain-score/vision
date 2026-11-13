@@ -1,0 +1,143 @@
+schema_version: '2.0'
+domain: vision
+models:
+  nasnet_mobile:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/nasnet_mobile
+        citation: Brain-Score vision plugin code, brainscore_vision/models/nasnet_mobile
+      nasnet:
+        kind: paper
+        url: https://arxiv.org/abs/1707.07012
+        citation: Zoph, Vasudevan, Shlens & Le (2018), Learning Transferable Architectures
+          for Scalable Image Recognition, CVPR 2018
+    model:
+      display_name: nasnet_mobile
+      architecture:
+        family: convolutional_neural_network
+        description: NASNet-A Mobile (Cadene pretrainedmodels implementation)
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    training:
+      process: ImageNet-1k weights ported by Cadene (nasnetamobile-7e03cead.pth)
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 256 px (short side), center-cropped to 224x224,
+        normalized with mean = std = 0.5 (Brain-Score inception preprocessing)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Cadene pretrainedmodels (data.lip6.fr), copied to Brain-Score
+        S3
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/nasnet_mobile/nasnetamobile-7e03cead.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/nasnet_mobile
+    people:
+      creators:
+      - Barret Zoph
+      - Vijay Vasudevan
+      - Jonathon Shlens
+      - Quoc V. Le
+      organizations:
+      - Google Brain
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /people/creators
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet
+    - path: /people/organizations
+      status: probable
+      sources:
+      - plugin_code
+      - nasnet

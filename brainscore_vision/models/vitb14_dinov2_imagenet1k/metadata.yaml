@@ -1,0 +1,143 @@
+schema_version: '2.0'
+domain: vision
+models:
+  vitb14_dinov2_imagenet1k:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vitb14_dinov2_imagenet1k
+        citation: Brain-Score vision plugin code, brainscore_vision/models/vitb14_dinov2_imagenet1k
+      dinov2:
+        kind: paper
+        url: https://arxiv.org/abs/2304.07193
+        citation: 'Oquab et al. (2024), DINOv2: Learning Robust Visual Features without
+          Supervision, TMLR'
+    model:
+      display_name: vitb14_dinov2_imagenet1k
+      architecture:
+        family: vision_transformer
+        description: ViT-B/14 from the DINOv2 codebase (LayerScale 1e-5, no registers,
+          no classification head); weights from the DINOv2 teacher of a self-supervised
+          run, loaded with strict=False; parameter count from the equivalent timm
+          ViT-B/14 at 224 px
+      parameter_count: 85724928
+      parameter_count_exact: false
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: DINOv2-style self-distillation (teacher network weights)
+    training:
+      process: DINOv2 self-supervised training of a ViT-B/14; the plugin name indicates
+        ImageNet-1k as training data
+    data:
+      summary: ImageNet-1k (per plugin name)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: Final normalized token embedding (no head)
+    provenance:
+      weights_provider: Google Cloud Storage bucket "neurop" (submitter)
+      checkpoint: https://storage.googleapis.com/neurop/teacher_checkpoint.pth (key
+        "teacher")
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vitb14_dinov2_imagenet1k
+    lineage:
+      base_models:
+      - name: ViT-B/14
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - dinov2
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - dinov2
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - dinov2
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code

@@ -1,15 +1,154 @@
+schema_version: '2.0'
+domain: vision
 models:
-    compact_resnet50_robust_IT:
-        architecture: DCNN
-        model_family: compact
-        total_parameter_count: 
-        trainable_parameter_count: 109018
-        total_layers: 5
-        trainable_layers: 5
-        model_size_mb: 0.891
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_IT
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  compact_resnet50_robust_IT:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_IT
+        citation: Brain-Score vision plugin code, brainscore_vision/models/compact_resnet50_robust_IT
+      cowley:
+        kind: paper
+        citation: Cowley, Stan, Pillow & Smith, Compact deep neural network models
+          of visual cortex (plugin bibtex)
+    model:
+      display_name: compact_resnet50_robust_IT
+      architecture:
+        family: convolutional_neural_network
+        description: 'Compact model of macaque IT: features of a pretrained robust
+          ResNet-50 compressed into a small network with 50 filters per layer, fit
+          to predict IT responses'
+      trainable_layers: '5'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: Fit to macaque IT recordings, distilled from robust ResNet-50
+          features
+    training:
+      process: Compressed from robust ResNet-50 and fit to macaque IT neural data
+        (Cowley et al.)
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: Predicted IT responses
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_718)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_718/compact_ResNet50_robust_IT_50filters.pt
+        (version la9Z279NodC77i7oW1GXcU4rSO8cavLK)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_IT
+    people:
+      creators:
+      - Benjamin R. Cowley
+      - Patricia L. Stan
+      - Jonathan W. Pillow
+      - Matthew A. Smith
+    lineage:
+      base_models:
+      - name: robust ResNet-50
+        relationship: derived_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    legacy:
+      architecture: DCNN
+      model_family: compact
+      total_parameter_count: null
+      trainable_parameter_count: 109018
+      total_layers: 5
+      trainable_layers: 5
+      model_size_mb: 0.891
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_resnet50_robust_IT
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

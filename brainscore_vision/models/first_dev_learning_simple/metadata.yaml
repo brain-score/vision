@@ -1,0 +1,95 @@
+schema_version: '2.0'
+domain: vision
+models:
+  first_dev_learning_simple:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/first_dev_learning_simple
+        citation: Brain-Score vision plugin code, brainscore_vision/models/first_dev_learning_simple
+    model:
+      display_name: first_dev_learning_simple
+      architecture:
+        family: convolutional_neural_network
+        description: VGG-like encoder with k-winners competition and centered activations,
+          trained with a CLAPP-style local learning rule, plus a linear classifier
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: Local contrastive predictive plasticity (CLAPP checkpoint)
+    training:
+      process: Encoder checkpoint CLAPP0.ckpt from Hugging Face a-del/model_0; training
+        not documented
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Hugging Face Hub (a-del/model_0)
+      checkpoint: a-del/model_0/CLAPP0.ckpt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/first_dev_learning_simple
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code

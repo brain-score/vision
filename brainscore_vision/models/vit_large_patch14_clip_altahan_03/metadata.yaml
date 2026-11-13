@@ -1,0 +1,155 @@
+schema_version: '2.0'
+domain: vision
+models:
+  vit_large_patch14_clip_altahan_03:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vit_large_patch14_clip_altahan_03
+        citation: Brain-Score vision plugin code, brainscore_vision/models/vit_large_patch14_clip_altahan_03
+    model:
+      display_name: vit_large_patch14_clip_altahan_03
+      architecture:
+        family: vision_transformer
+        description: 'ViT-L/14 CLIP image tower (timm vit_large_patch14_clip_224):
+          ViT-L/14 CLIP (OpenAI) fine-tuned on ImageNet-1k with single-step adversarial
+          training on amplitude-phase recombined images, then interpolated depth-wise
+          back towards its starting weights; V4 and IT read through parameter-free
+          grid pools of two attention blocks.'
+      parameter_count: 304204776
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: contrastive_pretrain_supervised_finetune
+        description: CLIP pretraining, supervised ImageNet-1k fine-tuning with single-step
+          adversarial training
+    training:
+      process: 'timm `vit_large_patch14_clip_224.openai_ft_in1k` (the CLIP ViT-L/14
+        image tower, fine-tuned on ImageNet-1k by timm), fine-tuned further on ImageNet-1k
+        (AdamW, lr 1e-5, weight decay 0.05, cosine decay, batch 256, 2.56M images,
+        random-resized-crop and horizontal flip). With probability 0.5 each training
+        image keeps its own phase spectrum and label but takes the amplitude spectrum
+        of a random image in its batch (amplitude-phase recombination, APR-P); every
+        image is then attacked with single-step adversarial training (FGSM with a
+        random start, L-inf eps 2/255, step 2.5/255; the loss is the cross-entropy
+        on the perturbed image). The saved weights are interpolated depth-wise between
+        the starting (s) and fine-tuned (f) checkpoints, s + w * (f - s): w = 0.5
+        for the patch and position embeddings and blocks 0-11, rising linearly from
+        0.5 at block 12 to 1.0 at block 23, and 1.0 for the final norm and the head.
+        Nothing is added to the network: the state dict is timm''s (304M parameters).
+        Read out with the leaderboard''s committed layer map for the timm model (V1
+        blocks.6, V2 blocks.7.attn, behaviour fc_norm) except V4 and IT, which are
+        read through parameter-free pools of the attention outputs: `v4_pool` is blocks.6.attn''s
+        16x16 patch grid adaptive-average-pooled to 12x12 plus the CLS token (148,480-d),
+        `it_pool` blocks.10.attn''s grid pooled to 8x8 plus the CLS token (66,560-d).
+        forward() is the plain timm forward pass: every layer, including the behavioural
+        readout `fc_norm` (an identity in this timm model: the class token after the
+        final norm, 1024-d), sees the same image, and forward() returns the 1000 ImageNet
+        logits. The taps are registered before the base network''s modules, so Brain-Score''s
+        default `logits` layer is `head`, the output of forward(). Preprocessing is
+        timm''s eval transform for this model (resize the short side to 224 with bicubic
+        interpolation, centre-crop 224, CLIP normalisation), not Brain-Score''s default.'
+    data:
+      summary: WIT-400M (OpenAI WebImageText) -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: wit-400m
+        name: WIT-400M (OpenAI WebImageText)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_873)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_873/vit_large_patch14_clip_altahan_03.pt
+        (version ScistC1wzMIJyOFvQVGM8dghbb1UfpPB)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vit_large_patch14_clip_altahan_03
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code

@@ -2,6 +2,133 @@ schema_version: '2.0'
 domain: vision
 models:
   custom_model_cv_18_dagger_408:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408
+        citation: Brain-Score vision plugin code, brainscore_vision/models/custom_model_cv_18_dagger_408
+      crossvit:
+        kind: paper
+        url: https://arxiv.org/abs/2103.14899
+        citation: 'Chen, Fan & Panda (2021), CrossViT: Cross-Attention Multi-Scale
+          Vision Transformer for Image Classification, ICCV 2021'
+    model:
+      display_name: custom_model_cv_18_dagger_408
+      architecture:
+        family: vision_transformer
+        description: CrossViT-18-dagger (timm crossvit_18_dagger_408) adversarially
+          fine-tuned
+      parameter_count: 44606560
+      parameter_count_exact: true
+      trainable_layers: '132'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Adversarial fine-tuning for ImageNet-1k classification
+    training:
+      process: Fine-tuned for 5 epochs with adversarial training (checkpoint crossvit_18_dagger_408_adv_finetuned_epoch5.pt)
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Brain-Score submitter upload
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/custom_model_cv_18_dagger_408/crossvit_18_dagger_408_adv_finetuned_epoch5.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408
+    lineage:
+      base_models:
+      - name: CrossViT-18-dagger (timm)
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - crossvit
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - crossvit
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+      - crossvit
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+      - crossvit
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - crossvit
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+      - crossvit
     legacy:
       architecture: DCNN, Transformer
       total_parameter_count: 44606560
@@ -11,27 +138,3 @@ models:
       model_size_mb: 178.43
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    model:
-      architecture:
-        family: vision_transformer
-      parameter_count: 44606560
-      trainable_layers: '132'
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/custom_model_cv_18_dagger_408

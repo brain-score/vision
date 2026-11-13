@@ -2,6 +2,177 @@ schema_version: '2.0'
 domain: vision
 models:
   densenet-201:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_201
+        citation: Brain-Score vision plugin code, brainscore_vision/models/densenet_201
+      densenet:
+        kind: paper
+        url: https://arxiv.org/abs/1608.06993
+        citation: Huang, Liu, van der Maaten & Weinberger (2017), Densely Connected
+          Convolutional Networks, CVPR 2017
+      timm:
+        kind: huggingface
+        url: https://huggingface.co/timm
+        citation: timm (PyTorch Image Models) model cards on Hugging Face
+    model:
+      display_name: DenseNet-201
+      version: densenet201.tv_in1k
+      architecture:
+        family: convolutional_neural_network
+        description: DenseNet-201 (timm port of the torchvision weights)
+      parameter_count: 20013928
+      parameter_count_exact: true
+      trainable_layers: '201'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: timm (Hugging Face Hub, timm organization)
+      checkpoint: timm/densenet201.tv_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_201
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Gao Huang
+      - Zhuang Liu
+      - Laurens van der Maaten
+      - Kilian Q. Weinberger
+      organizations:
+      - Cornell University
+      - Tsinghua University
+      - Facebook AI Research
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - densenet
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - densenet
+      - timm
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - densenet
+      - timm
+    - path: /data/summary
+      status: probable
+      sources:
+      - densenet
+      - timm
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - densenet
+      - timm
+    - path: /people/creators
+      status: probable
+      sources:
+      - densenet
+    - path: /people/organizations
+      status: probable
+      sources:
+      - densenet
+    - path: /use/applications
+      status: probable
+      sources:
+      - densenet
     legacy:
       architecture: DCNN
       model_family: densenet
@@ -12,31 +183,3 @@ models:
       model_size_mb: 80.06
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_201
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 20013928
-      trainable_layers: '201'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/densenet_201

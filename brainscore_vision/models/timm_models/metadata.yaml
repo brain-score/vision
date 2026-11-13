@@ -240,6 +240,184 @@ models:
       extra_notes: null
       runnable: true
   convnext_femto_ols:d1_in1k:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+        citation: Brain-Score vision plugin code, brainscore_vision/models/timm_models
+      convnext:
+        kind: paper
+        url: https://arxiv.org/abs/2201.03545
+        citation: Liu, Mao, Wu, Feichtenhofer, Darrell & Xie (2022), A ConvNet for
+          the 2020s, CVPR 2022
+      timm_card:
+        kind: huggingface
+        url: https://huggingface.co/timm/convnext_femto_ols.d1_in1k
+        citation: timm model card convnext_femto_ols.d1_in1k
+    model:
+      display_name: convnext_femto_ols:d1_in1k
+      version: timm convnext_femto_ols.d1_in1k
+      architecture:
+        family: convolutional_neural_network
+        description: convnext_femto_ols (timm)
+      parameter_count: 5226520
+      parameter_count_exact: true
+      trainable_layers: '42'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised ImageNet-1k classification
+    training:
+      process: Trained in timm on ImageNet-1k
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: 'RGB image, timm eval transform for convnext_femto_ols.d1_in1k:
+        bicubic resize and center crop (crop_pct 0.875) to 224x224, normalized with
+        the checkpoint mean/std'
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: 'timm / Hugging Face Hub: Ross Wightman (timm)'
+      checkpoint: timm/convnext_femto_ols.d1_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Zhuang Liu
+      - Hanzi Mao
+      - Chao-Yuan Wu
+      - Christoph Feichtenhofer
+      - Trevor Darrell
+      - Saining Xie
+      organizations:
+      - Facebook AI Research (Meta AI)
+      - UC Berkeley
+    use:
+      applications:
+      - Image classification
+      - Backbone for downstream vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /training/process
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /data/summary
+      status: probable
+      sources:
+      - timm_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /people/creators
+      status: probable
+      sources:
+      - convnext
+    - path: /people/organizations
+      status: probable
+      sources:
+      - convnext
+    - path: /use/applications
+      status: probable
+      sources:
+      - timm_card
     legacy:
       architecture: DCNN, Transformer
       model_family: convnext
@@ -254,35 +432,190 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
+  convnext_large:fb_in22k_ft_in1k:
     sources:
       legacy:
         kind: unreviewed
         citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+        citation: Brain-Score vision plugin code, brainscore_vision/models/timm_models
+      convnext:
+        kind: paper
+        url: https://arxiv.org/abs/2201.03545
+        citation: Liu, Mao, Wu, Feichtenhofer, Darrell & Xie (2022), A ConvNet for
+          the 2020s, CVPR 2022
+      timm_card:
+        kind: huggingface
+        url: https://huggingface.co/timm/convnext_large.fb_in22k_ft_in1k
+        citation: timm model card convnext_large.fb_in22k_ft_in1k
+    model:
+      display_name: convnext_large:fb_in22k_ft_in1k
+      version: timm convnext_large.fb_in22k_ft_in1k
+      architecture:
+        family: convolutional_neural_network
+        description: convnext_large (timm)
+      parameter_count: 197767336
+      parameter_count_exact: true
+      trainable_layers: '113'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Supervised ImageNet-22k pretraining, then ImageNet-1k fine-tuning
+    training:
+      process: Supervised pretraining on ImageNet-22k, then fine-tuning on ImageNet-1k
+        (original Facebook weights)
+    data:
+      summary: ImageNet-21k (also called ImageNet-22k) -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-21k
+        name: ImageNet-21k (also called ImageNet-22k)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: 'RGB image, timm eval transform for convnext_large.fb_in22k_ft_in1k:
+        bicubic resize and center crop (crop_pct 0.875) to 224x224, normalized with
+        the checkpoint mean/std'
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: 'timm / Hugging Face Hub: Facebook AI Research (original weights,
+        distributed by timm)'
+      checkpoint: timm/convnext_large.fb_in22k_ft_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Zhuang Liu
+      - Hanzi Mao
+      - Chao-Yuan Wu
+      - Christoph Feichtenhofer
+      - Trevor Darrell
+      - Saining Xie
+      organizations:
+      - Facebook AI Research (Meta AI)
+      - UC Berkeley
+    use:
+      applications:
+      - Image classification
+      - Backbone for downstream vision tasks
     assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
     - path: /model/parameter_count
       status: probable
       sources:
-      - legacy
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
     - path: /model/trainable_layers
       status: probable
       sources:
       - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /training/process
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /data/summary
+      status: probable
+      sources:
+      - timm_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
     - path: /provenance/source_url
       status: probable
       sources:
-      - legacy
-    - path: /model/architecture
+      - plugin_code
+    - path: /legal/license
       status: probable
       sources:
-      - legacy
-    model:
-      parameter_count: 5226520
-      trainable_layers: '42'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
-  convnext_large:fb_in22k_ft_in1k:
+      - timm_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timm_card
+      - convnext
+    - path: /people/creators
+      status: probable
+      sources:
+      - convnext
+    - path: /people/organizations
+      status: probable
+      sources:
+      - convnext
+    - path: /use/applications
+      status: probable
+      sources:
+      - timm_card
     legacy:
       architecture: DCNN, Transformer
       model_family: convnext
@@ -297,34 +630,6 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 197767336
-      trainable_layers: '113'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   convnext_large_mlp:clip_laion2b_augreg_ft_in1k_384:
     legacy:
       architecture: DCNN, Transformer
@@ -1083,7 +1388,410 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
+  swin_small_patch4_window7_224:ms_in22k_ft_in1k:
+    sources:
+      curation_workbook:
+        kind: unreviewed
+        citation: curation_workbook
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+    assertions:
+    - path: /data/summary
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /data/training_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/test_datasets
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /eval/validation_datasets
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /io/interface
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /io/tokenizer
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /legal/license
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /lineage/base_models
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/architecture
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/display_name
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/input_resolution
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/parameter_count
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/recurrent
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/supervision
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /model/version
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /model/visual_degrees
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /people/creators
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /people/organizations
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/checkpoint
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /provenance/weights_provider
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/batch_size
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/learning_rate
+      status: undocumented
+      sources:
+      - curation_workbook
+    - path: /training/loss
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/objective
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/preprocessing
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /training/process
+      status: verified
+      sources:
+      - curation_workbook
+    - path: /use/applications
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/biases
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/limitations
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /use/users
+      status: probable
+      sources:
+      - curation_workbook
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - legacy
+    model:
+      display_name: swin_small_patch4_window7_224:ms_in22k_ft_in1k
+      version: ms_in22k_ft_in1k tag (Microsoft weights, timm port)
+      architecture:
+        family: vision_transformer
+        description: Hierarchical shifted-window Vision Transformer
+      parameter_count: 49600000
+      parameter_count_exact: false
+      trainable_layers: All Swin transformer stages/blocks trainable in released checkpoint
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      visual_degrees: null
+      visual_degrees_description: null
+      supervision:
+        type: supervised
+        description: Supervised (1000-way classification)
+    training:
+      process: Patchify (4x4) -> 4-stage hierarchical transformer with shifted local-window
+        self-attention (window 7) -> pretrained on ImageNet-22k -> fine-tuned on ImageNet-1k
+      objective: Cross-entropy classification loss
+      loss: Cross-entropy
+      learning_rate: null
+      batch_size: null
+      preprocessing: 'timm auto-resolved transform: resize/crop 224px, ImageNet mean/std'
+    data:
+      summary: ImageNet-22k (pretrain) -> ImageNet-1k (fine-tune)
+      training_datasets:
+      - identifier: imagenet-22k-pretrain-imagenet-1k
+        name: ImageNet-22k (pretrain) -> ImageNet-1k (fine-tune)
+        description: ~14M images/21,841 classes
+        role: training
+    io:
+      modality: image
+      interface: RGB tensor 3x224x224 -> 1000-class logits
+      input_format: RGB tensor 3x224x224
+      output_format: 1000-class logits
+      tokenizer: null
+    provenance:
+      weights_provider: Microsoft (original Swin-Transformer) -> ported to timm by
+        Ross Wightman
+      checkpoint: ms_in22k_ft_in1k safetensors checkpoint on HF repo
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+      curation_confidence: null
+    legal:
+      license: Apache 2.0 (timm) / MIT (original Microsoft Swin-Transformer repo)
+    eval:
+      test_datasets:
+      - identifier: imagenet-1k-validation-set-50k-images
+        name: ImageNet-1k validation set (50K images)
+        description: null
+      validation_datasets:
+      - identifier: imagenet-1k-standard-validation-split
+        name: ImageNet-1K standard validation split
+        description: null
+    use:
+      applications:
+      - General image classification
+      - efficient high-accuracy hierarchical transformer backbone
+      biases:
+      - Inherits ImageNet-22k/1k dataset biases
+      limitations:
+      - Higher compute cost than pure CNNs at comparable accuracy
+      - window attention has limited global context per layer
+      users:
+      - ML practitioners needing an efficient high-accuracy transformer backbone
+    people:
+      creators:
+      - Ze Liu, Yutong Lin, Yue Cao, Han Hu, et al. (Microsoft Research)
+      organizations:
+      - Microsoft Research
+    lineage:
+      base_models:
+      - identifier: swin-transformer-small
+        name: Swin Transformer Small
+        relationship: fine_tuned_from
+    legacy:
+      architecture: DCNN, Transformer
+      model_family: swin
+      total_parameter_count: 49606258
+      trainable_parameter_count: 49606258
+      total_layers: 463
+      trainable_layers: 125
+      model_size_mb: 198.43
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+      huggingface_link: null
+      extra_notes: null
+      runnable: true
   vit_base_patch16_clip_224:openai_ft_in12k_in1k:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+        citation: Brain-Score vision plugin code, brainscore_vision/models/timm_models
+      vit:
+        kind: paper
+        url: https://arxiv.org/abs/2010.11929
+        citation: 'Dosovitskiy et al. (2021), An Image is Worth 16x16 Words: Transformers
+          for Image Recognition at Scale, ICLR 2021'
+      clip:
+        kind: paper
+        url: https://arxiv.org/abs/2103.00020
+        citation: Radford et al. (2021), Learning Transferable Visual Models From
+          Natural Language Supervision, ICML 2021
+      timm_card:
+        kind: huggingface
+        url: https://huggingface.co/timm/vit_base_patch16_clip_224.openai_ft_in12k_in1k
+        citation: timm model card vit_base_patch16_clip_224.openai_ft_in12k_in1k
+    model:
+      display_name: vit_base_patch16_clip_224:openai_ft_in12k_in1k
+      version: timm vit_base_patch16_clip_224.openai_ft_in12k_in1k
+      architecture:
+        family: vision_transformer
+        description: vit_base_patch16_clip_224 (timm)
+      parameter_count: 86568424
+      parameter_count_exact: true
+      trainable_layers: '52'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: contrastive_pretrain_supervised_finetune
+        description: CLIP image-text contrastive pretraining, then supervised fine-tuning
+    training:
+      process: OpenAI CLIP image tower pretrained with an image-text contrastive objective,
+        then fine-tuned in timm on ImageNet-12k and then ImageNet-1k
+    data:
+      summary: WIT-400M (OpenAI WebImageText) -> ImageNet-12k (timm 11,821-class subset)
+        -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: wit-400m
+        name: WIT-400M (OpenAI WebImageText)
+        role: pretraining
+      - identifier: imagenet-12k
+        name: ImageNet-12k (timm 11,821-class subset)
+        role: fine_tuning
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: 'RGB image, timm eval transform for vit_base_patch16_clip_224.openai_ft_in12k_in1k:
+        bicubic resize and center crop (crop_pct 0.95) to 224x224, normalized with
+        the checkpoint mean/std'
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: 'timm / Hugging Face Hub: OpenAI CLIP pretraining; timm (Ross
+        Wightman) fine-tuning'
+      checkpoint: timm/vit_base_patch16_clip_224.openai_ft_in12k_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+    legal:
+      license: Apache-2.0
+    use:
+      applications:
+      - Image classification
+      - Backbone for downstream vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /training/process
+      status: probable
+      sources:
+      - timm_card
+      - vit
+      - clip
+    - path: /data/summary
+      status: probable
+      sources:
+      - timm_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /use/applications
+      status: probable
+      sources:
+      - timm_card
     legacy:
       architecture: DCNN, Transformer
       model_family: clip, vit
@@ -1098,34 +1806,6 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 86568424
-      trainable_layers: '52'
-      architecture:
-        family: vision_transformer
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   vit_base_patch16_clip_224:openai_ft_in1k:
     sources:
       curation_workbook:
@@ -1619,6 +2299,186 @@ models:
       extra_notes: null
       runnable: true
   vit_huge_patch14_clip_336:laion2b_ft_in12k_in1k:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+        citation: Brain-Score vision plugin code, brainscore_vision/models/timm_models
+      vit:
+        kind: paper
+        url: https://arxiv.org/abs/2010.11929
+        citation: 'Dosovitskiy et al. (2021), An Image is Worth 16x16 Words: Transformers
+          for Image Recognition at Scale, ICLR 2021'
+      clip:
+        kind: paper
+        url: https://arxiv.org/abs/2103.00020
+        citation: Radford et al. (2021), Learning Transferable Visual Models From
+          Natural Language Supervision, ICML 2021
+      openclip:
+        kind: paper
+        url: https://arxiv.org/abs/2212.07143
+        citation: Cherti et al. (2023), Reproducible scaling laws for contrastive
+          language-image learning, CVPR 2023
+      timm_card:
+        kind: huggingface
+        url: https://huggingface.co/timm/vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+        citation: timm model card vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+    model:
+      display_name: vit_huge_patch14_clip_336:laion2b_ft_in12k_in1k
+      version: timm vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+      architecture:
+        family: vision_transformer
+        description: vit_huge_patch14_clip_336 (timm)
+      parameter_count: 632456680
+      parameter_count_exact: true
+      trainable_layers: '132'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 336
+        width: 336
+      supervision:
+        type: contrastive_pretrain_supervised_finetune
+        description: CLIP image-text contrastive pretraining, then supervised fine-tuning
+    training:
+      process: OpenCLIP (LAION-2B) image tower pretrained with an image-text contrastive
+        objective, then fine-tuned in timm on ImageNet-12k and then ImageNet-1k
+    data:
+      summary: LAION-2B-en -> ImageNet-12k (timm 11,821-class subset) -> ImageNet-1k
+        (ILSVRC-2012)
+      training_datasets:
+      - identifier: laion-2b
+        name: LAION-2B-en
+        role: pretraining
+      - identifier: imagenet-12k
+        name: ImageNet-12k (timm 11,821-class subset)
+        role: fine_tuning
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: 'RGB image, timm eval transform for vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k:
+        bicubic resize and center crop (crop_pct 1.0) to 336x336, normalized with
+        the checkpoint mean/std'
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: 'timm / Hugging Face Hub: OpenCLIP (LAION-2B) pretraining;
+        timm (Ross Wightman) fine-tuning'
+      checkpoint: timm/vit_huge_patch14_clip_336.laion2b_ft_in12k_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+    legal:
+      license: Apache-2.0
+    use:
+      applications:
+      - Image classification
+      - Backbone for downstream vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /training/process
+      status: probable
+      sources:
+      - timm_card
+      - vit
+      - clip
+      - openclip
+    - path: /data/summary
+      status: probable
+      sources:
+      - timm_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /use/applications
+      status: probable
+      sources:
+      - timm_card
     legacy:
       architecture: DCNN, Transformer
       model_family: clip, vit
@@ -1633,34 +2493,6 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 632456680
-      trainable_layers: '132'
-      architecture:
-        family: vision_transformer
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   vit_large_patch14_clip_224:laion2b_ft_in12k_in1k:
     sources:
       curation_workbook:
@@ -2872,6 +3704,180 @@ models:
       extra_notes: null
       runnable: true
   vit_large_patch14_clip_336:openai_ft_in12k_in1k:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+        citation: Brain-Score vision plugin code, brainscore_vision/models/timm_models
+      vit:
+        kind: paper
+        url: https://arxiv.org/abs/2010.11929
+        citation: 'Dosovitskiy et al. (2021), An Image is Worth 16x16 Words: Transformers
+          for Image Recognition at Scale, ICLR 2021'
+      clip:
+        kind: paper
+        url: https://arxiv.org/abs/2103.00020
+        citation: Radford et al. (2021), Learning Transferable Visual Models From
+          Natural Language Supervision, ICML 2021
+      timm_card:
+        kind: huggingface
+        url: https://huggingface.co/timm/vit_large_patch14_clip_336.openai_ft_in12k_in1k
+        citation: timm model card vit_large_patch14_clip_336.openai_ft_in12k_in1k
+    model:
+      display_name: vit_large_patch14_clip_336:openai_ft_in12k_in1k
+      version: timm vit_large_patch14_clip_336.openai_ft_in12k_in1k
+      architecture:
+        family: vision_transformer
+        description: vit_large_patch14_clip_336 (timm)
+      parameter_count: 304532456
+      parameter_count_exact: true
+      trainable_layers: '100'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 336
+        width: 336
+      supervision:
+        type: contrastive_pretrain_supervised_finetune
+        description: CLIP image-text contrastive pretraining, then supervised fine-tuning
+    training:
+      process: OpenAI CLIP image tower pretrained with an image-text contrastive objective,
+        then fine-tuned in timm on ImageNet-12k and then ImageNet-1k
+    data:
+      summary: WIT-400M (OpenAI WebImageText) -> ImageNet-12k (timm 11,821-class subset)
+        -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: wit-400m
+        name: WIT-400M (OpenAI WebImageText)
+        role: pretraining
+      - identifier: imagenet-12k
+        name: ImageNet-12k (timm 11,821-class subset)
+        role: fine_tuning
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: 'RGB image, timm eval transform for vit_large_patch14_clip_336.openai_ft_in12k_in1k:
+        bicubic resize and center crop (crop_pct 1.0) to 336x336, normalized with
+        the checkpoint mean/std'
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: 'timm / Hugging Face Hub: OpenAI CLIP pretraining; timm (Ross
+        Wightman) fine-tuning'
+      checkpoint: timm/vit_large_patch14_clip_336.openai_ft_in12k_in1k
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
+    legal:
+      license: Apache-2.0
+    use:
+      applications:
+      - Image classification
+      - Backbone for downstream vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /training/process
+      status: probable
+      sources:
+      - timm_card
+      - vit
+      - clip
+    - path: /data/summary
+      status: probable
+      sources:
+      - timm_card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - timm_card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - timm_card
+      - vit
+    - path: /use/applications
+      status: probable
+      sources:
+      - timm_card
     legacy:
       architecture: DCNN, Transformer
       model_family: clip, vit
@@ -2886,34 +3892,6 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 304532456
-      trainable_layers: '100'
-      architecture:
-        family: vision_transformer
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
   vit_relpos_base_patch16_clsgap_224:sw_in1k:
     sources:
       curation_workbook:
@@ -3609,235 +4587,6 @@ models:
       total_layers: 269
       trainable_layers: 53
       model_size_mb: 25.42
-      training_dataset: null
-      task_specialization: null
-      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
-      huggingface_link: null
-      extra_notes: null
-      runnable: true
-  swin_small_patch4_window7_224:ms_in22k_ft_in1k:
-    sources:
-      curation_workbook:
-        kind: unreviewed
-        citation: curation_workbook
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /data/summary
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /data/training_datasets
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /eval/test_datasets
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /eval/validation_datasets
-      status: probable
-      sources:
-      - curation_workbook
-    - path: /io/interface
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /io/tokenizer
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /legal/license
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /lineage/base_models
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/architecture
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/display_name
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/input_resolution
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/parameter_count
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/recurrent
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/supervision
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - curation_workbook
-    - path: /model/version
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /model/visual_degrees
-      status: undocumented
-      sources:
-      - curation_workbook
-    - path: /people/creators
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /people/organizations
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /provenance/checkpoint
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /provenance/weights_provider
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /training/batch_size
-      status: undocumented
-      sources:
-      - curation_workbook
-    - path: /training/learning_rate
-      status: undocumented
-      sources:
-      - curation_workbook
-    - path: /training/loss
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /training/objective
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /training/preprocessing
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /training/process
-      status: verified
-      sources:
-      - curation_workbook
-    - path: /use/applications
-      status: probable
-      sources:
-      - curation_workbook
-    - path: /use/biases
-      status: probable
-      sources:
-      - curation_workbook
-    - path: /use/limitations
-      status: probable
-      sources:
-      - curation_workbook
-    - path: /use/users
-      status: probable
-      sources:
-      - curation_workbook
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    model:
-      display_name: swin_small_patch4_window7_224:ms_in22k_ft_in1k
-      version: ms_in22k_ft_in1k tag (Microsoft weights, timm port)
-      architecture:
-        family: vision_transformer
-        description: Hierarchical shifted-window Vision Transformer
-      parameter_count: 49600000
-      parameter_count_exact: false
-      trainable_layers: All Swin transformer stages/blocks trainable in released checkpoint
-      recurrent: false
-      input_resolution:
-        channels: 3
-        height: 224
-        width: 224
-      visual_degrees: null
-      visual_degrees_description: null
-      supervision:
-        type: supervised
-        description: Supervised (1000-way classification)
-    training:
-      process: Patchify (4x4) -> 4-stage hierarchical transformer with shifted local-window
-        self-attention (window 7) -> pretrained on ImageNet-22k -> fine-tuned on ImageNet-1k
-      objective: Cross-entropy classification loss
-      loss: Cross-entropy
-      learning_rate: null
-      batch_size: null
-      preprocessing: 'timm auto-resolved transform: resize/crop 224px, ImageNet mean/std'
-    data:
-      summary: ImageNet-22k (pretrain) -> ImageNet-1k (fine-tune)
-      training_datasets:
-      - identifier: imagenet-22k-pretrain-imagenet-1k
-        name: ImageNet-22k (pretrain) -> ImageNet-1k (fine-tune)
-        description: ~14M images/21,841 classes
-        role: training
-    io:
-      modality: image
-      interface: RGB tensor 3x224x224 -> 1000-class logits
-      input_format: RGB tensor 3x224x224
-      output_format: 1000-class logits
-      tokenizer: null
-    provenance:
-      weights_provider: Microsoft (original Swin-Transformer) -> ported to timm by
-        Ross Wightman
-      checkpoint: ms_in22k_ft_in1k safetensors checkpoint on HF repo
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models
-      curation_confidence: null
-    legal:
-      license: Apache 2.0 (timm) / MIT (original Microsoft Swin-Transformer repo)
-    eval:
-      test_datasets:
-      - identifier: imagenet-1k-validation-set-50k-images
-        name: ImageNet-1k validation set (50K images)
-        description: null
-      validation_datasets:
-      - identifier: imagenet-1k-standard-validation-split
-        name: ImageNet-1K standard validation split
-        description: null
-    use:
-      applications:
-      - General image classification
-      - efficient high-accuracy hierarchical transformer backbone
-      biases:
-      - Inherits ImageNet-22k/1k dataset biases
-      limitations:
-      - Higher compute cost than pure CNNs at comparable accuracy
-      - window attention has limited global context per layer
-      users:
-      - ML practitioners needing an efficient high-accuracy transformer backbone
-    people:
-      creators:
-      - Ze Liu, Yutong Lin, Yue Cao, Han Hu, et al. (Microsoft Research)
-      organizations:
-      - Microsoft Research
-    lineage:
-      base_models:
-      - identifier: swin-transformer-small
-        name: Swin Transformer Small
-        relationship: fine_tuned_from
-    legacy:
-      architecture: DCNN, Transformer
-      model_family: swin
-      total_parameter_count: 49606258
-      trainable_parameter_count: 49606258
-      total_layers: 463
-      trainable_layers: 125
-      model_size_mb: 198.43
       training_dataset: null
       task_specialization: null
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/timm_models

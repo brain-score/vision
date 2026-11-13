@@ -2,6 +2,124 @@ schema_version: '2.0'
 domain: vision
 models:
   vonegrcnn_47e:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vonegrcnn_47e
+        citation: Brain-Score vision plugin code, brainscore_vision/models/vonegrcnn_47e
+    model:
+      display_name: vonegrcnn_47e
+      version: model_best.pth from a run labelled 47 epochs
+      architecture:
+        family: hybrid_biological_convolutional
+        description: VOneBlock (fixed Gabor front-end) + bottleneck + GRCNN-55 back-end
+          (gated recurrent convolutional layers); 24,916,072 trainable parameters,
+          front-end filters fixed
+      parameter_count: 26836072
+      parameter_count_exact: true
+      trainable_layers: '65'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+    training:
+      process: Trained end-to-end apart from the fixed VOneBlock; "47e" in the identifier
+        suggests 47 training epochs. Training data and recipe are not documented.
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224, ImageNet mean/std normalization
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: Brain-Score submitter upload to the Brain-Score S3 bucket
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/vonegrcnn_47e/model_best.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vonegrcnn_47e
+    lineage:
+      base_models:
+      - name: VOneNet
+        relationship: derived_from
+      - name: GRCNN-55
+        relationship: derived_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
     legacy:
       architecture: DCNN
       model_family: vone
@@ -12,31 +130,3 @@ models:
       model_size_mb: 107.34
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vonegrcnn_47e
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 26836072
-      trainable_layers: '65'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vonegrcnn_47e

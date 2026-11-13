@@ -1,0 +1,122 @@
+schema_version: '2.0'
+domain: vision
+models:
+  rtmpose_s_backbone:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/rtmpose_s_backbone
+        citation: Brain-Score vision plugin code, brainscore_vision/models/rtmpose_s_backbone
+      rtmpose:
+        kind: paper
+        url: https://arxiv.org/abs/2303.07399
+        citation: 'Jiang et al. (2023), RTMPose: Real-Time Multi-Person Pose Estimation
+          based on MMPose'
+    model:
+      display_name: rtmpose_s_backbone
+      architecture:
+        family: convolutional_neural_network
+        description: CSPNeXt-P5 backbone (deepen 0.33, widen 0.5) of RTMPose-s; pose
+          head discarded
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 256
+        width: 256
+      supervision:
+        type: supervised
+        description: Human pose estimation (2D keypoints)
+    training:
+      process: Backbone weights from the RTMPose-s checkpoint rtmpose-s_8xb256-420e_humanart-256x192
+        (420 epochs, Human-Art dataset per the file name), loaded with strict=False
+    data:
+      summary: Human-Art (per checkpoint name)
+      training_datasets:
+      - identifier: other
+        name: Human-Art (per checkpoint name)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 256x256 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: GitHub release hs540/brainscore-pose-weights (OpenMMLab RTMPose
+        checkpoint)
+      checkpoint: https://github.com/hs540/brainscore-pose-weights/releases/download/models/rtmpose-s_8xb256-420e_humanart-256x192-5a3ac943_20230611.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/rtmpose_s_backbone
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - rtmpose
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - rtmpose
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+      - rtmpose
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+      - rtmpose
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - rtmpose
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+      - rtmpose
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code
+      - rtmpose

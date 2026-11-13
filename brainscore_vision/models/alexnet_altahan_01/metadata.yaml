@@ -1,0 +1,133 @@
+schema_version: '2.0'
+domain: vision
+models:
+  alexnet_altahan_01:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_altahan_01
+        citation: Brain-Score vision plugin code, brainscore_vision/models/alexnet_altahan_01
+    model:
+      display_name: alexnet_altahan_01
+      architecture:
+        family: convolutional_neural_network
+        description: 'AlexNet (torchvision definition): AlexNet fine-tuned on ImageNet,
+          read out at three visual scales.'
+      parameter_count: 61100840
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 304
+        width: 304
+      supervision:
+        type: supervised
+        description: Supervised ImageNet-1k classification
+    training:
+      process: 'Weights: torchvision AlexNet fine-tuned on ImageNet-1k (SGD, lr 3e-3,
+        5.12M images); nothing else is trained. Readout: stimuli are placed at 8 degrees
+        and loaded once at 304 px. Every region''s view is a centre crop of that load,
+        resized to 224 px: V1 reads the full load (8 degrees), V2 and behavior its
+        central 228 px (6 degrees, taps under ''deg6.''), V4 and IT its central 190
+        px (5 degrees, taps under ''deg5.''). The crop passes are parameter-free,
+        so the network has AlexNet''s 61,100,840 parameters.'
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 304x304 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_873)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_873/alexnet_altahan_01.pt
+        (version 05EKjqQPjdxQxrdwJhHimbxo1q8uUyUR)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/alexnet_altahan_01
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code

@@ -1,15 +1,153 @@
+schema_version: '2.0'
+domain: vision
 models:
-    compact_cornets_V4:
-        architecture: DCNN
-        model_family: compact
-        total_parameter_count: 
-        trainable_parameter_count: 109018
-        total_layers: 5
-        trainable_layers: 5
-        model_size_mb: 0.891
-        training_dataset: null
-        task_specialization: null
-        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_cornets_V4
-        huggingface_link: null
-        extra_notes: null
-        runnable: true
+  compact_cornets_V4:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_cornets_V4
+        citation: Brain-Score vision plugin code, brainscore_vision/models/compact_cornets_V4
+      cowley:
+        kind: paper
+        citation: Cowley, Stan, Pillow & Smith, Compact deep neural network models
+          of visual cortex (plugin bibtex)
+    model:
+      display_name: compact_cornets_V4
+      architecture:
+        family: convolutional_neural_network
+        description: 'Compact model of macaque V4: features of a pretrained CORnet-S
+          compressed into a small network with 50 filters per layer, fit to predict
+          V4 responses'
+      trainable_layers: '5'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: Fit to macaque V4 recordings, distilled from CORnet-S features
+    training:
+      process: Compressed from CORnet-S and fit to macaque V4 neural data (Cowley
+        et al.)
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: Predicted V4 responses
+    provenance:
+      weights_provider: Brain-Score submitter upload (user_718)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/user_718/compact_CORnetS_V4_50filters.pt
+        (version FtKnNak3b_QJalK6A9QGu.mD1jt2Q9n3)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_cornets_V4
+    people:
+      creators:
+      - Benjamin R. Cowley
+      - Patricia L. Stan
+      - Jonathan W. Pillow
+      - Matthew A. Smith
+    lineage:
+      base_models:
+      - name: CORnet-S
+        relationship: derived_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /people/creators
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - plugin_code
+      - cowley
+    legacy:
+      architecture: DCNN
+      model_family: compact
+      total_parameter_count: null
+      trainable_parameter_count: 109018
+      total_layers: 5
+      trainable_layers: 5
+      model_size_mb: 0.891
+      training_dataset: null
+      task_specialization: null
+      brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/compact_cornets_V4
+      huggingface_link: null
+      extra_notes: null
+      runnable: true

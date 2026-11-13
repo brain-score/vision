@@ -2,6 +2,157 @@ schema_version: '2.0'
 domain: vision
 models:
   yolos_tiny:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scc_yolos_tiny
+        citation: Brain-Score vision plugin code, brainscore_vision/models/scc_yolos_tiny
+      yolos:
+        kind: paper
+        url: https://arxiv.org/abs/2106.00666
+        citation: 'Fang et al. (2021), You Only Look at One Sequence: Rethinking Transformer
+          in Vision through Object Detection, NeurIPS 2021'
+      card:
+        kind: huggingface
+        url: https://huggingface.co/hustvl/yolos-tiny
+        citation: hustvl/yolos-tiny model card
+    model:
+      display_name: yolos_tiny
+      architecture:
+        family: vision_transformer
+        description: 'YOLOS-Tiny: ViT-based object detector (Hugging Face YolosForObjectDetection)'
+      parameter_count: 6488736
+      trainable_layers: '82'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: COCO object detection after ImageNet-1k pretraining
+    training:
+      process: DeiT-Tiny backbone pretrained on ImageNet-1k, fine-tuned for object
+        detection on COCO 2017
+    data:
+      summary: ImageNet-1k (ILSVRC-2012) -> COCO 2017
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: other
+        name: COCO 2017
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: hustvl (Hugging Face Hub)
+      checkpoint: hustvl/yolos-tiny
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scc_yolos_tiny
+    legal:
+      license: Apache-2.0
+    use:
+      applications:
+      - Object detection
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /training/process
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /data/summary
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - yolos
+      - card
+    - path: /use/applications
+      status: probable
+      sources:
+      - yolos
+      - card
     legacy:
       architecture: DCNN, Transformer
       total_parameter_count: 6488736
@@ -11,27 +162,3 @@ models:
       model_size_mb: 25.95
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scc_yolos_tiny
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    model:
-      architecture:
-        family: vision_transformer
-      parameter_count: 6488736
-      trainable_layers: '82'
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/scc_yolos_tiny

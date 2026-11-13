@@ -2,6 +2,161 @@ schema_version: '2.0'
 domain: vision
 models:
   grcnn_109:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109
+        citation: Brain-Score vision plugin code, brainscore_vision/models/grcnn_109
+      wang2021:
+        kind: other
+        url: https://github.com/Jianf-Wang/GRCNN
+        citation: Wang & Hu (2021), Convolutional Neural Networks with Gated Recurrent
+          Connections, TPAMI; official GRCNN code and checkpoints (MIT license)
+    model:
+      display_name: GRCNN-109
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: 'Gated Recurrent CNN (GRCNN-109): ResNet-style stages whose blocks
+          are gated recurrent convolutional layers unrolled over a fixed number of
+          iterations'
+      parameter_count: 45075880
+      parameter_count_exact: true
+      trainable_layers: '120'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: ImageNet-1k classification
+    data:
+      summary: ImageNet-1k
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224, ImageNet mean/std normalization
+      output_format: 1000-way ImageNet-1k logits
+    provenance:
+      weights_provider: Official GRCNN release (Wang & Hu), copied to Brain-Score
+        S3
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/grcnn_109/checkpoint_params_grcnn109.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109
+    legal:
+      license: MIT
+    people:
+      creators:
+      - Jianfeng Wang
+      - Xiaolin Hu
+      organizations:
+      - Tsinghua University
+    use:
+      limitations:
+      - The bibtex returned by the plugin cites an unrelated paper (GRCNN for flow
+        charts)
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - wang2021
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - wang2021
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - wang2021
+    - path: /data/summary
+      status: probable
+      sources:
+      - wang2021
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - wang2021
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - wang2021
+    - path: /people/creators
+      status: probable
+      sources:
+      - wang2021
+    - path: /people/organizations
+      status: probable
+      sources:
+      - wang2021
+    - path: /use/limitations
+      status: probable
+      sources:
+      - plugin_code
     legacy:
       architecture: DCNN
       total_parameter_count: 45075880
@@ -11,31 +166,3 @@ models:
       model_size_mb: 180.3
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 45075880
-      trainable_layers: '120'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/grcnn_109

@@ -2,6 +2,176 @@ schema_version: '2.0'
 domain: vision
 models:
   antialiased-rnext101_32x8d:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialiased_rnext101_32x8d
+        citation: Brain-Score vision plugin code, brainscore_vision/models/antialiased_rnext101_32x8d
+      antialias:
+        kind: paper
+        url: https://arxiv.org/abs/1904.11486
+        citation: Zhang (2019), Making Convolutional Networks Shift-Invariant Again,
+          ICML 2019
+    model:
+      display_name: Antialiased ResNeXt-101 32x8d
+      architecture:
+        family: convolutional_neural_network
+        description: ResNeXt-101 32x8d with anti-aliased (BlurPool) downsampling;
+          blur filters are fixed buffers, so the parameter count equals the torchvision
+          base model
+      parameter_count: 88791336
+      parameter_count_exact: true
+      trainable_layers: '105'
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    training:
+      process: Supervised ImageNet-1k training with low-pass filtering before every
+        strided downsampling
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: antialiased-cnns package (Adobe Research)
+      checkpoint: antialiased_cnns.resnext101_32x8d(pretrained=True)
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialiased_rnext101_32x8d
+    legal:
+      license: CC-BY-NC-SA-4.0
+    people:
+      creators:
+      - Richard Zhang
+      organizations:
+      - Adobe Research
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    lineage:
+      base_models:
+      - name: ResNeXt-101 32x8d
+        relationship: variant_of
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - antialias
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - antialias
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - antialias
+    - path: /training/process
+      status: probable
+      sources:
+      - antialias
+    - path: /data/summary
+      status: probable
+      sources:
+      - antialias
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - antialias
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - antialias
+    - path: /people/creators
+      status: probable
+      sources:
+      - antialias
+    - path: /people/organizations
+      status: probable
+      sources:
+      - antialias
+    - path: /use/applications
+      status: probable
+      sources:
+      - antialias
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - antialias
     legacy:
       architecture: DCNN
       total_parameter_count: 88791336
@@ -11,31 +181,3 @@ models:
       model_size_mb: 355.17
       brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialiased_rnext101_32x8d
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 88791336
-      trainable_layers: '105'
-      architecture:
-        family: convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/antialiased_rnext101_32x8d

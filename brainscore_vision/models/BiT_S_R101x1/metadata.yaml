@@ -1,0 +1,162 @@
+schema_version: '2.0'
+domain: vision
+models:
+  BiT-S-R101x1:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/BiT_S_R101x1
+        citation: Brain-Score vision plugin code, brainscore_vision/models/BiT_S_R101x1
+      bit:
+        kind: paper
+        url: https://arxiv.org/abs/1912.11370
+        citation: 'Kolesnikov et al. (2020), Big Transfer (BiT): General Visual Representation
+          Learning, ECCV 2020'
+    model:
+      display_name: BiT-S-R101x1
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-v2 101x1 (depth x width) with Group Normalization and
+          Weight Standardization, 1000-way head
+      parameter_count: 44541480
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    training:
+      process: 'BiT-S upstream training: supervised on ILSVRC-2012 (ImageNet-1k)'
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way logits
+    provenance:
+      weights_provider: Google Research (storage.googleapis.com/bit_models)
+      checkpoint: https://storage.googleapis.com/bit_models/BiT-S-R101x1.npz
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/BiT_S_R101x1
+    legal:
+      license: Apache-2.0
+    people:
+      creators:
+      - Alexander Kolesnikov
+      - Lucas Beyer
+      - Xiaohua Zhai
+      - Joan Puigcerver
+      - Jessica Yung
+      - Sylvain Gelly
+      - Neil Houlsby
+      organizations:
+      - Google Research, Brain Team
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - bit
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - bit
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - bit
+    - path: /training/process
+      status: probable
+      sources:
+      - bit
+    - path: /data/summary
+      status: probable
+      sources:
+      - bit
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /legal/license
+      status: probable
+      sources:
+      - bit
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - bit
+    - path: /people/creators
+      status: probable
+      sources:
+      - bit
+    - path: /people/organizations
+      status: probable
+      sources:
+      - bit
+    - path: /use/applications
+      status: probable
+      sources:
+      - bit

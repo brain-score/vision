@@ -1,0 +1,112 @@
+schema_version: '2.0'
+domain: vision
+models:
+  20260408_2033_stl10_combined_alpha04:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/20260408_2033_stl10_combined_alpha04
+        citation: Brain-Score vision plugin code, brainscore_vision/models/20260408_2033_stl10_combined_alpha04
+    model:
+      display_name: 20260408_2033_stl10_combined_alpha04
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 encoder with a CIFAR-style stem (3x3 conv, no max pool)
+          and no classification head; output is the L2-normalized 512-d embedding
+      parameter_count: 11168832
+      parameter_count_exact: true
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 96
+        width: 96
+    training:
+      process: Encoder trained on STL-10 ("combined" objective, alpha = 0.4 per the
+        identifier); objective not documented
+    data:
+      summary: STL-10
+      training_datasets:
+      - identifier: other
+        name: STL-10
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 96x96, normalized with STL-10 mean/std
+      output_format: L2-normalized 512-d embedding
+    provenance:
+      weights_provider: Brain-Score S3 (brainscore-storage)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/20260408_2033_stl10_combined_alpha04/weights.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/20260408_2033_stl10_combined_alpha04
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: uncertain
+      sources:
+      - plugin_code
+    - path: /data/summary
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - plugin_code

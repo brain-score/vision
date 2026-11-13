@@ -1,0 +1,76 @@
+schema_version: '2.0'
+domain: vision
+models:
+  resnet18_fair:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_fair
+        citation: Brain-Score vision plugin code, brainscore_vision/models/resnet18_fair
+    model:
+      display_name: resnet18_fair
+      architecture:
+        family: convolutional_neural_network
+        description: ResNet-18 (submitter weights)
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Brain-Score S3 (brainscore-storage)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/resnet18_fair/model_weights.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/resnet18_fair
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code

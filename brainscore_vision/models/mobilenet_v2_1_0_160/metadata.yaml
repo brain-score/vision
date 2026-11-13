@@ -1,0 +1,154 @@
+schema_version: '2.0'
+domain: vision
+models:
+  mobilenet_v2_1_0_160:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilenet_v2_1_0_160
+        citation: Brain-Score vision plugin code, brainscore_vision/models/mobilenet_v2_1_0_160
+      mobilenet_v2:
+        kind: paper
+        url: https://arxiv.org/abs/1801.04381
+        citation: 'Sandler, Howard, Zhu, Zhmoginov & Chen (2018), MobileNetV2: Inverted
+          Residuals and Linear Bottlenecks, CVPR 2018'
+    model:
+      display_name: MobileNetV2 1.0 160
+      version: depth multiplier 1.0, resolution 160
+      architecture:
+        family: convolutional_neural_network
+        description: MobileNetV2, depth multiplier 1.0, 160x160 input; parameter count
+          from the Hugging Face MobileNetV2 definition with the same configuration
+      parameter_count: 3506153
+      parameter_count_exact: false
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 160
+        width: 160
+      supervision:
+        type: supervised
+        description: 1000-class ImageNet-1k classification
+    data:
+      summary: ImageNet-1k (ILSVRC-2012)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+    io:
+      modality: image
+      input_format: RGB image resized to 182 px (short side), center-cropped to 160x160,
+        normalized with mean = std = 0.5 (Brain-Score inception preprocessing)
+      output_format: 1001-way logits (ImageNet-1k classes plus background)
+    provenance:
+      weights_provider: Original TensorFlow MobileNetV2 release, converted to PyTorch
+        and stored on Brain-Score S3
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/mobilenet_v2_1.0_160/mobilenet_v2_1.0_160_frozen.pth
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/mobilenet_v2_1_0_160
+    people:
+      creators:
+      - Mark Sandler
+      - Andrew Howard
+      - Menglong Zhu
+      - Andrey Zhmoginov
+      - Liang-Chieh Chen
+      organizations:
+      - Google
+    use:
+      applications:
+      - Image classification
+      - Feature extraction / backbone for vision tasks
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - mobilenet_v2
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - mobilenet_v2
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - mobilenet_v2
+    - path: /data/summary
+      status: probable
+      sources:
+      - mobilenet_v2
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - mobilenet_v2
+    - path: /people/creators
+      status: probable
+      sources:
+      - mobilenet_v2
+    - path: /people/organizations
+      status: probable
+      sources:
+      - mobilenet_v2
+    - path: /use/applications
+      status: probable
+      sources:
+      - mobilenet_v2

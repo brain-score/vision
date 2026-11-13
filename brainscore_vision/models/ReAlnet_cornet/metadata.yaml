@@ -236,6 +236,192 @@ models:
       extra_notes: null
       runnable: true
   ReAlnet02_cornet:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ReAlnet_cornet
+      lu2024:
+        kind: paper
+        url: https://arxiv.org/abs/2401.17231
+        citation: Lu, Wang & Golomb (2024), Achieving more human brain-like vision
+          via human EEG representational alignment (ReAlnet), arXiv:2401.17231
+    model:
+      display_name: ReAlnet02_cornet
+      version: ReAlnet subject 02
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CORnet-S (recurrent V1/V2/V4/IT areas with skip connections)
+          whose weights come from a ReAlnet encoder; the EEG encoding head is dropped
+          at inference; recurrent time steps are mapped to time bins (CORnet commitment)
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: '18'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: ImageNet-pretrained CORnet-S fine-tuned to also predict one human
+          subject's EEG responses to natural images
+    training:
+      process: ImageNet-pretrained CORnet-S extended with a multi-layer encoding module
+        (V1, V2, V4 and IT features -> 340 EEG outputs) and fine-tuned on the EEG
+        of subject 2 viewing THINGS EEG2 training images, keeping its classification
+        output
+      objective: Joint object classification and EEG encoding (representational alignment)
+    data:
+      summary: ImageNet-1k (CORnet-S pretraining); THINGS EEG2 subject 2 (alignment)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: things-eeg2
+        name: THINGS EEG2
+        description: EEG of subject 2 viewing THINGS training images
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits (CORnet-S decoder)
+    provenance:
+      weights_provider: Lu et al. (ReAlnet release, on Brain-Score S3)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/ReAlnet/ReAlnet02_best_model_params.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+    people:
+      creators:
+      - Zitong Lu
+      - Yile Wang
+      - Julie D. Golomb
+      organizations:
+      - The Ohio State University
+    use:
+      applications:
+      - Studying human brain-aligned visual representations
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - lu2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - lu2024
+    - path: /training/process
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /training/objective
+      status: probable
+      sources:
+      - lu2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - lu2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - lu2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - lu2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - lu2024
     legacy:
       architecture: DCNN, RNN, SKIP_CONNECTIONS
       model_family: cornet
@@ -250,34 +436,6 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 53416616
-      trainable_layers: '18'
-      architecture:
-        family: recurrent_convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
   ReAlnet03_cornet:
     sources:
       curation_workbook:
@@ -749,6 +907,192 @@ models:
       extra_notes: null
       runnable: true
   ReAlnet05_cornet:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ReAlnet_cornet
+      lu2024:
+        kind: paper
+        url: https://arxiv.org/abs/2401.17231
+        citation: Lu, Wang & Golomb (2024), Achieving more human brain-like vision
+          via human EEG representational alignment (ReAlnet), arXiv:2401.17231
+    model:
+      display_name: ReAlnet05_cornet
+      version: ReAlnet subject 05
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CORnet-S (recurrent V1/V2/V4/IT areas with skip connections)
+          whose weights come from a ReAlnet encoder; the EEG encoding head is dropped
+          at inference; recurrent time steps are mapped to time bins (CORnet commitment)
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: '18'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: ImageNet-pretrained CORnet-S fine-tuned to also predict one human
+          subject's EEG responses to natural images
+    training:
+      process: ImageNet-pretrained CORnet-S extended with a multi-layer encoding module
+        (V1, V2, V4 and IT features -> 340 EEG outputs) and fine-tuned on the EEG
+        of subject 5 viewing THINGS EEG2 training images, keeping its classification
+        output
+      objective: Joint object classification and EEG encoding (representational alignment)
+    data:
+      summary: ImageNet-1k (CORnet-S pretraining); THINGS EEG2 subject 5 (alignment)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: things-eeg2
+        name: THINGS EEG2
+        description: EEG of subject 5 viewing THINGS training images
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits (CORnet-S decoder)
+    provenance:
+      weights_provider: Lu et al. (ReAlnet release, on Brain-Score S3)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/ReAlnet/ReAlnet05_best_model_params.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+    people:
+      creators:
+      - Zitong Lu
+      - Yile Wang
+      - Julie D. Golomb
+      organizations:
+      - The Ohio State University
+    use:
+      applications:
+      - Studying human brain-aligned visual representations
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - lu2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - lu2024
+    - path: /training/process
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /training/objective
+      status: probable
+      sources:
+      - lu2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - lu2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - lu2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - lu2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - lu2024
     legacy:
       architecture: DCNN, RNN, SKIP_CONNECTIONS
       model_family: cornet
@@ -763,35 +1107,193 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 53416616
-      trainable_layers: '18'
-      architecture:
-        family: recurrent_convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
   ReAlnet06_cornet:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ReAlnet_cornet
+      lu2024:
+        kind: paper
+        url: https://arxiv.org/abs/2401.17231
+        citation: Lu, Wang & Golomb (2024), Achieving more human brain-like vision
+          via human EEG representational alignment (ReAlnet), arXiv:2401.17231
+    model:
+      display_name: ReAlnet06_cornet
+      version: ReAlnet subject 06
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CORnet-S (recurrent V1/V2/V4/IT areas with skip connections)
+          whose weights come from a ReAlnet encoder; the EEG encoding head is dropped
+          at inference; recurrent time steps are mapped to time bins (CORnet commitment)
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: '18'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: ImageNet-pretrained CORnet-S fine-tuned to also predict one human
+          subject's EEG responses to natural images
+    training:
+      process: ImageNet-pretrained CORnet-S extended with a multi-layer encoding module
+        (V1, V2, V4 and IT features -> 340 EEG outputs) and fine-tuned on the EEG
+        of subject 6 viewing THINGS EEG2 training images, keeping its classification
+        output
+      objective: Joint object classification and EEG encoding (representational alignment)
+    data:
+      summary: ImageNet-1k (CORnet-S pretraining); THINGS EEG2 subject 6 (alignment)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: things-eeg2
+        name: THINGS EEG2
+        description: EEG of subject 6 viewing THINGS training images
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits (CORnet-S decoder)
+    provenance:
+      weights_provider: Lu et al. (ReAlnet release, on Brain-Score S3)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/ReAlnet/ReAlnet06_best_model_params.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+    people:
+      creators:
+      - Zitong Lu
+      - Yile Wang
+      - Julie D. Golomb
+      organizations:
+      - The Ohio State University
+    use:
+      applications:
+      - Studying human brain-aligned visual representations
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - lu2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - lu2024
+    - path: /training/process
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /training/objective
+      status: probable
+      sources:
+      - lu2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - lu2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - lu2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - lu2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - lu2024
     legacy:
       architecture: DCNN, RNN, SKIP_CONNECTIONS
       model_family: cornet
@@ -806,35 +1308,193 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 53416616
-      trainable_layers: '18'
-      architecture:
-        family: recurrent_convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
   ReAlnet07_cornet:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ReAlnet_cornet
+      lu2024:
+        kind: paper
+        url: https://arxiv.org/abs/2401.17231
+        citation: Lu, Wang & Golomb (2024), Achieving more human brain-like vision
+          via human EEG representational alignment (ReAlnet), arXiv:2401.17231
+    model:
+      display_name: ReAlnet07_cornet
+      version: ReAlnet subject 07
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CORnet-S (recurrent V1/V2/V4/IT areas with skip connections)
+          whose weights come from a ReAlnet encoder; the EEG encoding head is dropped
+          at inference; recurrent time steps are mapped to time bins (CORnet commitment)
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: '18'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: ImageNet-pretrained CORnet-S fine-tuned to also predict one human
+          subject's EEG responses to natural images
+    training:
+      process: ImageNet-pretrained CORnet-S extended with a multi-layer encoding module
+        (V1, V2, V4 and IT features -> 340 EEG outputs) and fine-tuned on the EEG
+        of subject 7 viewing THINGS EEG2 training images, keeping its classification
+        output
+      objective: Joint object classification and EEG encoding (representational alignment)
+    data:
+      summary: ImageNet-1k (CORnet-S pretraining); THINGS EEG2 subject 7 (alignment)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: things-eeg2
+        name: THINGS EEG2
+        description: EEG of subject 7 viewing THINGS training images
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits (CORnet-S decoder)
+    provenance:
+      weights_provider: Lu et al. (ReAlnet release, on Brain-Score S3)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/ReAlnet/ReAlnet07_best_model_params.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+    people:
+      creators:
+      - Zitong Lu
+      - Yile Wang
+      - Julie D. Golomb
+      organizations:
+      - The Ohio State University
+    use:
+      applications:
+      - Studying human brain-aligned visual representations
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - lu2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - lu2024
+    - path: /training/process
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /training/objective
+      status: probable
+      sources:
+      - lu2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - lu2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - lu2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - lu2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - lu2024
     legacy:
       architecture: DCNN, RNN, SKIP_CONNECTIONS
       model_family: cornet
@@ -849,35 +1509,193 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 53416616
-      trainable_layers: '18'
-      architecture:
-        family: recurrent_convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
   ReAlnet08_cornet:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ReAlnet_cornet
+      lu2024:
+        kind: paper
+        url: https://arxiv.org/abs/2401.17231
+        citation: Lu, Wang & Golomb (2024), Achieving more human brain-like vision
+          via human EEG representational alignment (ReAlnet), arXiv:2401.17231
+    model:
+      display_name: ReAlnet08_cornet
+      version: ReAlnet subject 08
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CORnet-S (recurrent V1/V2/V4/IT areas with skip connections)
+          whose weights come from a ReAlnet encoder; the EEG encoding head is dropped
+          at inference; recurrent time steps are mapped to time bins (CORnet commitment)
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: '18'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: ImageNet-pretrained CORnet-S fine-tuned to also predict one human
+          subject's EEG responses to natural images
+    training:
+      process: ImageNet-pretrained CORnet-S extended with a multi-layer encoding module
+        (V1, V2, V4 and IT features -> 340 EEG outputs) and fine-tuned on the EEG
+        of subject 8 viewing THINGS EEG2 training images, keeping its classification
+        output
+      objective: Joint object classification and EEG encoding (representational alignment)
+    data:
+      summary: ImageNet-1k (CORnet-S pretraining); THINGS EEG2 subject 8 (alignment)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: things-eeg2
+        name: THINGS EEG2
+        description: EEG of subject 8 viewing THINGS training images
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits (CORnet-S decoder)
+    provenance:
+      weights_provider: Lu et al. (ReAlnet release, on Brain-Score S3)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/ReAlnet/ReAlnet08_best_model_params.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+    people:
+      creators:
+      - Zitong Lu
+      - Yile Wang
+      - Julie D. Golomb
+      organizations:
+      - The Ohio State University
+    use:
+      applications:
+      - Studying human brain-aligned visual representations
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - lu2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - lu2024
+    - path: /training/process
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /training/objective
+      status: probable
+      sources:
+      - lu2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - lu2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - lu2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - lu2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - lu2024
     legacy:
       architecture: DCNN, RNN, SKIP_CONNECTIONS
       model_family: cornet
@@ -892,35 +1710,193 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 53416616
-      trainable_layers: '18'
-      architecture:
-        family: recurrent_convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
   ReAlnet09_cornet:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ReAlnet_cornet
+      lu2024:
+        kind: paper
+        url: https://arxiv.org/abs/2401.17231
+        citation: Lu, Wang & Golomb (2024), Achieving more human brain-like vision
+          via human EEG representational alignment (ReAlnet), arXiv:2401.17231
+    model:
+      display_name: ReAlnet09_cornet
+      version: ReAlnet subject 09
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CORnet-S (recurrent V1/V2/V4/IT areas with skip connections)
+          whose weights come from a ReAlnet encoder; the EEG encoding head is dropped
+          at inference; recurrent time steps are mapped to time bins (CORnet commitment)
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: '18'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: ImageNet-pretrained CORnet-S fine-tuned to also predict one human
+          subject's EEG responses to natural images
+    training:
+      process: ImageNet-pretrained CORnet-S extended with a multi-layer encoding module
+        (V1, V2, V4 and IT features -> 340 EEG outputs) and fine-tuned on the EEG
+        of subject 9 viewing THINGS EEG2 training images, keeping its classification
+        output
+      objective: Joint object classification and EEG encoding (representational alignment)
+    data:
+      summary: ImageNet-1k (CORnet-S pretraining); THINGS EEG2 subject 9 (alignment)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: things-eeg2
+        name: THINGS EEG2
+        description: EEG of subject 9 viewing THINGS training images
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits (CORnet-S decoder)
+    provenance:
+      weights_provider: Lu et al. (ReAlnet release, on Brain-Score S3)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/ReAlnet/ReAlnet09_best_model_params.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+    people:
+      creators:
+      - Zitong Lu
+      - Yile Wang
+      - Julie D. Golomb
+      organizations:
+      - The Ohio State University
+    use:
+      applications:
+      - Studying human brain-aligned visual representations
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - lu2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - lu2024
+    - path: /training/process
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /training/objective
+      status: probable
+      sources:
+      - lu2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - lu2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - lu2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - lu2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - lu2024
     legacy:
       architecture: DCNN, RNN, SKIP_CONNECTIONS
       model_family: cornet
@@ -935,35 +1911,193 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 53416616
-      trainable_layers: '18'
-      architecture:
-        family: recurrent_convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
   ReAlnet10_cornet:
+    sources:
+      legacy:
+        kind: unreviewed
+        citation: Existing plugin metadata; primary sources need review.
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ReAlnet_cornet
+      lu2024:
+        kind: paper
+        url: https://arxiv.org/abs/2401.17231
+        citation: Lu, Wang & Golomb (2024), Achieving more human brain-like vision
+          via human EEG representational alignment (ReAlnet), arXiv:2401.17231
+    model:
+      display_name: ReAlnet10_cornet
+      version: ReAlnet subject 10
+      architecture:
+        family: recurrent_convolutional_neural_network
+        description: CORnet-S (recurrent V1/V2/V4/IT areas with skip connections)
+          whose weights come from a ReAlnet encoder; the EEG encoding head is dropped
+          at inference; recurrent time steps are mapped to time bins (CORnet commitment)
+      parameter_count: 53416616
+      parameter_count_exact: true
+      trainable_layers: '18'
+      recurrent: true
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised_neural_alignment
+        description: ImageNet-pretrained CORnet-S fine-tuned to also predict one human
+          subject's EEG responses to natural images
+    training:
+      process: ImageNet-pretrained CORnet-S extended with a multi-layer encoding module
+        (V1, V2, V4 and IT features -> 340 EEG outputs) and fine-tuned on the EEG
+        of subject 10 viewing THINGS EEG2 training images, keeping its classification
+        output
+      objective: Joint object classification and EEG encoding (representational alignment)
+    data:
+      summary: ImageNet-1k (CORnet-S pretraining); THINGS EEG2 subject 10 (alignment)
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+      - identifier: things-eeg2
+        name: THINGS EEG2
+        description: EEG of subject 10 viewing THINGS training images
+        role: fine_tuning
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits (CORnet-S decoder)
+    provenance:
+      weights_provider: Lu et al. (ReAlnet release, on Brain-Score S3)
+      checkpoint: s3://brainscore-storage/brainscore-vision/models/ReAlnet/ReAlnet10_best_model_params.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet
+    people:
+      creators:
+      - Zitong Lu
+      - Yile Wang
+      - Julie D. Golomb
+      organizations:
+      - The Ohio State University
+    use:
+      applications:
+      - Studying human brain-aligned visual representations
+    lineage:
+      base_models:
+      - identifier: CORnet-S
+        name: CORnet-S
+        relationship: fine_tuned_from
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/version
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - legacy
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - legacy
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - legacy
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - lu2024
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - lu2024
+    - path: /training/process
+      status: probable
+      sources:
+      - lu2024
+      - plugin_code
+    - path: /training/objective
+      status: probable
+      sources:
+      - lu2024
+    - path: /data/summary
+      status: probable
+      sources:
+      - lu2024
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/creators
+      status: probable
+      sources:
+      - lu2024
+    - path: /people/organizations
+      status: probable
+      sources:
+      - lu2024
+    - path: /use/applications
+      status: probable
+      sources:
+      - lu2024
+    - path: /lineage/base_models
+      status: probable
+      sources:
+      - lu2024
     legacy:
       architecture: DCNN, RNN, SKIP_CONNECTIONS
       model_family: cornet
@@ -978,31 +2112,3 @@ models:
       huggingface_link: null
       extra_notes: null
       runnable: true
-    sources:
-      legacy:
-        kind: unreviewed
-        citation: Existing plugin metadata; primary sources need review.
-    assertions:
-    - path: /model/parameter_count
-      status: probable
-      sources:
-      - legacy
-    - path: /model/trainable_layers
-      status: probable
-      sources:
-      - legacy
-    - path: /provenance/source_url
-      status: probable
-      sources:
-      - legacy
-    - path: /model/architecture
-      status: probable
-      sources:
-      - legacy
-    model:
-      parameter_count: 53416616
-      trainable_layers: '18'
-      architecture:
-        family: recurrent_convolutional_neural_network
-    provenance:
-      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ReAlnet_cornet

@@ -1,0 +1,94 @@
+schema_version: '2.0'
+domain: vision
+models:
+  task_only_mixedc8_w9_msres_112:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/task_only_mixedc8_w9_msres_112
+        citation: Brain-Score vision plugin code, brainscore_vision/models/task_only_mixedc8_w9_msres_112
+    model:
+      display_name: task_only_mixedc8_w9_msres_112
+      architecture:
+        family: convolutional_neural_network
+        description: Multi-stage residual network (mixed bottleneck / ConvNeXt blocks,
+          fixed anti-aliased pooling) with an ImageNet head (V4ObjectomeModel export)
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 112
+        width: 112
+      supervision:
+        type: supervised
+        description: Task-only training
+    training:
+      process: Matched task-only control model (no neural response optimization)
+    io:
+      modality: image
+      input_format: RGB image resized to 112x112 and normalized with ImageNet mean/std
+        (Brain-Score load_preprocess_images)
+    provenance:
+      weights_provider: Hugging Face Hub (meenakshik1993/v4-brainscore-weights)
+      checkpoint: https://huggingface.co/meenakshik1993/v4-brainscore-weights/resolve/ed014b77dfb60e4b0da6315e8381a4325e628f15/task_only_mixedc8_w9_msres_112-c88f6ec9.pt
+      source_url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/task_only_mixedc8_w9_msres_112
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - plugin_code
+    - path: /training/process
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code

@@ -186,7 +186,8 @@ def score(model_identifier: str, benchmark_identifier: str,
     experimental paradigm, primate measurements, comparison metric, and ceiling.
     This results in a quantitative
     `Score <https://brain-score-core.readthedocs.io/en/latest/modules/metrics.html#brainscore_core.metrics.Score>`_
-    ranging from 0 (least brain-like) to 1 (most brain-like under this benchmark).
+    where higher is more brain-like under this benchmark. A ceiling-normalized score is 1 at the
+    ceiling and can exceed 1 when the model exceeds the ceiling estimate.
 
     :param model_identifier: the identifier for the model
     :param benchmark_identifier: the identifier for the benchmark to test the model against

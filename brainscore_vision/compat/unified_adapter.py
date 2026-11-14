@@ -7,6 +7,7 @@ given the adapter directly calls ``look_at`` on it and gets the same calls.
 
 from typing import Any, Dict, List, Set
 
+from brainscore_core.compatibility import CompatibilityError
 from brainscore_core.contract import UnifiedModel, TaskContext
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
@@ -103,10 +104,13 @@ class VisionModelAdapter(UnifiedModel):
         """
         session = session.declare_inputs(self.in_channels)
         channels = tuple(session.outputs or ())
-        if not channels or (len(channels) > 1
-                            and not all(c.startswith('neural:') for c in channels)):
-            raise ValueError('A legacy vision model answers one output channel per '
-                             f'look_at, or several neural:<region> channels; got {sorted(channels)}')
+        if not channels:
+            raise ValueError('A session for a legacy vision model must request an output channel.')
+        if len(channels) > 1 and not all(c.startswith('neural:') for c in channels):
+            # A support refusal before any input is read: the pair is N/A.
+            raise CompatibilityError('A legacy vision model answers one output channel per '
+                                     f'look_at, or several neural:<region> channels; got '
+                                     f'{sorted(channels)} in one session', channels=channels)
         undeclared = [channel for channel in channels if channel not in self.out_channels]
         if undeclared:
             raise ValueError(f'Undeclared output channel {undeclared[0]!r}; declared: '

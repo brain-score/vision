@@ -97,7 +97,7 @@ class TestPreflightInRunScore:
         assert score.attrs['harness_id'] == 'brainscore_vision'
         # No session answered in this fake run; the plan and versions are still recorded.
         assert score.attrs['delivery'] is None
-        assert score.attrs['regions_per_pass'] in ('all', 'one')
+        assert score.attrs['regions_per_pass'] is None   # no subject said which plan it used
         assert score.attrs['software']['python']
         assert 'brainscore_core' in score.attrs['code_commits']
 

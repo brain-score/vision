@@ -1,5 +1,7 @@
 """Tests for pre-flight checks wired into the vision scoring pipeline."""
 
+import math
+
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -41,7 +43,7 @@ class TestPreflightInRunScore:
 
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')
-    def test_incompatible_model_raises_compatibility_error(
+    def test_incompatible_model_returns_na_before_compute(
         self, mock_load_model, mock_load_benchmark
     ):
         from brainscore_vision import _run_score
@@ -53,8 +55,14 @@ class TestPreflightInRunScore:
         mock_load_model.return_value = model
         mock_load_benchmark.return_value = benchmark
 
-        with pytest.raises(CompatibilityError, match="takes in none of the inputs"):
-            _run_score('test-model', 'test-bench', check_mem=False)
+        result = _run_score('test-model', 'test-bench', check_mem=False)
+
+        assert math.isnan(float(result))
+        assert result.attrs['status'] == 'N/A'
+        assert "takes in none of the inputs" in result.attrs['reason']
+        assert result.attrs['model_identifier'] == 'test-model'
+        assert result.attrs['benchmark_identifier'] == 'test-bench'
+        benchmark.assert_not_called()
 
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')
@@ -139,7 +147,7 @@ class TestPreflightInRunScore:
 
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')
-    def test_channel_mismatch_raises_channel_named_error(
+    def test_channel_mismatch_names_the_channel_in_the_na_result(
         self, mock_load_model, mock_load_benchmark
     ):
         from brainscore_vision import _run_score
@@ -152,10 +160,42 @@ class TestPreflightInRunScore:
         mock_load_model.return_value = model
         mock_load_benchmark.return_value = benchmark
 
-        with pytest.raises(CompatibilityError, match="text"):
-            _run_score('test-model', 'test-bench', check_mem=False)
+        result = _run_score('test-model', 'test-bench', check_mem=False)
+
+        assert result.attrs['status'] == 'N/A'
+        assert "text" in result.attrs['reason']
+        assert result.attrs['missing_channels'] == sorted(benchmark.required_input_channels)
 
         benchmark.assert_not_called()
+
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_a_refusal_at_session_start_returns_na(
+        self, mock_load_model, mock_load_benchmark
+    ):
+        from brainscore_vision import _run_score
+        from brainscore_core.streaming import Session
+
+        model, benchmark = self._make_model_and_benchmark(
+            model_in_channels={'vision:image'},
+            bench_required={'vision'},
+        )
+        model.out_channels = {'neural:IT'}
+        model.region_layer_map = {'IT': 'it-layer'}
+        benchmark.region = 'IT'
+
+        def refuse(session):
+            raise CompatibilityError('no one part answers', channels=session.outputs)
+        model.participate = refuse
+        benchmark.side_effect = lambda candidate: candidate.participate(Session([], ['neural:IT']))
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        result = _run_score('test-model', 'test-bench', check_mem=False)
+
+        assert math.isnan(float(result)) and result.attrs['status'] == 'N/A'
+        assert result.attrs['reason'] == 'no one part answers'
+        assert result.attrs['missing_channels'] == ['neural:IT']
 
     @patch('brainscore_core.memory.check_memory')
     @patch('brainscore_vision.load_benchmark')

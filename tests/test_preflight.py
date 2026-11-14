@@ -251,3 +251,109 @@ class TestPreflightInRunScore:
                 loaded = brainscore_vision.load_benchmark('legacy-bench')
 
         assert loaded.required_modalities == {'vision'}
+
+
+class TestNotApplicableOnlyBeforeCompute:
+    """N/A means the pair cannot take part and this is known before any compute."""
+
+    @staticmethod
+    def _legacy_model():
+        import numpy as np
+        from unittest.mock import PropertyMock
+        from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+        legacy = MagicMock()
+        type(legacy).identifier = PropertyMock(return_value='mock-legacy')
+        legacy.visual_degrees.return_value = 8
+        legacy.layer_model.region_layer_map = {'IT': 'layer4'}
+        legacy.look_at.return_value = NeuroidAssembly(
+            np.array([[1.0], [2.0]]), dims=['presentation', 'neuroid'],
+            coords={'stimulus_id': ('presentation', ['s0', 's1']),
+                    'neuroid_id': ('neuroid', ['n0']), 'layer': ('neuroid', ['layer4'])})
+        return legacy
+
+    @staticmethod
+    def _stimuli():
+        import pandas as pd
+        from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+        stimuli = StimulusSet(pd.DataFrame({'stimulus_id': ['s0', 's1'],
+                                            'image_path': ['s0.png', 's1.png']}))
+        stimuli.identifier = 'preflight-stimuli'
+        return stimuli
+
+    def _benchmark(self, run, outputs):
+        benchmark = MagicMock(spec=['identifier', 'required_input_channels',
+                                    'requested_output_channels', '__call__', 'preallocate_memory'])
+        benchmark.identifier = 'test-bench'
+        benchmark.required_input_channels = {'vision:image'}
+        benchmark.requested_output_channels = set(outputs)
+        benchmark.side_effect = run
+        return benchmark
+
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_a_legacy_model_asked_for_behavior_and_a_region_together_is_na(
+            self, mock_load_model, mock_load_benchmark):
+        from brainscore_vision import _run_score
+        from brainscore_vision.compat.unified_adapter import VisionModelAdapter
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = self._legacy_model()
+        outputs = ('behavior', 'neural:IT')
+        mock_load_model.return_value = VisionModelAdapter(legacy)
+        mock_load_benchmark.return_value = self._benchmark(
+            lambda subject: subject.participate(stimulus_session(self._stimuli(), outputs)), outputs)
+
+        result = _run_score('test-model', 'test-bench', check_mem=False)
+
+        assert result.attrs['status'] == 'N/A'
+        assert result.attrs['missing_channels'] == ['behavior', 'neural:IT']
+        legacy.look_at.assert_not_called()
+        legacy.start_task.assert_not_called()
+
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_a_refusal_after_an_earlier_session_computed_is_an_error(
+            self, mock_load_model, mock_load_benchmark):
+        from brainscore_vision import _run_score
+        from brainscore_vision.compat.unified_adapter import VisionModelAdapter
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = self._legacy_model()
+
+        def run(subject):
+            subject.participate(stimulus_session(self._stimuli(), ['neural:IT']))
+            subject.participate(stimulus_session(self._stimuli(), ['behavior', 'neural:IT']))
+        mock_load_model.return_value = VisionModelAdapter(legacy)
+        mock_load_benchmark.return_value = self._benchmark(run, ['behavior', 'neural:IT'])
+
+        with pytest.raises(RuntimeError, match='after the run computed'):
+            _run_score('test-model', 'test-bench', check_mem=False)
+        assert legacy.look_at.call_count == 1
+
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_a_runtime_error_passes_through(self, mock_load_model, mock_load_benchmark):
+        from brainscore_vision import _run_score
+        model, benchmark = TestPreflightInRunScore()._make_model_and_benchmark(
+            model_in_channels={'vision:image'}, bench_required={'vision'})
+
+        def crash(candidate):
+            raise RuntimeError('model crashed')
+        benchmark.side_effect = crash
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        with pytest.raises(RuntimeError, match='model crashed'):
+            _run_score('test-model', 'test-bench', check_mem=False)
+
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_a_malformed_benchmark_declaration_is_an_error(self, mock_load_model, mock_load_benchmark):
+        from brainscore_vision import _run_score
+        model, benchmark = TestPreflightInRunScore()._make_model_and_benchmark(
+            model_in_channels={'vision:image'}, bench_required={'vision'})
+        benchmark.required_input_channels = {'vision'}       # bare vision: names no form
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        with pytest.raises(ValueError):
+            _run_score('test-model', 'test-bench', check_mem=False)
+        benchmark.assert_not_called()

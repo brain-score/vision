@@ -189,10 +189,11 @@ class TestVisionAdapterProcess:
         from brainscore_core.streaming_helpers import stimulus_session
         legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
         session = stimulus_session(_vision_stimulus_set(), ('behavior', 'neural:IT'))
-        from brainscore_core.compatibility import CompatibilityError
-        with pytest.raises(CompatibilityError, match='one output channel per look_at') as caught:
+        from brainscore_core.compatibility import CompatibilityError, ExecutionNotFeasibleError
+        with pytest.raises(ExecutionNotFeasibleError, match='one output channel per look_at') as caught:
             VisionModelAdapter(legacy).participate(session)
         assert caught.value.channels == {'behavior', 'neural:IT'}
+        assert not isinstance(caught.value, CompatibilityError)
         legacy.look_at.assert_not_called()
 
     def test_participate_projects_undeclared_input_columns(self):

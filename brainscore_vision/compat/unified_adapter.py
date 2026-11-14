@@ -7,7 +7,7 @@ given the adapter directly calls ``look_at`` on it and gets the same calls.
 
 from typing import Any, Dict, List, Set
 
-from brainscore_core.compatibility import CompatibilityError
+from brainscore_core.compatibility import ExecutionNotFeasibleError
 from brainscore_core.contract import UnifiedModel, TaskContext
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
@@ -112,14 +112,15 @@ class VisionModelAdapter(UnifiedModel):
         if len(channels) > 1 and not all(c.startswith('neural:') for c in channels):
             # A refusal at session start, before any input is read: an error of the run.
             task = session.task
-            raise CompatibilityError(
+            raise ExecutionNotFeasibleError(
                 f'Session refused (task type '
                 f'{getattr(task, "task_type", None) if task is not None else "none"!r}): a legacy '
                 f'vision model answers one output channel per look_at, or several '
                 f'neural:<region> channels; this session requests {sorted(channels)}. The pair '
                 f'passed the declared compatibility check, so this limit is not expressed in '
                 f'the declarations of the subject or the benchmark; there is no result.',
-                channels=channels)
+                channels=channels,
+                task_type=getattr(task, 'task_type', None) if task is not None else None)
         undeclared = [channel for channel in channels if channel not in self.out_channels]
         if undeclared:
             raise ValueError(f'Undeclared output channel {undeclared[0]!r}; declared: '

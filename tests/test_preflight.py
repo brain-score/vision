@@ -5,7 +5,7 @@ import math
 import pytest
 from unittest.mock import patch, MagicMock
 
-from brainscore_core.compatibility import CompatibilityError
+from brainscore_core.compatibility import CompatibilityError, ExecutionNotFeasibleError
 from brainscore_core.memory import MemoryError
 from brainscore_core.contract import Subject
 
@@ -185,14 +185,16 @@ class TestPreflightInRunScore:
         benchmark.region = 'IT'
 
         def refuse(session):
-            raise CompatibilityError('no one part answers', channels=session.outputs)
+            raise ExecutionNotFeasibleError('no one part answers', channels=session.outputs)
         model.participate = refuse
         benchmark.side_effect = lambda candidate: candidate.participate(Session([], ['neural:IT']))
         mock_load_model.return_value = model
         mock_load_benchmark.return_value = benchmark
 
-        with pytest.raises(CompatibilityError, match='no one part answers') as caught:
+        with pytest.raises(ExecutionNotFeasibleError, match='no one part answers') as caught:
             _run_score('test-model', 'test-bench', check_mem=False)
+
+        assert not isinstance(caught.value, CompatibilityError)   # an error, never N/A
 
         assert caught.value.channels == set(['neural:IT'])
 
@@ -301,7 +303,7 @@ class TestRefusalDuringTheRunIsAnError:
         mock_load_benchmark.return_value = self._benchmark(
             lambda subject: subject.participate(stimulus_session(self._stimuli(), outputs)), outputs)
 
-        with pytest.raises(CompatibilityError, match='passed the declared compatibility check') as caught:
+        with pytest.raises(ExecutionNotFeasibleError, match='passed the declared compatibility check') as caught:
             _run_score('test-model', 'test-bench', check_mem=False)
 
         assert caught.value.channels == {'behavior', 'neural:IT'}
@@ -323,7 +325,7 @@ class TestRefusalDuringTheRunIsAnError:
         mock_load_model.return_value = VisionModelAdapter(legacy)
         mock_load_benchmark.return_value = self._benchmark(run, ['behavior', 'neural:IT'])
 
-        with pytest.raises(CompatibilityError, match='Session refused'):
+        with pytest.raises(ExecutionNotFeasibleError, match='Session refused'):
             _run_score('test-model', 'test-bench', check_mem=False)
         assert legacy.look_at.call_count == 1
 

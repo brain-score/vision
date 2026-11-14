@@ -1,18 +1,16 @@
-"""
-Adapter wrapping legacy vision BrainModel to conform to the Subject interface
-(formerly UnifiedModel).
+"""The adapter that makes a legacy vision ``BrainModel`` a subject.
 
-process() delegates to the legacy model's look_at(). The adapter is
-the abstraction boundary: benchmarks above it call process(), legacy
-code below it sees the same look_at() calls it always did.
+A session reaches the legacy model as the ``start_task``, ``start_recording``
+and ``look_at`` calls a legacy benchmark makes. A legacy benchmark that is
+given the adapter directly calls ``look_at`` on it and gets the same calls.
 """
 
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set
 
-from brainscore_core.model_interface import UnifiedModel, TaskContext
-from brainscore_core.session_view import declared_only
+from brainscore_core.contract import UnifiedModel, TaskContext
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
+    declared_only,
     drain_session_inputs,
     measurement_settings,
     session_stimuli,
@@ -23,7 +21,6 @@ class VisionModelAdapter(UnifiedModel):
 
     def __init__(self, legacy_model):
         self._legacy = legacy_model
-        self._task_context: Optional[TaskContext] = None
         # Setup the legacy model currently has, so a repeated identical
         # configuration (a facade session re-sends it per measurement) is
         # applied once, as the legacy benchmark applied it.
@@ -71,15 +68,15 @@ class VisionModelAdapter(UnifiedModel):
         return list(self._legacy_layer_map())
 
     @property
-    def supported_modalities(self) -> Set[str]:
-        return {'vision'}
+    def in_channels(self) -> Set[str]:
+        return {'vision:image'}
 
     @property
-    def required_modalities(self) -> Set[str]:
-        # Legacy vision models are unimodal — they can only process images.
-        # Hard-require vision so pre-flight rejects pairings against a
-        # benchmark that does not provide vision stimuli.
-        return {'vision'}
+    def required_channels(self) -> Set[str]:
+        # Legacy vision models are unimodal: they can only process images.
+        # Requiring images makes pre-flight reject a benchmark that does not
+        # provide them.
+        return {'vision:image'}
 
     @property
     def out_channels(self) -> Set[str]:
@@ -94,70 +91,72 @@ class VisionModelAdapter(UnifiedModel):
         return self._legacy.look_at(stimuli, number_of_trials)
 
     def participate(self, session) -> None:
-        """Run one session as the single legacy ``look_at`` it stands for.
+        """Run one session as the legacy ``look_at`` calls it stands for.
 
         The session's task, recording target, time bins, trial count and
         variance request reach the legacy model through the same calls a
         legacy benchmark makes. Setup is applied when it changes, not on every
         measurement. Only declared input streams reach the legacy model.
+        A session that requests several ``neural:<region>`` channels gets, for
+        each region in request order, the ``start_recording`` and ``look_at``
+        that a session for that region alone gets.
         """
         session = session.declare_inputs(self.in_channels)
-        channels = tuple(session.requested_output_channels or ())
-        if len(channels) != 1:
-            raise ValueError('A legacy vision model answers one output channel '
-                             f'per look_at; got {sorted(channels)}')
-        channel, = channels
-        if channel not in self.out_channels:
-            raise ValueError(f'Undeclared output channel {channel!r}; declared: '
+        channels = tuple(session.outputs or ())
+        if not channels or (len(channels) > 1
+                            and not all(c.startswith('neural:') for c in channels)):
+            raise ValueError('A legacy vision model answers one output channel per '
+                             f'look_at, or several neural:<region> channels; got {sorted(channels)}')
+        undeclared = [channel for channel in channels if channel not in self.out_channels]
+        if undeclared:
+            raise ValueError(f'Undeclared output channel {undeclared[0]!r}; declared: '
                              f'{sorted(self.out_channels)}')
-        context = session.task_context
+        task = session.task
         settings = measurement_settings(session)
-        if context is not None and context.task_type != 'passive':
-            self.start_task(context)
+        if task is not None and task.task_type != 'passive':
+            self.start_task(task)
         elif self._configured_task is not None and self._configured_task[0] != 'passive':
             # An earlier session left the legacy model answering a task. A
             # passive session leaves it the legacy way, as a legacy benchmark
             # does with start_task('passive'). A fresh subject gets no call.
             self.start_task('passive')
-        if channel.startswith('neural:'):
-            self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
         events = drain_session_inputs(session)
         stimuli = session_stimuli(session, events)
-        output = self.process(stimuli,
-                              number_of_trials=settings.get('number_of_trials', 1),
-                              require_variance=settings.get('require_variance', False))
-        session.respond(StreamEvent(channel, output,
-                                    events[-1].t_ms if events else None,
-                                    meta={'driver': 'legacy'}))
+        for channel in channels:
+            if channel.startswith('neural:'):
+                self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
+            output = self.process(stimuli,
+                                  number_of_trials=settings.get('number_of_trials', 1),
+                                  require_variance=settings.get('require_variance', False))
+            session.respond(StreamEvent(channel, output,
+                                        events[-1].t_ms if events else None,
+                                        meta={'driver': 'legacy'}))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         return self.process(stimuli, number_of_trials, require_variance)
 
-    def start_task(self, task_context_or_task, fitting_stimuli=None,
+    def start_task(self, task_or_type, fitting_stimuli=None,
                    **kwargs) -> None:
         # Accept both calling conventions:
         #   New: start_task(TaskContext(...)); fitting settings a legacy
         #        benchmark passed travel in metadata['task_settings']
         #   Legacy: start_task(task, fitting_stimuli, **settings)
-        if isinstance(task_context_or_task, TaskContext):
-            context = task_context_or_task
-            task = context.task_type
-            fitting = context.fitting_stimuli
-            settings = dict(context.metadata.get('task_settings', {}))
+        if isinstance(task_or_type, TaskContext):
+            task_type = task_or_type.task_type
+            fitting = task_or_type.fitting_stimuli
+            settings = dict(task_or_type.metadata.get('task_settings', {}))
         else:
-            context = None
-            task, fitting, settings = task_context_or_task, fitting_stimuli, dict(kwargs)
-        key = (task, id(fitting), repr(sorted(settings.items())))
-        self._task_context = context
+            task_type, fitting, settings = task_or_type, fitting_stimuli, dict(kwargs)
+        key = (task_type, id(fitting), repr(sorted(settings.items())))
         if key == self._configured_task:
             return
         # Forward what the benchmark passed: a task without fitting data
         # (Hebart2023 odd_one_out) reaches a start_task(self, task) unchanged.
         if fitting is None:
-            self._legacy.start_task(task, **settings)
+            self._legacy.start_task(task_type, **settings)
         else:
-            self._legacy.start_task(task, declared_only(fitting, self.in_channels), **settings)
+            self._legacy.start_task(task_type, declared_only(fitting, self.in_channels), **settings)
         self._configured_task = key
 
     def start_recording(self, recording_target: str,
@@ -179,7 +178,6 @@ class VisionModelAdapter(UnifiedModel):
         reset = getattr(self._legacy, 'reset', None)
         if callable(reset):
             reset()
-        self._task_context = None
         self._configured_task = None
         self._configured_recording = None
 

@@ -4,7 +4,7 @@ import pandas as pd
 import xarray as xr
 from unittest.mock import MagicMock, PropertyMock, patch
 
-from brainscore_core.model_interface import TaskContext, UnifiedModel, Subject
+from brainscore_core.contract import TaskContext, UnifiedModel, Subject
 from brainscore_core.streaming_helpers import neural_response
 from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
@@ -57,7 +57,10 @@ def _vision_neural_assembly():
 class TestVisionAdapterIsUnifiedModel:
 
     def test_isinstance(self):
+        # score() wraps a model that is not a Subject; the adapter must not be wrapped again.
+        from brainscore_core.contract import Subject
         adapter = VisionModelAdapter(_make_legacy_model())
+        assert isinstance(adapter, Subject)
         assert isinstance(adapter, UnifiedModel)
 
 
@@ -67,10 +70,6 @@ class TestVisionAdapterIdentity:
         legacy = _make_legacy_model(identifier='cornet-s')
         adapter = VisionModelAdapter(legacy)
         assert adapter.identifier == 'cornet-s'
-
-    def test_supported_modalities(self):
-        adapter = VisionModelAdapter(_make_legacy_model())
-        assert adapter.supported_modalities == {'vision'}
 
     def test_declares_image_channel_only(self):
         adapter = VisionModelAdapter(_make_legacy_model())
@@ -139,7 +138,7 @@ class TestVisionAdapterProcess:
         legacy_stream = _make_legacy_model(region_layer_map={'IT': 'layer4'})
         legacy_stream.look_at.return_value = expected
         stream_adapter = VisionModelAdapter(legacy_stream)
-        scored = neural_response(stream_adapter, stimuli, record='IT')
+        scored = neural_response(stream_adapter, stimuli, ['neural:IT'])
 
         xr.testing.assert_identical(scored, legacy_output)
         legacy_stream.start_recording.assert_called_once_with(
@@ -159,6 +158,40 @@ class TestVisionAdapterProcess:
         assert args[0] is stimuli and args[1] == 3 and kwargs == {}
         event, = session.emitted
         assert event.payload is legacy.look_at.return_value and event.meta == {'driver': 'legacy'}
+
+    def test_several_regions_in_one_session_make_the_calls_of_one_session_per_region(self):
+        from unittest.mock import call
+        from brainscore_core.streaming_helpers import stimulus_session
+        stimuli = _vision_stimulus_set()
+        outputs = {'V4': _vision_neural_assembly(), 'IT': _vision_neural_assembly() + 1}
+
+        def run(channels_per_session):
+            legacy = _make_legacy_model(region_layer_map={'V4': 'layer3', 'IT': 'layer4'})
+            region = {}
+            legacy.start_recording.side_effect = lambda target, bins: region.update(now=target)
+            legacy.look_at.side_effect = lambda stimuli, trials: outputs[region['now']]
+            adapter, emitted = VisionModelAdapter(legacy), []
+            for channels in channels_per_session:
+                session = stimulus_session(stimuli, channels, time_bins=[(50, 100)])
+                adapter.participate(session)
+                emitted += session.emitted
+            return legacy.mock_calls, emitted
+
+        joint_calls, joint = run([('neural:V4', 'neural:IT')])
+        alone_calls, alone = run([('neural:V4',), ('neural:IT',)])
+        assert joint_calls == alone_calls
+        assert [c for c in joint_calls if c[0] in ('start_recording', 'look_at')][::2] == [
+            call.start_recording('V4', [(50, 100)]), call.start_recording('IT', [(50, 100)])]
+        assert [(e.channel, e.t_ms, e.meta) for e in joint] == [(e.channel, e.t_ms, e.meta) for e in alone]
+        assert all(a.payload is b.payload for a, b in zip(joint, alone))
+
+    def test_behavior_and_a_region_in_one_session_are_refused(self):
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        session = stimulus_session(_vision_stimulus_set(), ('behavior', 'neural:IT'))
+        with pytest.raises(ValueError, match='one output channel per look_at'):
+            VisionModelAdapter(legacy).participate(session)
+        legacy.look_at.assert_not_called()
 
     def test_participate_projects_undeclared_input_columns(self):
         from brainscore_core.streaming_helpers import stimulus_session
@@ -283,7 +316,7 @@ class TestStrictLegacyStartTask:
         VisionModelAdapter(legacy).start_task('odd_one_out')
         assert legacy.tasks == ['odd_one_out']
 
-    def test_task_context_reaches_a_task_only_signature(self):
+    def test_task_reaches_a_task_only_signature(self):
         legacy = _StrictOddOneOut()
         VisionModelAdapter(legacy).start_task(TaskContext(task_type='odd_one_out'))
         assert legacy.tasks == ['odd_one_out']
@@ -390,7 +423,7 @@ class TestVisionAutoWrapping:
             with patch('brainscore_vision.import_plugin'):
                 model = brainscore_vision.load_model('test-legacy')
 
-        scored = neural_response(model, _vision_stimulus_set(), record='IT')
+        scored = neural_response(model, _vision_stimulus_set(), ['neural:IT'])
 
         assert isinstance(model, VisionModelAdapter)
         xr.testing.assert_identical(scored, expected)
@@ -471,7 +504,7 @@ def test_real_wrapper_matches_legacy_recording(tmp_path, monkeypatch, use_sessio
 
     adapter = VisionModelAdapter(legacy)
     if use_session:
-        actual = neural_response(adapter, stimuli, record='IT')
+        actual = neural_response(adapter, stimuli, ['neural:IT'])
     else:
         adapter.start_recording('IT', time_bins=[(70, 170)])
         actual = adapter.process(stimuli)
@@ -627,30 +660,29 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
 
     def _task(self):
         stimuli = _vision_stimulus_set()
-        return TaskContext(task_type='probabilities', fitting_stimuli=stimuli,
-                           metadata={'stimulus_set': stimuli})
+        return TaskContext(task_type='probabilities', fitting_stimuli=stimuli)
 
     def test_behavior_then_neural_returns_neural(self):
         from brainscore_core.streaming_helpers import behavioral_response
         legacy = _CommitmentLike()
         adapter = VisionModelAdapter(legacy)
-        assert isinstance(behavioral_response(adapter, self._task()), BehavioralAssembly)
-        neural = neural_response(adapter, _vision_stimulus_set(), record='IT')
+        assert isinstance(behavioral_response(adapter, _vision_stimulus_set(), self._task()), BehavioralAssembly)
+        neural = neural_response(adapter, _vision_stimulus_set(), ['neural:IT'])
         assert isinstance(neural, NeuroidAssembly)
         assert legacy.calls[-3:] == [('start_task', 'passive'), ('start_recording', 'IT'), ('look_at',)]
 
     def test_neural_on_a_fresh_adapter_makes_the_same_legacy_calls(self):
         legacy = _CommitmentLike()
-        neural_response(VisionModelAdapter(legacy), _vision_stimulus_set(), record='IT')
+        neural_response(VisionModelAdapter(legacy), _vision_stimulus_set(), ['neural:IT'])
         assert legacy.calls == [('start_recording', 'IT'), ('look_at',)]
 
     def test_repeated_neural_sessions_send_passive_at_most_once(self):
         from brainscore_core.streaming_helpers import behavioral_response
         legacy = _CommitmentLike()
         adapter = VisionModelAdapter(legacy)
-        behavioral_response(adapter, self._task())
+        behavioral_response(adapter, _vision_stimulus_set(), self._task())
         for _ in range(2):
-            neural_response(adapter, _vision_stimulus_set(), record='IT')
+            neural_response(adapter, _vision_stimulus_set(), ['neural:IT'])
         assert legacy.calls.count(('start_task', 'passive')) == 1
 
     def test_two_legacy_facades_in_sequence(self):
@@ -660,10 +692,15 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
         stimuli = _vision_stimulus_set()
         behavioral = LegacyBenchmarkFacade(adapter, visual_degrees=8)
         behavioral.start_task('probabilities', stimuli)
-        assert isinstance(behavioral.look_at(stimuli), BehavioralAssembly)
+        choices = behavioral.look_at(stimuli)
+        assert isinstance(choices, BehavioralAssembly)
+        assert list(choices.values) == ['cat', 'dog']          # the legacy model's answer
         neural = LegacyBenchmarkFacade(adapter, visual_degrees=8)
         neural.start_recording('IT', time_bins=[(70, 170)])
-        assert isinstance(neural.look_at(stimuli), NeuroidAssembly)
+        activity = neural.look_at(stimuli)
+        assert isinstance(activity, NeuroidAssembly)
+        np.testing.assert_array_equal(activity.values, _vision_neural_assembly().values)
+        assert legacy.calls[-3:] == [('start_task', 'passive'), ('start_recording', 'IT'), ('look_at',)]
 
     def test_benchmark_that_returns_to_passive_matches_the_plain_legacy_model(self):
         from brainscore_core.legacy_facade import LegacyBenchmarkFacade

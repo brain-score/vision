@@ -203,8 +203,8 @@ class TestSearchRunsAtFirstUse:
         log = _Log()
         model, selection = _lazy_commitment(log)
         adapter = VisionModelAdapter(model)
-        first = neural_response(adapter, _stimuli(), record='IT')
-        second = neural_response(adapter, _stimuli(), record='IT')
+        first = neural_response(adapter, _stimuli(), ['neural:IT'])
+        second = neural_response(adapter, _stimuli(), ['neural:IT'])
         assert selection.searches == [('search', 'IT')]
         assert set(first['layer'].values) == set(second['layer'].values) == {'l2'}
 
@@ -232,7 +232,7 @@ class TestOtherMapsUnchanged:
         assert adapter.region_layer_map == {'V4': 'l1', 'IT': 'l2'}
         assert adapter.probe_safe_regions == ['V4', 'IT']
         assert check_compatibility(adapter, _legacy_benchmark()).kind == 'full'
-        neural_response(adapter, _stimuli(), record='IT')
+        neural_response(adapter, _stimuli(), ['neural:IT'])
         assert [entry for entry in log if entry[0] == 'search'] == []
 
     def test_plain_dict_map_declares_its_own_regions(self):

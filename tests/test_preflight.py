@@ -91,7 +91,8 @@ class TestPreflightInRunScore:
         assert score.attrs['existing'] == 'preserved'
         assert score.attrs['in_channels'] == ('vision:image',)
         assert score.attrs['out_channels'] == ('neural:IT',)
-        assert score.attrs['protocol'] == 'neural'
+        assert score.attrs['response'] == ()
+        assert 'protocol' not in score.attrs
         assert score.attrs['subject_id'] == 'test-model'
         assert score.attrs['compatibility']['match'] == 'full'
         assert score.attrs['harness_id'] == 'brainscore_vision'
@@ -103,7 +104,7 @@ class TestPreflightInRunScore:
 
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')
-    def test_behavior_protocol_comes_from_recorded_measures(
+    def test_behavior_response_record_comes_from_recorded_answers(
             self, mock_load_model, mock_load_benchmark):
         from brainscore_vision import _run_score
         from brainscore_core.streaming import Session, StreamEvent
@@ -121,12 +122,15 @@ class TestPreflightInRunScore:
         score = MagicMock()
         score.attrs = {}
 
+        from brainscore_core.response_formats import response_record
+        record = response_record('behavior', 'generation', parsed_by='model')
+
         def run(candidate):
             # A subject's behavioral response, accepted by a session.
             Session((), ['behavior']).respond(
                 StreamEvent('behavior', BehavioralAssembly(
                     [[1.0, 0.0]], dims=['presentation', 'choice'],
-                    attrs={'measure': {'kind': 'reported', 'source': 'reply'}}), None))
+                    attrs={'response': record}), None))
             return score
 
         benchmark.side_effect = run
@@ -135,8 +139,8 @@ class TestPreflightInRunScore:
 
         _run_score('test-model', 'test-bench', check_mem=False)
 
-        assert score.attrs['protocol'] == 'behavior:generation'
-        assert score.attrs['measure'] == 'reported'
+        assert score.attrs['response'] == (record,)
+        assert 'measure' not in score.attrs and 'protocol' not in score.attrs
 
     def test_an_older_core_fails_with_a_clear_message(self):
         from brainscore_vision import _run_score

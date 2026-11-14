@@ -90,7 +90,6 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     from brainscore_core.memory import check_memory
     from brainscore_core.score_status import na_score
     from brainscore_core.score_metadata import (
-        infer_score_protocol,
         requested_output_channels_for_score,
         stamp_score_metadata,
     )
@@ -162,8 +161,6 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         score,
         model,
         requested_channels=requested_channels,
-        protocol=infer_score_protocol(model, benchmark, requested_channels,
-                                      measures=measures),
         harness_id='brainscore_vision',
         measures=measures,
     )

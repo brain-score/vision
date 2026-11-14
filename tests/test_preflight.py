@@ -356,3 +356,53 @@ class TestRefusalDuringTheRunIsAnError:
         with pytest.raises(ValueError):
             _run_score('test-model', 'test-bench', check_mem=False)
         benchmark.assert_not_called()
+
+
+class _LeavesALesion:
+    """A benchmark that applies an intervention and, unless told to, leaves it active."""
+    identifier = 'leaves-a-lesion'
+    version = 1
+    required_input_channels = {'text'}
+    requested_output_channels = {'perturbation'}
+
+    def __init__(self, undo):
+        self.undo = undo
+
+    def preallocate_memory(self, candidate):
+        pass
+
+    def __call__(self, subject):
+        from brainscore_core.events import Perturbation, Selection, StateChange
+        from brainscore_core.metrics import Score
+        from brainscore_core.streaming_helpers import apply_state_change
+        applied = apply_state_change(subject, StateChange(
+            kind='ablation', target=Selection(layer='x'), perturbation=Perturbation(kind='zero')))
+        if self.undo:
+            apply_state_change(subject, StateChange(kind='reset', handle_id=applied.handle_id))
+        return Score(1.0)
+
+
+class _LesionSubject(Subject):
+    identifier = 'lesion-subject'
+    in_channels = frozenset({'text'})
+    out_channels = frozenset({'perturbation'})
+
+    def participate(self, session):
+        from brainscore_core.events import PerturbationApplied
+        from brainscore_core.streaming import StreamEvent
+        change = session.next_input().payload
+        session.respond(StreamEvent(channel='perturbation', t_ms=0.0, payload=PerturbationApplied(
+            change.handle_id or 'h1', change.target, change.perturbation)))
+
+
+@pytest.mark.parametrize('undo', [False, True])
+def test_a_benchmark_that_leaves_an_intervention_active_is_an_error(undo):
+    """The release check of brainscore.score runs here too, before a result is returned."""
+    from brainscore_vision import _run_score
+    with patch('brainscore_vision.load_benchmark', return_value=_LeavesALesion(undo)), \
+            patch('brainscore_vision.load_model', return_value=_LesionSubject()):
+        if undo:
+            assert float(_run_score('lesion-subject', 'leaves-a-lesion', check_mem=False)) == 1.0
+        else:
+            with pytest.raises(RuntimeError, match=r"left intervention handle\(s\) \['h1'\]"):
+                _run_score('lesion-subject', 'leaves-a-lesion', check_mem=False)

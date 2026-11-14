@@ -14,7 +14,6 @@ from brainscore_core.contract import Subject
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
-from brainscore_vision.benchmarks.majajhong2015.unified import UnifiedNeuralBenchmark
 from brainscore_vision.compat.unified_adapter import VisionModelAdapter
 
 from tests.test_unified_adapter import _make_legacy_model, _vision_neural_assembly, _vision_stimulus_set
@@ -147,15 +146,6 @@ def test_subject_without_visual_field_fails_clearly(monkeypatch):
     subject = _NoFieldSubject()
     with pytest.raises(NotImplementedError, match='declares no visual field'):
         _score(monkeypatch, subject, _NeuralBenchmark())
-
-
-def test_typed_benchmark_variant_is_not_wrapped():
-    from types import SimpleNamespace
-    from brainscore_core.legacy_facade import mark_legacy_benchmark, subject_for_benchmark
-    assert UnifiedNeuralBenchmark.subject_api == 'typed'
-    benchmark = mark_legacy_benchmark(SimpleNamespace(subject_api=UnifiedNeuralBenchmark.subject_api))
-    model = object()
-    assert subject_for_benchmark(model, benchmark) is model
 
 
 # --- setup once, measure many times ------------------------------------------

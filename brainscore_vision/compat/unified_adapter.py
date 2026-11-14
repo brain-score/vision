@@ -26,6 +26,9 @@ class VisionModelAdapter(UnifiedModel):
         # configuration (a facade session re-sends it per measurement) is
         # applied once, as the legacy benchmark applied it.
         self._configured_task = None
+        # The task key holds id(fitting); keeping the object alive keeps that
+        # id from being reused by another fitting set.
+        self._configured_fitting = None
         self._configured_recording = None
 
     @property
@@ -168,6 +171,7 @@ class VisionModelAdapter(UnifiedModel):
         else:
             self._legacy.start_task(task_type, declared_only(fitting, self.in_channels), **settings)
         self._configured_task = key
+        self._configured_fitting = fitting
 
     def start_recording(self, recording_target: str,
                         time_bins=None, recording_type=None, **kwargs) -> None:
@@ -189,6 +193,7 @@ class VisionModelAdapter(UnifiedModel):
         if callable(reset):
             reset()
         self._configured_task = None
+        self._configured_fitting = None
         self._configured_recording = None
 
     @property

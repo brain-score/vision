@@ -276,6 +276,28 @@ class TestVisionAdapterStartTask:
             'probabilities', 'fitting_data', number_of_trials=1
         )
 
+    def test_the_configured_fitting_set_is_kept_alive_so_its_id_is_not_reused(self):
+        """The setup key holds id(fitting); a freed set's id could match a new set."""
+        import gc
+        import weakref
+
+        class Fitting:
+            pass
+
+        class Legacy:                        # keeps no reference to what it is given
+            identifier = 'legacy'
+
+            def start_task(self, task, fitting_stimuli=None, **settings):
+                pass
+
+        adapter = VisionModelAdapter(Legacy())
+        fitting = Fitting()
+        alive = weakref.ref(fitting)
+        adapter.start_task('probabilities', fitting)
+        del fitting
+        gc.collect()
+        assert alive() is not None
+
 
 class _StrictOddOneOut:
     """The real OddOneOut signatures: no *args or fitting slot to absorb an invented None."""

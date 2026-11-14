@@ -108,53 +108,51 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     model: BrainModel = load_model(model_identifier)
     requested_channels = requested_output_channels_for_score(benchmark)
 
-    # One conversion: a pair that pre-flight refuses, or that the subject refuses
-    # before the run computed, is N/A (rules 5.6, 5.7); na_score raises for a
-    # refusal after compute. ``measures`` stays None until the benchmark starts.
-    measures = None
+    # The one place N/A is made: the declaration check, before any compute
+    # (rules 5.6, 5.7). A refusal during the run below is an error.
     try:
         compatibility = check_compatibility(model, benchmark)
-        if check_mem:
-            check_memory(model, benchmark)
-
-        # A legacy benchmark calls look_at and friends; it receives the permanent
-        # facade, which runs those calls as sessions through the subject's participate.
-        from brainscore_core.legacy_facade import declared_visual_degrees, subject_for_benchmark
-        candidate = subject_for_benchmark(model, benchmark,
-                                          visual_degrees=declared_visual_degrees(model))
-
-        import time as _time
-        _t0 = _time.time()
-        try:
-            # score_benchmark runs the benchmark's own preallocate_memory hook first;
-            # our check_memory above is the probe-based estimate and they compose.
-            with weight_fingerprint_scope(), record_measures() as measures:
-                score: Score = score_benchmark(benchmark, candidate)
-        except AssertionError as e:
-            # Only append the cache-clearing hint when the AssertionError actually
-            # looks like a stimulus-path mismatch from a stale activations cache.
-            # Other AssertionErrors (e.g. logits-dim mismatch) have nothing to do
-            # with caching and the hint misleads users into deleting good data.
-            msg = str(e)
-            if 'stimulus' in msg.lower() or 'path' in msg.lower():
-                cache_dir = os.path.expanduser(
-                    '~/.result_caching/brainscore_vision.model_helpers.activations.core'
-                    '.ActivationsExtractorHelper._from_paths_stored'
-                )
-                raise AssertionError(
-                    f"{e}\n\n"
-                    f"If this is a stale activations cache (cached stimulus paths no longer match "
-                    f"current locations, e.g. temp directory changed between runs), fix with:\n"
-                    f"  rm {cache_dir}/identifier={model_identifier},stimuli_identifier=*.pkl\n\n"
-                    f"Or to clear the entire activations cache:\n"
-                    f"  rm {cache_dir}/*.pkl"
-                ) from e
-            raise
     except CompatibilityError as error:
-        score = na_score(error, measures)
+        score = na_score(error)
         score.attrs['model_identifier'] = model_identifier
         score.attrs['benchmark_identifier'] = benchmark_identifier
         return score
+    if check_mem:
+        check_memory(model, benchmark)
+
+    # A legacy benchmark calls look_at and friends; it receives the permanent
+    # facade, which runs those calls as sessions through the subject's participate.
+    from brainscore_core.legacy_facade import declared_visual_degrees, subject_for_benchmark
+    candidate = subject_for_benchmark(model, benchmark,
+                                      visual_degrees=declared_visual_degrees(model))
+
+    import time as _time
+    _t0 = _time.time()
+    try:
+        # score_benchmark runs the benchmark's own preallocate_memory hook first;
+        # our check_memory above is the probe-based estimate and they compose.
+        with weight_fingerprint_scope(), record_measures() as measures:
+            score: Score = score_benchmark(benchmark, candidate)
+    except AssertionError as e:
+        # Only append the cache-clearing hint when the AssertionError actually
+        # looks like a stimulus-path mismatch from a stale activations cache.
+        # Other AssertionErrors (e.g. logits-dim mismatch) have nothing to do
+        # with caching and the hint misleads users into deleting good data.
+        msg = str(e)
+        if 'stimulus' in msg.lower() or 'path' in msg.lower():
+            cache_dir = os.path.expanduser(
+                '~/.result_caching/brainscore_vision.model_helpers.activations.core'
+                '.ActivationsExtractorHelper._from_paths_stored'
+            )
+            raise AssertionError(
+                f"{e}\n\n"
+                f"If this is a stale activations cache (cached stimulus paths no longer match "
+                f"current locations, e.g. temp directory changed between runs), fix with:\n"
+                f"  rm {cache_dir}/identifier={model_identifier},stimuli_identifier=*.pkl\n\n"
+                f"Or to clear the entire activations cache:\n"
+                f"  rm {cache_dir}/*.pkl"
+            ) from e
+        raise
     score.attrs['runtime_sec'] = round(_time.time() - _t0, 2)
     score.attrs['model_identifier'] = model_identifier
     score.attrs['benchmark_identifier'] = benchmark_identifier
@@ -192,8 +190,9 @@ def score(model_identifier: str, benchmark_identifier: str,
     :param benchmark_identifier: the identifier for the benchmark to test the model against
     :return: a Score of how brain-like the candidate model is under this benchmark. The score is normalized by
         this benchmark's ceiling such that 1 means the model matches the data to ceiling level.
-        For a pair that is not applicable, the N/A result: NaN, ``attrs['status'] == 'N/A'``,
-        ``attrs['reason']`` and ``attrs['missing_channels']``; nothing runs.
+        For an incompatible pair, known from the declarations, the N/A result before any
+        compute: NaN, ``attrs['status'] == 'N/A'``, ``attrs['reason']`` and
+        ``attrs['missing_channels']``. A refusal during the run raises.
     """
     score_fn = partial(_run_score, check_mem=check_mem)
     return wrap_score(__file__,

@@ -170,7 +170,7 @@ class TestPreflightInRunScore:
 
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')
-    def test_a_refusal_at_session_start_returns_na(
+    def test_a_refusal_at_session_start_is_an_error(
         self, mock_load_model, mock_load_benchmark
     ):
         from brainscore_vision import _run_score
@@ -191,11 +191,10 @@ class TestPreflightInRunScore:
         mock_load_model.return_value = model
         mock_load_benchmark.return_value = benchmark
 
-        result = _run_score('test-model', 'test-bench', check_mem=False)
+        with pytest.raises(CompatibilityError, match='no one part answers') as caught:
+            _run_score('test-model', 'test-bench', check_mem=False)
 
-        assert math.isnan(float(result)) and result.attrs['status'] == 'N/A'
-        assert result.attrs['reason'] == 'no one part answers'
-        assert result.attrs['missing_channels'] == ['neural:IT']
+        assert caught.value.channels == set(['neural:IT'])
 
     @patch('brainscore_core.memory.check_memory')
     @patch('brainscore_vision.load_benchmark')
@@ -253,8 +252,8 @@ class TestPreflightInRunScore:
         assert loaded.required_modalities == {'vision'}
 
 
-class TestNotApplicableOnlyBeforeCompute:
-    """N/A means the pair cannot take part and this is known before any compute."""
+class TestRefusalDuringTheRunIsAnError:
+    """N/A comes only from the declarations; a refusal during the run raises."""
 
     @staticmethod
     def _legacy_model():
@@ -291,7 +290,7 @@ class TestNotApplicableOnlyBeforeCompute:
 
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')
-    def test_a_legacy_model_asked_for_behavior_and_a_region_together_is_na(
+    def test_a_legacy_model_asked_for_behavior_and_a_region_together_is_an_error(
             self, mock_load_model, mock_load_benchmark):
         from brainscore_vision import _run_score
         from brainscore_vision.compat.unified_adapter import VisionModelAdapter
@@ -302,10 +301,10 @@ class TestNotApplicableOnlyBeforeCompute:
         mock_load_benchmark.return_value = self._benchmark(
             lambda subject: subject.participate(stimulus_session(self._stimuli(), outputs)), outputs)
 
-        result = _run_score('test-model', 'test-bench', check_mem=False)
+        with pytest.raises(CompatibilityError, match='passed the declared compatibility check') as caught:
+            _run_score('test-model', 'test-bench', check_mem=False)
 
-        assert result.attrs['status'] == 'N/A'
-        assert result.attrs['missing_channels'] == ['behavior', 'neural:IT']
+        assert caught.value.channels == {'behavior', 'neural:IT'}
         legacy.look_at.assert_not_called()
         legacy.start_task.assert_not_called()
 
@@ -324,7 +323,7 @@ class TestNotApplicableOnlyBeforeCompute:
         mock_load_model.return_value = VisionModelAdapter(legacy)
         mock_load_benchmark.return_value = self._benchmark(run, ['behavior', 'neural:IT'])
 
-        with pytest.raises(RuntimeError, match='after the run computed'):
+        with pytest.raises(CompatibilityError, match='Session refused'):
             _run_score('test-model', 'test-bench', check_mem=False)
         assert legacy.look_at.call_count == 1
 

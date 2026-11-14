@@ -107,10 +107,16 @@ class VisionModelAdapter(UnifiedModel):
         if not channels:
             raise ValueError('A session for a legacy vision model must request an output channel.')
         if len(channels) > 1 and not all(c.startswith('neural:') for c in channels):
-            # A support refusal before any input is read: the pair is N/A.
-            raise CompatibilityError('A legacy vision model answers one output channel per '
-                                     f'look_at, or several neural:<region> channels; got '
-                                     f'{sorted(channels)} in one session', channels=channels)
+            # A refusal at session start, before any input is read: an error of the run.
+            task = session.task
+            raise CompatibilityError(
+                f'Session refused (task type '
+                f'{getattr(task, "task_type", None) if task is not None else "none"!r}): a legacy '
+                f'vision model answers one output channel per look_at, or several '
+                f'neural:<region> channels; this session requests {sorted(channels)}. The pair '
+                f'passed the declared compatibility check, so this limit is not expressed in '
+                f'the declarations of the subject or the benchmark; there is no result.',
+                channels=channels)
         undeclared = [channel for channel in channels if channel not in self.out_channels]
         if undeclared:
             raise ValueError(f'Undeclared output channel {undeclared[0]!r}; declared: '

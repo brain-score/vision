@@ -101,6 +101,7 @@ class TestPreflightInRunScore:
         assert score.attrs['regions_per_pass'] is None   # no subject said which plan it used
         assert score.attrs['software']['python']
         assert 'brainscore_core' in score.attrs['code_commits']
+        assert score.attrs['provenance'] == ()   # an old model's responses carry no provenance
         # The core stamp writes the identifier and the trial memory (one step in all entry points).
         assert score.attrs['benchmark_identifier'] == 'test-bench'
         assert score.attrs['trial_memory'] == 'none'

@@ -101,6 +101,29 @@ class TestPreflightInRunScore:
         assert score.attrs['regions_per_pass'] is None   # no subject said which plan it used
         assert score.attrs['software']['python']
         assert 'brainscore_core' in score.attrs['code_commits']
+        # The core stamp writes the identifier and the trial memory (one step in all entry points).
+        assert score.attrs['benchmark_identifier'] == 'test-bench'
+        assert score.attrs['trial_memory'] == 'none'
+
+    @patch('brainscore_vision.load_benchmark')
+    @patch('brainscore_vision.load_model')
+    def test_a_score_that_names_another_benchmark_is_refused(
+            self, mock_load_model, mock_load_benchmark):
+        from brainscore_vision import _run_score
+
+        model, benchmark = self._make_model_and_benchmark(
+            model_in_channels={'vision:image'}, bench_required={'vision'})
+        model.out_channels = {'neural:IT'}
+        model.region_layer_map = {'IT': 'it-layer'}
+        benchmark.region = 'IT'
+        score = MagicMock()
+        score.attrs = {'benchmark_identifier': 'another-bench'}
+        benchmark.return_value = score
+        mock_load_model.return_value = model
+        mock_load_benchmark.return_value = benchmark
+
+        with pytest.raises(ValueError, match='must match the requested identifier'):
+            _run_score('test-model', 'test-bench', check_mem=False)
 
     @patch('brainscore_vision.load_benchmark')
     @patch('brainscore_vision.load_model')

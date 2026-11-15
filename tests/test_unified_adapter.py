@@ -810,3 +810,28 @@ class TestVisionAdapterChoice:
         with pytest.raises(ExecutionNotFeasibleError, match='fitting_stimuli'):
             VisionModelAdapter(legacy).participate(session)
         assert legacy.tasks == []
+
+
+class _LegacyWithoutProbabilities(_LegacyForcedChoice):
+    """A legacy BrainModel that is not a ModelCommitment and has no probabilities task."""
+    identifier = 'legacy-label-only'
+
+    def start_task(self, task, fitting_stimuli=None, **kwargs):
+        assert task == 'label', f'unsupported task {task}'
+        self.tasks.append(task)
+
+    def look_at(self, stimuli, number_of_trials=1):
+        raise AssertionError('never called')
+
+
+def test_a_legacy_model_that_refuses_probabilities_is_an_error_naming_model_and_task():
+    from brainscore_core.compatibility import ExecutionNotFeasibleError
+    from brainscore_core.responses import Choice
+    from brainscore_core.streaming_helpers import stimulus_session
+    legacy = _LegacyWithoutProbabilities()
+    task = TaskContext(response=Choice(['real', 'pseudo']), fitting_stimuli=_choice_stimuli())
+    session = stimulus_session(_choice_stimuli(), ['behavior:choice'], task)
+    with pytest.raises(ExecutionNotFeasibleError,
+                       match="Legacy model 'legacy-label-only' refused the task 'probabilities'"):
+        VisionModelAdapter(legacy).participate(session)
+    assert legacy.tasks == [] and session.emitted == []

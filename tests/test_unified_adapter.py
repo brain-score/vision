@@ -744,3 +744,69 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
         actual = run(LegacyBenchmarkFacade(VisionModelAdapter(legacy), visual_degrees=8))
         assert isinstance(expected, NeuroidAssembly) and isinstance(actual, NeuroidAssembly)
         assert legacy.calls == plain.calls
+
+
+class _LegacyForcedChoice:
+    """A legacy model whose probabilities task gives rows over its own column order."""
+    identifier = 'legacy-forced-choice'
+
+    def __init__(self):
+        self.tasks = []
+
+    def start_task(self, task, fitting_stimuli=None, **kwargs):
+        self.tasks.append(task)
+
+    def look_at(self, stimuli, number_of_trials=1):
+        ids = list(stimuli['stimulus_id'])
+        values = np.array([[0.2, 0.8], [0.7, 0.3], [0.5, 0.5]][:len(ids)])
+        return BehavioralAssembly(values, dims=['presentation', 'choice'], coords={
+            'stimulus_id': ('presentation', ids), 'position': ('presentation', list(range(len(ids)))),
+            'choice': ['pseudo', 'real']})
+
+    def visual_degrees(self):
+        return 8
+
+
+def _choice_stimuli():
+    stimuli = StimulusSet(pd.DataFrame({'stimulus_id': ['a', 'b', 'c'],
+                                        'image_file_name': ['a.png', 'b.png', 'c.png'],
+                                        'image_label': ['real', 'pseudo', 'real']}))
+    stimuli.identifier = 'adapter-choice'
+    stimuli.stimulus_paths = dict(zip(stimuli['stimulus_id'], stimuli['image_file_name']))
+    return stimuli
+
+
+class TestVisionAdapterChoice:
+    """A Choice task on behavior:choice: the legacy probabilities task, argmax in its own order."""
+
+    def test_declares_the_choice_and_keeps_bare_behavior(self):
+        adapter = VisionModelAdapter(_LegacyForcedChoice())
+        assert {'behavior', 'behavior:choice'} <= adapter.out_channels
+
+    def test_a_choice_task_is_answered_from_the_legacy_probabilities_task(self):
+        from brainscore_core.responses import Choice
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = _LegacyForcedChoice()
+        task = TaskContext(response=Choice(['real', 'pseudo']), fitting_stimuli=_choice_stimuli())
+        session = stimulus_session(_choice_stimuli(), ['behavior:choice'], task)
+        VisionModelAdapter(legacy).participate(session)
+        choice = session.collect('behavior:choice')
+        assert legacy.tasks == ['probabilities']
+        assert list(choice['choice'].values) == ['real', 'pseudo']
+        # argmax in the legacy column order: a tie (row c) goes to its first column, 'pseudo'
+        np.testing.assert_array_equal(choice.values, [[1, 0], [0, 1], [0, 1]])
+        record = choice.attrs['response']
+        assert (record['origin'], record['method'], record['conversion'], record['parameters']) == (
+            'derived', 'legacy', 'argmax', {'tie': 'first', 'option_order': 'legacy'})
+        assert list(choice['raw_answer'].values) == ['[0.2, 0.8]', '[0.7, 0.3]', '[0.5, 0.5]']
+
+    def test_a_choice_task_without_fitting_stimuli_is_refused_before_any_call(self):
+        from brainscore_core.compatibility import ExecutionNotFeasibleError
+        from brainscore_core.responses import Choice
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = _LegacyForcedChoice()
+        session = stimulus_session(_choice_stimuli(), ['behavior:choice'],
+                                   TaskContext(response=Choice(['real', 'pseudo'])))
+        with pytest.raises(ExecutionNotFeasibleError, match='fitting_stimuli'):
+            VisionModelAdapter(legacy).participate(session)
+        assert legacy.tasks == []

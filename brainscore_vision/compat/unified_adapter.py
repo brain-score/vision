@@ -87,7 +87,9 @@ class VisionModelAdapter(UnifiedModel):
         # A legacy BrainModel answers behavioral tasks as well as recording.
         # Neural channels come from the regions the legacy model can map, so a
         # lazy layer search declares the same channels before and after it runs.
-        return {f'neural:{region}' for region in self._mappable_regions()} | {'behavior'}
+        # A Choice task is answered on behavior:choice from the same legacy task.
+        return ({f'neural:{region}' for region in self._mappable_regions()}
+                | {'behavior', 'behavior:choice'})
 
     def process(self, stimuli, number_of_trials=1, require_variance=False) -> Any:
         if require_variance:
@@ -127,6 +129,9 @@ class VisionModelAdapter(UnifiedModel):
                              f'{sorted(self.out_channels)}')
         task = session.task
         settings = measurement_settings(session)
+        if channels == ('behavior:choice',):
+            self._answer_choice(session, task, settings)
+            return
         if task is not None and task.task_type != 'passive':
             self.start_task(task)
         elif self._configured_task is not None and self._configured_task[0] != 'passive':
@@ -145,6 +150,22 @@ class VisionModelAdapter(UnifiedModel):
             session.respond(StreamEvent(channel, output,
                                         events[-1].t_ms if events else None,
                                         meta={'driver': 'legacy'}))
+
+    def _answer_choice(self, session, task, settings) -> None:
+        """Answer a Choice task on ``behavior:choice`` from the legacy model's own task.
+
+        The legacy model runs the task a legacy benchmark sends for a forced choice,
+        ``start_task('probabilities', fitting_stimuli)``; its probability rows are
+        turned into the choice by core's ``argmax`` in the legacy model's column order,
+        the label the old benchmark took from the same rows.
+        """
+        legacy_task = _legacy_choice_task(task, self.identifier, needs_fitting=True)
+        self.start_task(legacy_task)
+        events = drain_session_inputs(session)
+        stimuli = session_stimuli(session, events)
+        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1))
+        session.respond(StreamEvent('behavior:choice', _choice_from_rows(rows, task.response.labels),
+                                    events[-1].t_ms if events else None, meta={'driver': 'legacy'}))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):
@@ -230,3 +251,48 @@ def _exact(value):
     if isinstance(value, np.generic):
         return ('scalar', value.dtype.str, value.tobytes())
     return (type(value).__name__, value)
+
+
+def _legacy_choice_task(task, identifier, needs_fitting):
+    """The legacy task for a Choice task: ``'probabilities'``, as a legacy forced choice."""
+    from brainscore_core.responses import Choice
+    response = getattr(task, 'response', None)
+    if not isinstance(response, Choice) or isinstance(response.labels, str):
+        raise ExecutionNotFeasibleError(
+            f"Legacy model '{identifier}' answers behavior:choice only for a Choice task with "
+            f"shared options; got {response!r}.", channels={'behavior:choice'},
+            task_type=getattr(task, 'task_type', None))
+    if needs_fitting and task.fitting_stimuli is None:
+        raise ExecutionNotFeasibleError(
+            f"Legacy model '{identifier}' answers a Choice task through its probabilities task, "
+            "which is fitted on TaskContext.fitting_stimuli; the task gives none.",
+            channels={'behavior:choice'}, task_type=task.task_type)
+    return TaskContext(task_type='probabilities', fitting_stimuli=task.fitting_stimuli,
+                       label_set=list(response.labels), instruction=task.instruction)
+
+
+def _choice_from_rows(rows, labels):
+    """The legacy model's probability rows as a stored choice: one-hot rows over ``labels``.
+
+    The choice is core's ``argmax`` of each row in the legacy model's own column order
+    (ties to the first column, as the old benchmark's argmax); the record says the
+    legacy model's task gave the rows and the argmax derived the choice.
+    """
+    import numpy as np
+    from brainscore_core.response_formats import argmax, response_record
+    from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+    values = np.asarray(rows.transpose('presentation', 'choice').values, dtype=float)
+    columns = [str(c) for c in rows['choice'].values]
+    labels = list(labels)
+    indices, valid = argmax(values)
+    one_hot = np.full((len(values), len(labels)), np.nan, dtype=np.float32)
+    for row, (index, ok) in enumerate(zip(indices, valid)):
+        if ok and columns[index] in labels:
+            one_hot[row] = 0.0
+            one_hot[row, labels.index(columns[index])] = 1.0
+    return BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords={
+        'stimulus_id': ('presentation', list(rows['stimulus_id'].values)), 'choice': labels,
+        'raw_answer': ('presentation', [str([float(v) for v in row]) for row in values])},
+        attrs={'response': response_record(
+            'behavior:choice', 'legacy', conversion='argmax', source_format='behavior:probabilities',
+            parameters={'tie': 'first', 'option_order': 'legacy'})})

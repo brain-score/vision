@@ -7,7 +7,10 @@ Signal: every ``.py`` file under the legacy plugin folders (``models``,
 imported). A file fails when it
 
 - imports the unified package ``brainscore`` (``import brainscore``,
-  ``from brainscore[.x] import``; not ``brainscore_core`` or a domain package);
+  ``from brainscore[.x] import``; not ``brainscore_core`` or a domain package).
+  The Brain-Score 1.x package has the same import name. A file whose every
+  reference into ``brainscore`` is a 1.x name (``BRAINSCORE_1X``: names the
+  unified package does not define) imports the 1.x package, not the unified one;
 - names ``BrainScoreModel``;
 - assigns a registry key (``*_registry['...']``) that contains ``unified``;
 - defines a class whose body declares ``in_channels``, ``out_channels`` and
@@ -21,8 +24,8 @@ apart from ``torch.nn.Conv2d`` arguments); imports through ``importlib``.
 The registries are not imported: importing every plugin needs model
 libraries and weights.
 
-The allow-list holds today's violations. It may only shrink: an entry that no
-longer violates fails the test, so it must be removed.
+The allow-list holds today's violations; its target is empty. It may only
+shrink: an entry that no longer violates fails the test, so it must be removed.
 """
 import ast
 from pathlib import Path
@@ -33,27 +36,69 @@ import brainscore_vision as legacy_package
 
 PLUGIN_FOLDERS = ('models', 'benchmarks', 'data', 'metrics')
 
-# (path inside the package, signal): reason
-ALLOWED = {
-    ('data/igustibagus2024/merged_assembly/create_merged_assembly_and_stim.py', 'import brainscore'):
-        'Brain-Score 1.x packaging script (the old package was also named brainscore); same on master',
-    ('data/igustibagus2024/merged_assembly/create_stimulus_set_with_background-id.py', 'import brainscore'):
-        'Brain-Score 1.x packaging script (the old package was also named brainscore); same on master',
-    ('data/igustibagus2024/merged_assembly/helpers_background_id.py', 'import brainscore'):
-        'Brain-Score 1.x packaging script (the old package was also named brainscore); same on master',
-}
+# Names of the Brain-Score 1.x package, which had the import name of the unified
+# package. The unified package defines none of them (checked below when it is installed).
+BRAINSCORE_1X = ('brainscore.get_assembly', 'brainscore.get_stimulus_set',
+                 'brainscore.benchmarks.screen', 'brainscore.benchmarks._neural_common')
+
+# (path inside the package, signal): reason. The target is empty.
+ALLOWED = {}
+
+
+def _is_1x(reference):
+    return any(reference == name or reference.startswith(name + '.') for name in BRAINSCORE_1X)
+
+
+def _brainscore_references(tree):
+    """Dotted names reached in ``brainscore``, or None when the package is not imported.
+
+    ``from brainscore.a import b`` gives ``brainscore.a.b``; an explicit
+    ``import brainscore.a`` gives ``brainscore.a`` (the imported module is
+    evidence of its own); after an import each longest attribute chain on the
+    bound name gives one name. A use of the bound name that is not an attribute
+    chain (``getattr(brainscore, ...)``, passing the module) and a bare
+    ``import brainscore`` that names nothing give ``brainscore``.
+    """
+    references, bound = [], {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name.split('.')[0] == 'brainscore':
+                    bound[alias.asname or 'brainscore'] = alias.asname and alias.name or 'brainscore'
+                    if alias.name != 'brainscore':
+                        references.append(alias.name)
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module \
+                and node.module.split('.')[0] == 'brainscore':
+            references += [f'{node.module}.{alias.name}' for alias in node.names]
+    if not bound and not references:
+        return None
+    chains, roots = set(), set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute):
+            base = node
+            while isinstance(base, ast.Attribute):
+                base = base.value
+            if isinstance(base, ast.Name) and base.id in bound:
+                roots.add(id(base))
+                text = ast.unparse(node)
+                chains.add(bound[base.id] + text[len(base.id):])
+    other_use = any(isinstance(node, ast.Name) and node.id in bound and id(node) not in roots
+                    for node in ast.walk(tree))
+    longest = {c for c in chains if not any(o.startswith(c + '.') for o in chains)}
+    references += sorted(longest)
+    if bound and (other_use or not longest):
+        references.append('brainscore')
+    return references
 
 
 def unified_signals(source):
     """Set of E2a signals found in one source file."""
+    tree = ast.parse(source)
     found = set()
-    for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.Import):
-            if any(alias.name.split('.')[0] == 'brainscore' for alias in node.names):
-                found.add('import brainscore')
-        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-            if node.module.split('.')[0] == 'brainscore':
-                found.add('import brainscore')
+    references = _brainscore_references(tree)
+    if references is not None and not all(_is_1x(reference) for reference in references):
+        found.add('import brainscore')
+    for node in ast.walk(tree):
         if (isinstance(node, ast.Name) and node.id == 'BrainScoreModel') or \
                 (isinstance(node, ast.Attribute) and node.attr == 'BrainScoreModel') or \
                 (isinstance(node, ast.alias) and node.name == 'BrainScoreModel'):
@@ -99,9 +144,6 @@ def test_no_unified_plugin_in_legacy_folders():
 
 
 def test_check_fails_on_a_new_violation(tmp_path):
-    for path, _ in ALLOWED:
-        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
-        (tmp_path / path).write_text('import brainscore\n')
     (tmp_path / 'models' / 'new').mkdir(parents=True)
     (tmp_path / 'models' / 'new' / '__init__.py').write_text(
         "from brainscore import BrainScoreModel\nmodel_registry['x-unified'] = lambda: BrainScoreModel()\n")
@@ -113,12 +155,21 @@ def test_check_fails_on_a_stale_entry(tmp_path):
     (tmp_path / 'models').mkdir()
     (tmp_path / 'models' / 'clean.py').write_text('import brainscore_core\n')
     with pytest.raises(AssertionError, match='no longer violate'):
-        check(tmp_path, ALLOWED)
+        check(tmp_path, {('models/gone.py', 'import brainscore'): 'stale entry'})
 
 
 @pytest.mark.parametrize('source, signal', [
     ('import brainscore', 'import brainscore'),
     ('from brainscore.benchmarks import x', 'import brainscore'),
+    ('import brainscore\nbrainscore.load_model("x")', 'import brainscore'),
+    ('import brainscore.tools\nbrainscore.get_assembly("x")', 'import brainscore'),
+    ('import brainscore.tools as t\nimport brainscore\nbrainscore.get_assembly("x")', 'import brainscore'),
+    ('import brainscore\nbrainscore.get_assembly("x")\ngetattr(brainscore, "tools")', 'import brainscore'),
+    ('import brainscore as bs\nbs.get_stimulus_set("x")\nbs.load_benchmark("y")', 'import brainscore'),
+    ('from brainscore import *', 'import brainscore'),
+    ('import brainscore\nbrainscore.get_assembly("a")\nbrainscore.load_model("x")', 'import brainscore'),
+    ('from brainscore.benchmarks.screen import place_on_screen\nfrom brainscore import load_model',
+     'import brainscore'),
     ('from brainscore import BrainScoreModel', 'BrainScoreModel'),
     ("benchmark_registry['MajajHong2015.IT-unified'] = f", 'unified registry key'),
     ('class S:\n    in_channels = ()\n    out_channels = ()\n    def participate(self, s): pass', 'subject declaration'),
@@ -133,6 +184,31 @@ def test_signal_catches(source, signal):
     "model_registry['alexnet'] = f",
     'nn.Conv2d(in_channels=3, out_channels=8, kernel_size=3)',
     'class Conv:\n    in_channels = 3\n    out_channels = 8',
+    'import brainscore\nassembly = brainscore.get_assembly("dicarlo.Sanghavi2021.domain_transfer")',
+    'import brainscore\nfrom brainscore.benchmarks.screen import place_on_screen\n'
+    'stimuli = brainscore.get_stimulus_set("dicarlo.domain_transfer")',
+    'from brainscore.benchmarks._neural_common import average_repetition',
+    'import brainscore.benchmarks.screen\nbrainscore.benchmarks.screen.place_on_screen(s)',
+    'import brainscore as bs\nbs.get_assembly("x")',
 ])
 def test_signal_allows(source):
     assert not unified_signals(source)
+
+
+def test_the_unified_package_defines_no_brainscore_1x_name():
+    """The 1.x names stay distinct while both packages are called ``brainscore``."""
+    from importlib.util import find_spec
+    spec = find_spec('brainscore')
+    root = Path(list(spec.submodule_search_locations)[0]) if spec and spec.submodule_search_locations else None
+    if root is None or not (root / 'brainscore_model.py').exists():
+        pytest.skip('the unified package is not installed')
+    top = {node.name for node in ast.parse((root / '__init__.py').read_text()).body
+           if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
+    top |= {target.id for node in ast.parse((root / '__init__.py').read_text()).body
+            if isinstance(node, ast.Assign) for target in node.targets if isinstance(target, ast.Name)}
+    for name in BRAINSCORE_1X:
+        parts = name.split('.')[1:]
+        assert not (len(parts) == 1 and parts[0] in top), name
+        assert not (root.joinpath(*parts).with_suffix('.py').exists()
+                    or root.joinpath(*parts).is_dir()), name
+

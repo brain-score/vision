@@ -858,47 +858,30 @@ def _image_set(folder, prefix, missing=()):
     return stimuli
 
 
-class _ChoiceBenchmark:
-    """A benchmark that requests behavior:choice with fitting stimuli, as ROAR does."""
-    identifier = 'adapter-choice-benchmark'
-    required_input_channels = frozenset({'vision:image'})
-    requested_output_channels = frozenset({'behavior:choice'})
-    trial_memory = 'none'
-
-    def __init__(self, test, fitting):
-        self.test, self.fitting, self.sessions = test, fitting, []
-
-    def __call__(self, subject):
-        from brainscore_core.responses import Choice
-        from brainscore_core.streaming_helpers import stimulus_session
-        session = stimulus_session(self.test, ['behavior:choice'], TaskContext(
-            response=Choice(['real', 'pseudo']), fitting_stimuli=self.fitting))
-        self.sessions.append(session)
-        subject.participate(session)
-        raise AssertionError('the set-up error did not stop the run')
+def _choice_session(test, fitting):
+    """A core session for a Choice task with fitting stimuli, as ROAR builds it."""
+    from brainscore_core.responses import Choice
+    from brainscore_core.streaming_helpers import stimulus_session
+    return stimulus_session(test, ['behavior:choice'], TaskContext(
+        response=Choice(['real', 'pseudo']), fitting_stimuli=fitting))
 
 
 def test_a_missing_fitting_file_passes_through_as_file_not_found(tmp_path):
-    """An operational error of the readout fit is not turned into a refusal."""
-    import brainscore
+    """An operational error of the readout fit is not turned into a refusal (core only;
+    the same through brainscore.score is in unified tests/test_legacy_adapters_on_roar.py)."""
     from brainscore_vision.model_helpers.brain_transformation.behavior import ProbabilitiesMapping
-    class _Mapping(ProbabilitiesMapping):
-        def visual_degrees(self):
-            return 8
-
     features = _FileFeatures()
-    legacy = _Mapping('legacy-probabilities', features, 'L')
-    benchmark = _ChoiceBenchmark(_image_set(tmp_path, 't'), _image_set(tmp_path, 'f', missing={'f2'}))
+    legacy = ProbabilitiesMapping('legacy-probabilities', features, 'L')
+    session = _choice_session(_image_set(tmp_path, 't'), _image_set(tmp_path, 'f', missing={'f2'}))
     with pytest.raises(FileNotFoundError, match='f2.png'):
-        brainscore.score(VisionModelAdapter(legacy), benchmark, check_mem=False)
+        VisionModelAdapter(legacy).participate(session)
     assert features.shown == ['f0', 'f1']                  # no test stimulus is shown
-    assert benchmark.sessions[0].emitted == []             # nothing is stored
+    assert session.emitted == []                           # nothing is stored
 
 
 def test_a_legacy_model_that_refuses_probabilities_raises_its_own_error(tmp_path):
-    import brainscore
     legacy = _LegacyWithoutProbabilities()
-    benchmark = _ChoiceBenchmark(_image_set(tmp_path, 't'), _image_set(tmp_path, 'f'))
+    session = _choice_session(_image_set(tmp_path, 't'), _image_set(tmp_path, 'f'))
     with pytest.raises(NotImplementedError, match='unsupported task probabilities'):
-        brainscore.score(VisionModelAdapter(legacy), benchmark, check_mem=False)
-    assert legacy.tasks == [] and benchmark.sessions[0].emitted == []
+        VisionModelAdapter(legacy).participate(session)
+    assert legacy.tasks == [] and session.emitted == []

@@ -1,4 +1,5 @@
-"""Enforcement check E2a: no unified plugin inside the legacy plugin folders.
+"""Enforcement check E2a: no unified plugin inside the legacy plugin folders, and no
+test of this repository that imports the unified package.
 
 Contract rule 11.2; Architecture and Ownership Map, section 6, E2a.
 
@@ -137,6 +138,34 @@ def check(package_root, allowed):
     stale = sorted(set(allowed) - found)
     assert not new, f'unified plugin code in the legacy plugin folders: {new}'
     assert not stale, f'allow-list entries that no longer violate; remove them: {stale}'
+
+
+# Test files of this repository that import the unified package ``brainscore``: (path in tests/,
+# reason). The target is empty: the dependency goes from unified to this package, never back,
+# and the old Jenkins job runs these tests where the unified package is not installed.
+ALLOWED_TESTS = {}
+
+
+def unified_test_imports(tests_root):
+    """Test files (paths relative to ``tests_root``) that import the unified package,
+    at module level or inside a function (the same signal as for the plugin folders)."""
+    root = Path(tests_root)
+    return {path.relative_to(root).as_posix() for path in sorted(root.rglob('*.py'))
+            if 'import brainscore' in unified_signals(path.read_text(encoding='utf-8', errors='replace'))}
+
+
+def test_no_test_imports_the_unified_package():
+    found = unified_test_imports(Path(__file__).parent)
+    assert not sorted(found - set(ALLOWED_TESTS)), \
+        f'tests that import the unified package (move them to unified): {sorted(found - set(ALLOWED_TESTS))}'
+    assert not sorted(set(ALLOWED_TESTS) - found), \
+        f'allow-list entries that no longer import it; remove them: {sorted(set(ALLOWED_TESTS) - found)}'
+
+
+def test_the_test_check_finds_an_import_inside_a_test(tmp_path):
+    (tmp_path / 'test_x.py').write_text('def test_x():\n    import brainscore\n    brainscore.score(1, 2)\n')
+    (tmp_path / 'test_y.py').write_text('import brainscore_core\n')
+    assert unified_test_imports(tmp_path) == {'test_x.py'}
 
 
 def test_no_unified_plugin_in_legacy_folders():

@@ -781,7 +781,7 @@ class TestVisionAdapterChoice:
 
     def test_declares_the_choice_and_keeps_bare_behavior(self):
         adapter = VisionModelAdapter(_LegacyForcedChoice())
-        assert {'behavior', 'behavior:choice'} <= adapter.out_channels
+        assert {'behavior', 'behavior:choice', 'behavior:probabilities'} <= adapter.out_channels
 
     def test_a_choice_task_is_answered_from_the_legacy_probabilities_task(self):
         from brainscore_core.responses import Choice
@@ -800,16 +800,67 @@ class TestVisionAdapterChoice:
             'derived', 'legacy', 'argmax', {'tie': 'first', 'option_order': 'legacy'})
         assert list(choice['raw_answer'].values) == ['[0.2, 0.8]', '[0.7, 0.3]', '[0.5, 0.5]']
 
-    def test_a_choice_task_without_fitting_stimuli_is_refused_before_any_call(self):
+    def test_a_choice_task_without_fitting_stimuli_runs_the_label_task(self):
+        """Without fitting stimuli the legacy label task answers (native): one-hot rows over
+        the task's labels, every presentation coordinate of the legacy answer kept."""
+        from brainscore_core.responses import Choice
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = _LegacyLabels(['real', 'pseudo', 'real'])
+        session = stimulus_session(_choice_stimuli(), ['behavior:choice'],
+                                   TaskContext(response=Choice(['real', 'pseudo'])))
+        VisionModelAdapter(legacy).participate(session)
+        choice = session.collect('behavior:choice')
+        assert legacy.tasks == [('label', ['real', 'pseudo'])]
+        np.testing.assert_array_equal(choice.values, [[1, 0], [0, 1], [1, 0]])
+        assert list(choice['raw_answer'].values) == ['real', 'pseudo', 'real']
+        assert list(choice['position'].values) == [0, 1, 2]
+        record = choice.attrs['response']
+        assert (record['origin'], record['method'], record['conversion'], record['parameters']) == (
+            'native', 'legacy', None, {})
+
+    def test_the_probabilities_task_answers_natively_cast_to_float32_in_the_task_order(self):
+        from brainscore_core.responses import Choice
+        from brainscore_core.streaming_helpers import stimulus_session
+        legacy = _LegacyForcedChoice()
+        task = TaskContext(response=Choice(['real', 'pseudo']), fitting_stimuli=_choice_stimuli())
+        session = stimulus_session(_choice_stimuli(), ['behavior:probabilities'], task)
+        VisionModelAdapter(legacy).participate(session)
+        rows = session.collect('behavior:probabilities')
+        assert legacy.tasks == ['probabilities']
+        assert list(rows['choice'].values) == ['real', 'pseudo']          # the task's order
+        np.testing.assert_array_equal(rows.values, np.float32([[0.8, 0.2], [0.3, 0.7], [0.5, 0.5]]))
+        record = rows.attrs['response']
+        assert (record['origin'], record['method'], record['parameters']) == (
+            'native', 'legacy', {'cast': 'float64 to float32', 'option_order': 'task'})
+        assert list(rows['raw_answer'].values) == ['[0.2, 0.8]', '[0.7, 0.3]', '[0.5, 0.5]']
+
+    def test_probabilities_for_other_labels_than_the_fitting_set_are_refused_before_set_up(self):
         from brainscore_core.compatibility import ExecutionNotFeasibleError
         from brainscore_core.responses import Choice
         from brainscore_core.streaming_helpers import stimulus_session
         legacy = _LegacyForcedChoice()
-        session = stimulus_session(_choice_stimuli(), ['behavior:choice'],
-                                   TaskContext(response=Choice(['real', 'pseudo'])))
-        with pytest.raises(ExecutionNotFeasibleError, match='fitting_stimuli'):
+        task = TaskContext(response=Choice(['real', 'fake']), fitting_stimuli=_choice_stimuli())
+        session = stimulus_session(_choice_stimuli(), ['behavior:probabilities'], task)
+        with pytest.raises(ExecutionNotFeasibleError, match=r"fitted on the labels \['pseudo', 'real'\]"):
             VisionModelAdapter(legacy).participate(session)
-        assert legacy.tasks == []
+        assert legacy.tasks == [] and session.emitted == []
+
+
+class _LegacyLabels(_LegacyForcedChoice):
+    """A legacy model whose label task answers one label per stimulus, dims (choice, presentation)."""
+    identifier = 'legacy-labels'
+
+    def __init__(self, answers):
+        super().__init__()
+        self.answers = answers
+
+    def start_task(self, task, fitting_stimuli=None, **kwargs):
+        self.tasks.append((task, list(fitting_stimuli)) if task == 'label' else task)
+
+    def look_at(self, stimuli, number_of_trials=1):
+        ids = list(stimuli['stimulus_id'])
+        return BehavioralAssembly([self.answers[:len(ids)]], dims=['choice', 'presentation'], coords={
+            'stimulus_id': ('presentation', ids), 'position': ('presentation', list(range(len(ids))))})
 
 
 class _LegacyWithoutProbabilities(_LegacyForcedChoice):
@@ -885,3 +936,33 @@ def test_a_legacy_model_that_refuses_probabilities_raises_its_own_error(tmp_path
     with pytest.raises(NotImplementedError, match='unsupported task probabilities'):
         VisionModelAdapter(legacy).participate(session)
     assert legacy.tasks == [] and session.emitted == []
+
+
+class _RecordsLookAt(_LegacyLabels):
+    """A legacy model that keeps the arguments of each look_at."""
+
+    def __init__(self, answers):
+        super().__init__(answers)
+        self.looks = []
+
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+        self.looks.append({'number_of_trials': number_of_trials, 'require_variance': require_variance})
+        if self.tasks and self.tasks[-1] == 'probabilities':
+            return _LegacyForcedChoice.look_at(self, stimuli)
+        return super().look_at(stimuli, number_of_trials)
+
+
+@pytest.mark.parametrize('channel, fitting', [('behavior:choice', None),          # the label route
+                                             ('behavior:choice', True),          # the fitted choice
+                                             ('behavior:probabilities', True)])
+def test_the_choice_routes_forward_the_trial_count_and_the_variance_request(channel, fitting):
+    """S9-03: as the bare route does, the format routes forward both measurement settings."""
+    from brainscore_core.responses import Choice
+    from brainscore_core.streaming_helpers import stimulus_session
+    legacy = _RecordsLookAt(['real', 'pseudo', 'real'])
+    task = TaskContext(response=Choice(['real', 'pseudo']),
+                       fitting_stimuli=_choice_stimuli() if fitting else None)
+    session = stimulus_session(_choice_stimuli(), [channel], task,
+                               settings={'number_of_trials': 3, 'require_variance': True})
+    VisionModelAdapter(legacy).participate(session)
+    assert legacy.looks == [{'number_of_trials': 3, 'require_variance': True}]

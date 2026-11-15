@@ -87,9 +87,10 @@ class VisionModelAdapter(UnifiedModel):
         # A legacy BrainModel answers behavioral tasks as well as recording.
         # Neural channels come from the regions the legacy model can map, so a
         # lazy layer search declares the same channels before and after it runs.
-        # A Choice task is answered on behavior:choice from the same legacy task.
+        # A Choice task is answered on behavior:choice and behavior:probabilities from
+        # the legacy model's own tasks (label, probabilities).
         return ({f'neural:{region}' for region in self._mappable_regions()}
-                | {'behavior', 'behavior:choice'})
+                | {'behavior', 'behavior:choice', 'behavior:probabilities'})
 
     def process(self, stimuli, number_of_trials=1, require_variance=False) -> Any:
         if require_variance:
@@ -132,6 +133,9 @@ class VisionModelAdapter(UnifiedModel):
         if channels == ('behavior:choice',):
             self._answer_choice(session, task, settings)
             return
+        if channels == ('behavior:probabilities',):
+            self._answer_probabilities(session, task, settings)
+            return
         if task is not None and task.task_type != 'passive':
             self.start_task(task)
         elif self._configured_task is not None and self._configured_task[0] != 'passive':
@@ -154,18 +158,56 @@ class VisionModelAdapter(UnifiedModel):
     def _answer_choice(self, session, task, settings) -> None:
         """Answer a Choice task on ``behavior:choice`` from the legacy model's own task.
 
-        The legacy model runs the task a legacy benchmark sends for a forced choice,
-        ``start_task('probabilities', fitting_stimuli)``; its probability rows are
-        turned into the choice by core's ``argmax`` in the legacy model's column order,
-        the label the old benchmark took from the same rows. An error of the set-up or
+        With fitting stimuli the legacy model runs the task a legacy benchmark sends
+        for a fitted forced choice, ``start_task('probabilities', fitting_stimuli)``;
+        its probability rows are turned into the choice by core's ``argmax`` in the
+        legacy model's column order (derived). Without fitting stimuli it runs the
+        label task, ``start_task('label', labels)``, whose answer is one label per
+        stimulus (native): the stored rows are one-hot over the task's labels and keep
+        every presentation coordinate of the legacy answer. An error of the set-up or
         the fit passes through unchanged, as on the bare-behavior path.
         """
-        legacy_task = _legacy_choice_task(task, self.identifier, needs_fitting=True)
-        self.start_task(legacy_task)
+        _shared_labels(task, self.identifier, 'behavior:choice')
+        if task.fitting_stimuli is None:
+            self.start_task('label', list(task.response.labels))
+            answer = lambda rows: _choice_from_labels(rows, task.response.labels)
+        else:
+            self.start_task(_legacy_choice_task(task))
+            answer = lambda rows: _choice_from_rows(rows, task.response.labels)
         events = drain_session_inputs(session)
         stimuli = session_stimuli(session, events)
-        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1))
-        session.respond(StreamEvent('behavior:choice', _choice_from_rows(rows, task.response.labels),
+        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1),
+                            require_variance=settings.get('require_variance', False))
+        session.respond(StreamEvent('behavior:choice', answer(rows),
+                                    events[-1].t_ms if events else None, meta={'driver': 'legacy'}))
+
+    def _answer_probabilities(self, session, task, settings) -> None:
+        """Answer a Choice task on ``behavior:probabilities`` from the legacy probabilities task.
+
+        The rows are the legacy model's own, put in the order of the task's labels and
+        cast to float32, the dtype of the format (the record says so). The labels must
+        be the labels of the fitting stimuli; otherwise the task is refused before the
+        legacy model is set up.
+        """
+        _shared_labels(task, self.identifier, 'behavior:probabilities')
+        if task.fitting_stimuli is None:
+            raise ExecutionNotFeasibleError(
+                f"Legacy model '{self.identifier}' gives behavior:probabilities from its "
+                "probabilities task, which is fitted on TaskContext.fitting_stimuli; the task "
+                "gives none.", channels={'behavior:probabilities'}, task_type=task.task_type)
+        fitted = set(str(label) for label in task.fitting_stimuli['image_label'])
+        if fitted != set(task.response.labels):
+            raise ExecutionNotFeasibleError(
+                f"Legacy model '{self.identifier}': the probabilities task is fitted on the "
+                f"labels {sorted(fitted)}, but the Choice task names {sorted(task.response.labels)}.",
+                channels={'behavior:probabilities'}, task_type=task.task_type)
+        self.start_task(_legacy_choice_task(task))
+        events = drain_session_inputs(session)
+        stimuli = session_stimuli(session, events)
+        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1),
+                            require_variance=settings.get('require_variance', False))
+        session.respond(StreamEvent('behavior:probabilities',
+                                    _probabilities_from_rows(rows, task.response.labels),
                                     events[-1].t_ms if events else None, meta={'driver': 'legacy'}))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
@@ -254,22 +296,78 @@ def _exact(value):
     return (type(value).__name__, value)
 
 
-def _legacy_choice_task(task, identifier, needs_fitting):
-    """The legacy task for a Choice task: ``'probabilities'``, as a legacy forced choice."""
+def _shared_labels(task, identifier, channel):
+    """Refuse a task that is not a Choice with one list of options for every stimulus."""
     from brainscore_core.responses import Choice
     response = getattr(task, 'response', None)
     if not isinstance(response, Choice) or isinstance(response.labels, str):
         raise ExecutionNotFeasibleError(
-            f"Legacy model '{identifier}' answers behavior:choice only for a Choice task with "
-            f"shared options; got {response!r}.", channels={'behavior:choice'},
+            f"Legacy model '{identifier}' answers {channel} only for a Choice task with "
+            f"shared options; got {response!r}.", channels={channel},
             task_type=getattr(task, 'task_type', None))
-    if needs_fitting and task.fitting_stimuli is None:
-        raise ExecutionNotFeasibleError(
-            f"Legacy model '{identifier}' answers a Choice task through its probabilities task, "
-            "which is fitted on TaskContext.fitting_stimuli; the task gives none.",
-            channels={'behavior:choice'}, task_type=task.task_type)
+
+
+def _legacy_choice_task(task):
+    """The legacy task for a fitted Choice task: ``'probabilities'``, as a legacy forced choice."""
     return TaskContext(task_type='probabilities', fitting_stimuli=task.fitting_stimuli,
-                       label_set=list(response.labels), instruction=task.instruction)
+                       label_set=list(task.response.labels), instruction=task.instruction)
+
+
+def _presentation_columns(assembly):
+    """Every presentation coordinate of ``assembly`` in its order: the index levels,
+    then the other coordinates on the presentation dimension."""
+    index = assembly.indexes.get('presentation')
+    names = [name for name in (getattr(index, 'names', None) or ()) if name and name != 'presentation']
+    names += [name for name, coord in assembly.coords.items()
+              if coord.dims == ('presentation',) and name != 'presentation' and name not in names]
+    if not names and index is not None:
+        return {'stimulus_id': ('presentation', list(index))}
+    return {name: ('presentation', list(assembly[name].values)) for name in names}
+
+
+def _choice_from_labels(answer, labels):
+    """The legacy label task's answer as a stored choice: one-hot rows over ``labels``.
+
+    The legacy answer has dims ``('choice', 'presentation')`` and one label per
+    stimulus. The stored rows keep every presentation coordinate of the answer, in its
+    order, and the label itself as the raw answer. A label outside ``labels`` is an
+    invalid row (NaN).
+    """
+    import numpy as np
+    from brainscore_core.response_formats import response_record
+    from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+    chosen = [str(label) for label in np.asarray(answer.values).reshape(-1)]
+    labels = list(labels)
+    one_hot = np.full((len(chosen), len(labels)), np.nan, dtype=np.float32)
+    for row, label in enumerate(chosen):
+        if label in labels:
+            one_hot[row] = 0.0
+            one_hot[row, labels.index(label)] = 1.0
+    coords = _presentation_columns(answer)
+    coords.update({'choice': labels, 'raw_answer': ('presentation', chosen)})
+    return BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords=coords,
+                              attrs={'response': response_record('behavior:choice', 'legacy')})
+
+
+def _probabilities_from_rows(rows, labels):
+    """The legacy probabilities task's rows as stored probabilities: the task's label
+    order, float32 (the format's dtype; the record names the cast), the legacy
+    presentation coordinates and each source row as its raw answer."""
+    import numpy as np
+    from brainscore_core.response_formats import response_record
+    from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+    rows = rows.transpose('presentation', 'choice')
+    columns = [str(c) for c in rows['choice'].values]
+    source = np.asarray(rows.values)
+    ordered = source[:, [columns.index(label) for label in labels]]
+    coords = _presentation_columns(rows)
+    coords.update({'choice': list(labels),
+                   'raw_answer': ('presentation', [str([float(v) for v in row]) for row in source])})
+    return BehavioralAssembly(ordered.astype(np.float32), dims=['presentation', 'choice'], coords=coords,
+                              attrs={'response': response_record(
+                                  'behavior:probabilities', 'legacy',
+                                  parameters={'cast': f'{source.dtype} to float32',
+                                              'option_order': 'task'})})
 
 
 def _choice_from_rows(rows, labels):

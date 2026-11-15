@@ -121,7 +121,7 @@ class TestLazyRegionDeclaration:
     def test_lazy_map_declares_every_wired_region_without_a_search(self):
         model, selection = _lazy_commitment()
         adapter = VisionModelAdapter(model)
-        assert adapter.out_channels == STANDARD_REGIONS | {'behavior', 'behavior:choice'}
+        assert adapter.out_channels == STANDARD_REGIONS | {'behavior', 'behavior:choice', 'behavior:probabilities'}
         assert adapter.region_layer_map == {}
         assert selection.searches == []
 
@@ -155,7 +155,7 @@ class TestLazyRegionDeclaration:
         selection = _CountingLayerSelection(log)
         model.layer_model.region_layer_map = LazyMap({'IT': '<IT bench>'}, selection)
         adapter = VisionModelAdapter(model)
-        assert adapter.out_channels == {'neural:IT', 'behavior', 'behavior:choice'}
+        assert adapter.out_channels == {'neural:IT', 'behavior', 'behavior:choice', 'behavior:probabilities'}
         assert selection.searches == []
 
     def test_probe_safe_regions_are_the_committed_regions(self):
@@ -228,7 +228,7 @@ class TestOtherMapsUnchanged:
         model = ModelCommitment('lazy-regions-test-no-such-plugin', _ActivationsModel(log), layers=['l1', 'l2'],
                                 region_layer_map={'V4': 'l1', 'IT': 'l2'})
         adapter = VisionModelAdapter(model)
-        assert adapter.out_channels == {'neural:V4', 'neural:IT', 'behavior', 'behavior:choice'}
+        assert adapter.out_channels == {'neural:V4', 'neural:IT', 'behavior', 'behavior:choice', 'behavior:probabilities'}
         assert adapter.region_layer_map == {'V4': 'l1', 'IT': 'l2'}
         assert adapter.probe_safe_regions == ['V4', 'IT']
         assert check_compatibility(adapter, _legacy_benchmark()).kind == 'full'
@@ -237,10 +237,10 @@ class TestOtherMapsUnchanged:
 
     def test_plain_dict_map_declares_its_own_regions(self):
         adapter = VisionModelAdapter(_make_legacy_model(region_layer_map={'IT': 'layer4'}))
-        assert adapter.out_channels == {'neural:IT', 'behavior', 'behavior:choice'}
+        assert adapter.out_channels == {'neural:IT', 'behavior', 'behavior:choice', 'behavior:probabilities'}
 
     def test_model_without_a_layer_model_declares_no_neural_output(self):
         adapter = VisionModelAdapter(_make_legacy_model())
-        assert adapter.out_channels == {'behavior', 'behavior:choice'}
+        assert adapter.out_channels == {'behavior', 'behavior:choice', 'behavior:probabilities'}
         with pytest.raises(CompatibilityError):
             check_compatibility(adapter, _legacy_benchmark())

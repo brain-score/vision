@@ -157,17 +157,11 @@ class VisionModelAdapter(UnifiedModel):
         The legacy model runs the task a legacy benchmark sends for a forced choice,
         ``start_task('probabilities', fitting_stimuli)``; its probability rows are
         turned into the choice by core's ``argmax`` in the legacy model's column order,
-        the label the old benchmark took from the same rows.
+        the label the old benchmark took from the same rows. An error of the set-up or
+        the fit passes through unchanged, as on the bare-behavior path.
         """
         legacy_task = _legacy_choice_task(task, self.identifier, needs_fitting=True)
-        try:
-            self.start_task(legacy_task)
-        except Exception as error:
-            # A legacy model that is not a ModelCommitment may have no probabilities task.
-            raise ExecutionNotFeasibleError(
-                f"Legacy model '{self.identifier}' refused the task 'probabilities' that a Choice "
-                f"task needs: {type(error).__name__}: {error}", channels={'behavior:choice'},
-                task_type=task.task_type) from error
+        self.start_task(legacy_task)
         events = drain_session_inputs(session)
         stimuli = session_stimuli(session, events)
         rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1))

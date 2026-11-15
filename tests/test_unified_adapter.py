@@ -817,21 +817,88 @@ class _LegacyWithoutProbabilities(_LegacyForcedChoice):
     identifier = 'legacy-label-only'
 
     def start_task(self, task, fitting_stimuli=None, **kwargs):
-        assert task == 'label', f'unsupported task {task}'
+        if task != 'label':
+            raise NotImplementedError(f'unsupported task {task}')
         self.tasks.append(task)
 
     def look_at(self, stimuli, number_of_trials=1):
         raise AssertionError('never called')
 
 
-def test_a_legacy_model_that_refuses_probabilities_is_an_error_naming_model_and_task():
-    from brainscore_core.compatibility import ExecutionNotFeasibleError
-    from brainscore_core.responses import Choice
-    from brainscore_core.streaming_helpers import stimulus_session
+class _FileFeatures:
+    """An offline extractor: one feature per image, read from the image file itself."""
+
+    def __init__(self):
+        self.shown = []
+
+    def __call__(self, stimuli, layers, number_of_trials=1, require_variance=False):
+        values = []
+        for stimulus_id in stimuli['stimulus_id']:
+            with open(stimuli.get_stimulus(stimulus_id), 'rb') as image:
+                values.append([float(len(image.read()))])
+            self.shown.append(stimulus_id)
+        from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+        return NeuroidAssembly(np.array(values), dims=['presentation', 'neuroid'], coords={
+            'stimulus_id': ('presentation', list(stimuli['stimulus_id'])),
+            'image_label': ('presentation', list(stimuli['image_label'])),
+            'neuroid_id': ('neuroid', [0]), 'layer': ('neuroid', ['L'])})
+
+
+def _image_set(folder, prefix, missing=()):
+    ids = [f'{prefix}{i}' for i in range(4)]
+    paths = {sid: str(folder / f'{sid}.png') for sid in ids}
+    for sid, path in paths.items():
+        if sid not in missing:
+            with open(path, 'wb') as image:
+                image.write(b'x' * (10 + ids.index(sid)))
+    stimuli = StimulusSet(pd.DataFrame({'stimulus_id': ids, 'image_file_name': list(paths.values()),
+                                        'image_label': ['real', 'pseudo'] * 2}))
+    stimuli.identifier = f'adapter-choice-{prefix}'
+    stimuli.stimulus_paths = paths
+    return stimuli
+
+
+class _ChoiceBenchmark:
+    """A benchmark that requests behavior:choice with fitting stimuli, as ROAR does."""
+    identifier = 'adapter-choice-benchmark'
+    required_input_channels = frozenset({'vision:image'})
+    requested_output_channels = frozenset({'behavior:choice'})
+    trial_memory = 'none'
+
+    def __init__(self, test, fitting):
+        self.test, self.fitting, self.sessions = test, fitting, []
+
+    def __call__(self, subject):
+        from brainscore_core.responses import Choice
+        from brainscore_core.streaming_helpers import stimulus_session
+        session = stimulus_session(self.test, ['behavior:choice'], TaskContext(
+            response=Choice(['real', 'pseudo']), fitting_stimuli=self.fitting))
+        self.sessions.append(session)
+        subject.participate(session)
+        raise AssertionError('the set-up error did not stop the run')
+
+
+def test_a_missing_fitting_file_passes_through_as_file_not_found(tmp_path):
+    """An operational error of the readout fit is not turned into a refusal."""
+    import brainscore
+    from brainscore_vision.model_helpers.brain_transformation.behavior import ProbabilitiesMapping
+    class _Mapping(ProbabilitiesMapping):
+        def visual_degrees(self):
+            return 8
+
+    features = _FileFeatures()
+    legacy = _Mapping('legacy-probabilities', features, 'L')
+    benchmark = _ChoiceBenchmark(_image_set(tmp_path, 't'), _image_set(tmp_path, 'f', missing={'f2'}))
+    with pytest.raises(FileNotFoundError, match='f2.png'):
+        brainscore.score(VisionModelAdapter(legacy), benchmark, check_mem=False)
+    assert features.shown == ['f0', 'f1']                  # no test stimulus is shown
+    assert benchmark.sessions[0].emitted == []             # nothing is stored
+
+
+def test_a_legacy_model_that_refuses_probabilities_raises_its_own_error(tmp_path):
+    import brainscore
     legacy = _LegacyWithoutProbabilities()
-    task = TaskContext(response=Choice(['real', 'pseudo']), fitting_stimuli=_choice_stimuli())
-    session = stimulus_session(_choice_stimuli(), ['behavior:choice'], task)
-    with pytest.raises(ExecutionNotFeasibleError,
-                       match="Legacy model 'legacy-label-only' refused the task 'probabilities'"):
-        VisionModelAdapter(legacy).participate(session)
-    assert legacy.tasks == [] and session.emitted == []
+    benchmark = _ChoiceBenchmark(_image_set(tmp_path, 't'), _image_set(tmp_path, 'f'))
+    with pytest.raises(NotImplementedError, match='unsupported task probabilities'):
+        brainscore.score(VisionModelAdapter(legacy), benchmark, check_mem=False)
+    assert legacy.tasks == [] and benchmark.sessions[0].emitted == []

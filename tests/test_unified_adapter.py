@@ -936,3 +936,33 @@ def test_a_legacy_model_that_refuses_probabilities_raises_its_own_error(tmp_path
     with pytest.raises(NotImplementedError, match='unsupported task probabilities'):
         VisionModelAdapter(legacy).participate(session)
     assert legacy.tasks == [] and session.emitted == []
+
+
+class _RecordsLookAt(_LegacyLabels):
+    """A legacy model that keeps the arguments of each look_at."""
+
+    def __init__(self, answers):
+        super().__init__(answers)
+        self.looks = []
+
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+        self.looks.append({'number_of_trials': number_of_trials, 'require_variance': require_variance})
+        if self.tasks and self.tasks[-1] == 'probabilities':
+            return _LegacyForcedChoice.look_at(self, stimuli)
+        return super().look_at(stimuli, number_of_trials)
+
+
+@pytest.mark.parametrize('channel, fitting', [('behavior:choice', None),          # the label route
+                                             ('behavior:choice', True),          # the fitted choice
+                                             ('behavior:probabilities', True)])
+def test_the_choice_routes_forward_the_trial_count_and_the_variance_request(channel, fitting):
+    """S9-03: as the bare route does, the format routes forward both measurement settings."""
+    from brainscore_core.responses import Choice
+    from brainscore_core.streaming_helpers import stimulus_session
+    legacy = _RecordsLookAt(['real', 'pseudo', 'real'])
+    task = TaskContext(response=Choice(['real', 'pseudo']),
+                       fitting_stimuli=_choice_stimuli() if fitting else None)
+    session = stimulus_session(_choice_stimuli(), [channel], task,
+                               settings={'number_of_trials': 3, 'require_variance': True})
+    VisionModelAdapter(legacy).participate(session)
+    assert legacy.looks == [{'number_of_trials': 3, 'require_variance': True}]

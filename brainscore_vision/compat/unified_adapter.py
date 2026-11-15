@@ -176,7 +176,8 @@ class VisionModelAdapter(UnifiedModel):
             answer = lambda rows: _choice_from_rows(rows, task.response.labels)
         events = drain_session_inputs(session)
         stimuli = session_stimuli(session, events)
-        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1))
+        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1),
+                            require_variance=settings.get('require_variance', False))
         session.respond(StreamEvent('behavior:choice', answer(rows),
                                     events[-1].t_ms if events else None, meta={'driver': 'legacy'}))
 
@@ -203,7 +204,8 @@ class VisionModelAdapter(UnifiedModel):
         self.start_task(_legacy_choice_task(task))
         events = drain_session_inputs(session)
         stimuli = session_stimuli(session, events)
-        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1))
+        rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1),
+                            require_variance=settings.get('require_variance', False))
         session.respond(StreamEvent('behavior:probabilities',
                                     _probabilities_from_rows(rows, task.response.labels),
                                     events[-1].t_ms if events else None, meta={'driver': 'legacy'}))

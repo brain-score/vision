@@ -1,6 +1,7 @@
 import itertools
 import logging
 import math
+import warnings
 from collections import OrderedDict
 
 import numpy as np
@@ -207,8 +208,15 @@ class Split:
         cross_validation_values, indices = extract_coord(assembly, self._split_coord, unique=self._unique_split_values)
         data_shape = np.zeros(len(cross_validation_values))
         args = [assembly[self._stratification_coord].values[indices]] if self.do_stratify else []
-        splits = self._split.split(data_shape, *args)
-        return cross_validation_values, list(splits)
+        splits = list(self._split.split(data_shape, *args))
+        smallest = min((len(test) for _, test in splits), default=None)
+        if smallest is not None and smallest < 3:
+            # A warning only: the folds and every value stay as they are.
+            warnings.warn(
+                f"A cross-validation test fold holds {smallest} '{self._split_coord}' value(s): a "
+                f"correlation on fewer than three points is +1, -1 or undefined, so the score says "
+                f"little. Use fewer splits or more stimuli.", stacklevel=2)
+        return cross_validation_values, splits
 
     @classmethod
     def aggregate(cls, values):

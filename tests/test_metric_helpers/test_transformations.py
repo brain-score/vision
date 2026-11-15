@@ -169,3 +169,69 @@ class TestCartesianProduct:
         assert 'division_coord' not in result.raw.dims  # no dimension
         assert hasattr(result.raw, 'division_coord')  # but a level
         assert result.raw["dim"].variable.level_names == ["dim_id", "division_coord"]
+
+
+class TestSmallTestFoldWarning:
+    """A test fold with fewer than three values warns; folds and scores do not change."""
+
+    @staticmethod
+    def _assembly(n_stimuli):
+        rng = np.random.RandomState(0)
+        objects = [f'object{i % 4}' for i in range(n_stimuli)]
+        return NeuroidAssembly(rng.rand(n_stimuli, 5),
+                               coords={'stimulus_id': ('presentation', [f's{i}' for i in range(n_stimuli)]),
+                                       'object_name': ('presentation', objects),
+                                       'neuroid_id': ('neuroid', list(range(5))),
+                                       'region': ('neuroid', ['IT'] * 5)},
+                               dims=['presentation', 'neuroid'])
+
+    @staticmethod
+    def _build_splits_without_the_warning(self, assembly):
+        """The function as it was before the warning (copied), to compare against."""
+        from brainscore_vision.metric_helpers.transformations import extract_coord
+        cross_validation_values, indices = extract_coord(assembly, self._split_coord,
+                                                         unique=self._unique_split_values)
+        data_shape = np.zeros(len(cross_validation_values))
+        args = [assembly[self._stratification_coord].values[indices]] if self.do_stratify else []
+        splits = self._split.split(data_shape, *args)
+        return cross_validation_values, list(splits)
+
+    def test_a_small_fold_warns_and_a_large_one_does_not(self):
+        import warnings
+        from brainscore_vision.metric_helpers.transformations import Split
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            Split(stratification_coord=None).build_splits(self._assembly(12))   # test folds of 2
+        assert any('fewer than three' in str(w.message) for w in caught)
+        with warnings.catch_warnings():
+            warnings.simplefilter('error')
+            Split(stratification_coord=None).build_splits(self._assembly(40))   # test folds of 4
+
+    def test_folds_and_scores_are_identical_with_and_without_the_warning(self, monkeypatch):
+        import warnings
+        from brainscore_vision.metric_helpers.transformations import Split
+        from brainscore_vision.metrics.regression_correlation.metric import (
+            CrossRegressedCorrelation, linear_regression, pearsonr_correlation)
+        source, target = self._assembly(12), self._assembly(12)
+        target = target.copy(data=np.random.RandomState(1).rand(12, 5))
+
+        def run():
+            values, splits = Split(stratification_coord=None).build_splits(source)
+            metric = CrossRegressedCorrelation(regression=linear_regression(),
+                                               correlation=pearsonr_correlation(),
+                                               crossvalidation_kwargs=dict(stratification_coord=None))
+            score = metric(source, target)
+            return values, splits, score
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            values, splits, score = run()
+            monkeypatch.setattr(Split, 'build_splits', self._build_splits_without_the_warning)
+            old_values, old_splits, old_score = run()
+        np.testing.assert_array_equal(values, old_values)
+        assert len(splits) == len(old_splits)
+        for (train, test), (old_train, old_test) in zip(splits, old_splits):
+            np.testing.assert_array_equal(train, old_train)
+            np.testing.assert_array_equal(test, old_test)
+        np.testing.assert_array_equal(score.values, old_score.values)
+        np.testing.assert_array_equal(score.attrs['raw'].values, old_score.attrs['raw'].values)

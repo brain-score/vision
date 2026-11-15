@@ -156,13 +156,14 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     measures.check_released(benchmark_identifier, model_identifier)
     score.attrs['runtime_sec'] = round(_time.time() - _t0, 2)
     score.attrs['model_identifier'] = model_identifier
-    score.attrs['benchmark_identifier'] = benchmark_identifier
     stamp_score_metadata(
         score,
         model,
         requested_channels=requested_channels,
         harness_id='brainscore_vision',
         measures=measures,
+        benchmark=benchmark,
+        benchmark_identifier=benchmark_identifier,
     )
     score.attrs['compatibility'] = compatibility.as_attrs()
     try:  # attempt to look up the layer commitment if model uses a standard layer model

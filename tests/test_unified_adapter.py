@@ -4,7 +4,7 @@ import pandas as pd
 import xarray as xr
 from unittest.mock import MagicMock, PropertyMock, patch
 
-from brainscore_core.contract import TaskContext, UnifiedModel, Subject
+from brainscore_core.contract import TaskContext, Subject
 from brainscore_core.streaming_helpers import neural_response
 from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
@@ -54,14 +54,14 @@ def _vision_neural_assembly():
     )
 
 
-class TestVisionAdapterIsUnifiedModel:
+class TestVisionAdapterIsASubject:
 
     def test_isinstance(self):
         # score() wraps a model that is not a Subject; the adapter must not be wrapped again.
         from brainscore_core.contract import Subject
         adapter = VisionModelAdapter(_make_legacy_model())
         assert isinstance(adapter, Subject)
-        assert isinstance(adapter, UnifiedModel)
+        assert type(adapter).__bases__ == (Subject,)    # no other base class
 
 
 class TestVisionAdapterIdentity:
@@ -430,7 +430,7 @@ class TestVisionAutoWrapping:
             with patch('brainscore_vision.import_plugin'):
                 model = brainscore_vision.load_model('test-legacy')
 
-        assert isinstance(model, UnifiedModel)
+        assert isinstance(model, Subject)
         assert isinstance(model, VisionModelAdapter)
         assert model.identifier == 'test-legacy'
 

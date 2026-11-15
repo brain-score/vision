@@ -396,7 +396,7 @@ class _LeavesALesion:
     """A benchmark that applies an intervention and, unless told to, leaves it active."""
     identifier = 'leaves-a-lesion'
     version = 1
-    required_input_channels = {'text'}
+    required_input_channels = {'text', 'lesion'}    # the lesion record answers the lesion input
     requested_output_channels = {'perturbation'}
 
     def __init__(self, undo):
@@ -418,7 +418,7 @@ class _LeavesALesion:
 
 class _LesionSubject(Subject):
     identifier = 'lesion-subject'
-    in_channels = frozenset({'text'})
+    in_channels = frozenset({'text', 'lesion'})
     out_channels = frozenset({'perturbation'})
 
     def participate(self, session):

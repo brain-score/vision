@@ -90,12 +90,12 @@ class TestPreflightInRunScore:
         assert result is score
         assert score.attrs['existing'] == 'preserved'
         assert score.attrs['in_channels'] == ('vision:image',)
-        assert score.attrs['out_channels'] == ('neural:IT',)
+        assert score.attrs['requested_outputs'] == ('neural:IT',)
         assert score.attrs['response'] == ()
         assert 'protocol' not in score.attrs
-        assert score.attrs['subject_id'] == 'test-model'
+        assert score.attrs['subject_identifier'] == 'test-model'
         assert score.attrs['compatibility']['match'] == 'full'
-        assert score.attrs['harness_id'] == 'brainscore_vision'
+        assert score.attrs['entry_point'] == 'brainscore_vision'
         # No session answered in this fake run; the plan and versions are still recorded.
         assert score.attrs['delivery'] is None
         assert score.attrs['regions_per_pass'] is None   # no subject said which plan it used

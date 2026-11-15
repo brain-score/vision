@@ -8,7 +8,7 @@ given the adapter directly calls ``look_at`` on it and gets the same calls.
 from typing import Any, Dict, List, Set
 
 from brainscore_core.compatibility import ExecutionNotFeasibleError
-from brainscore_core.contract import UnifiedModel, TaskContext
+from brainscore_core.contract import Subject, TaskContext
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
     declared_only,
@@ -18,7 +18,7 @@ from brainscore_core.streaming_helpers import (
 )
 
 
-class VisionModelAdapter(UnifiedModel):
+class VisionModelAdapter(Subject):
 
     def __init__(self, legacy_model):
         self._legacy = legacy_model

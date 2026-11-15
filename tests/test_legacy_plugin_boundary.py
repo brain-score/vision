@@ -52,9 +52,12 @@ def _is_1x(reference):
 def _brainscore_references(tree):
     """Dotted names reached in ``brainscore``, or None when the package is not imported.
 
-    ``from brainscore.a import b`` gives ``brainscore.a.b``; after ``import
-    brainscore`` each longest attribute chain on the bound name gives one name.
-    A bare ``import brainscore`` that names nothing gives ``brainscore``.
+    ``from brainscore.a import b`` gives ``brainscore.a.b``; an explicit
+    ``import brainscore.a`` gives ``brainscore.a`` (the imported module is
+    evidence of its own); after an import each longest attribute chain on the
+    bound name gives one name. A use of the bound name that is not an attribute
+    chain (``getattr(brainscore, ...)``, passing the module) and a bare
+    ``import brainscore`` that names nothing give ``brainscore``.
     """
     references, bound = [], {}
     for node in ast.walk(tree):
@@ -62,22 +65,29 @@ def _brainscore_references(tree):
             for alias in node.names:
                 if alias.name.split('.')[0] == 'brainscore':
                     bound[alias.asname or 'brainscore'] = alias.asname and alias.name or 'brainscore'
+                    if alias.name != 'brainscore':
+                        references.append(alias.name)
         elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module \
                 and node.module.split('.')[0] == 'brainscore':
             references += [f'{node.module}.{alias.name}' for alias in node.names]
     if not bound and not references:
         return None
-    chains = set()
+    chains, roots = set(), set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Attribute):
             base = node
             while isinstance(base, ast.Attribute):
                 base = base.value
             if isinstance(base, ast.Name) and base.id in bound:
+                roots.add(id(base))
                 text = ast.unparse(node)
                 chains.add(bound[base.id] + text[len(base.id):])
+    other_use = any(isinstance(node, ast.Name) and node.id in bound and id(node) not in roots
+                    for node in ast.walk(tree))
     longest = {c for c in chains if not any(o.startswith(c + '.') for o in chains)}
-    references += sorted(longest) or (['brainscore'] if bound else [])
+    references += sorted(longest)
+    if bound and (other_use or not longest):
+        references.append('brainscore')
     return references
 
 
@@ -152,6 +162,11 @@ def test_check_fails_on_a_stale_entry(tmp_path):
     ('import brainscore', 'import brainscore'),
     ('from brainscore.benchmarks import x', 'import brainscore'),
     ('import brainscore\nbrainscore.load_model("x")', 'import brainscore'),
+    ('import brainscore.tools\nbrainscore.get_assembly("x")', 'import brainscore'),
+    ('import brainscore.tools as t\nimport brainscore\nbrainscore.get_assembly("x")', 'import brainscore'),
+    ('import brainscore\nbrainscore.get_assembly("x")\ngetattr(brainscore, "tools")', 'import brainscore'),
+    ('import brainscore as bs\nbs.get_stimulus_set("x")\nbs.load_benchmark("y")', 'import brainscore'),
+    ('from brainscore import *', 'import brainscore'),
     ('import brainscore\nbrainscore.get_assembly("a")\nbrainscore.load_model("x")', 'import brainscore'),
     ('from brainscore.benchmarks.screen import place_on_screen\nfrom brainscore import load_model',
      'import brainscore'),
@@ -173,6 +188,8 @@ def test_signal_catches(source, signal):
     'import brainscore\nfrom brainscore.benchmarks.screen import place_on_screen\n'
     'stimuli = brainscore.get_stimulus_set("dicarlo.domain_transfer")',
     'from brainscore.benchmarks._neural_common import average_repetition',
+    'import brainscore.benchmarks.screen\nbrainscore.benchmarks.screen.place_on_screen(s)',
+    'import brainscore as bs\nbs.get_assembly("x")',
 ])
 def test_signal_allows(source):
     assert not unified_signals(source)

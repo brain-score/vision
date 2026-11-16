@@ -225,3 +225,45 @@ def test_fitting_table_reaches_the_legacy_model_with_declared_inputs_only():
     seen = legacy.start_task.call_args.args[1]
     assert 'sentence' not in seen.columns and list(seen['image_label']) == ['x', 'y']
     assert seen.identifier == 'fit' and 'sentence' in fitting.columns
+
+
+class _LabelBenchmark:
+    """What an old label benchmark does: a task with a list of labels, one look_at."""
+    identifier = 'legacy-label'
+
+    def __init__(self):
+        from tests.test_unified_adapter import _twenty_stimuli
+        self.stimuli = _twenty_stimuli('entry-point-label')
+
+    def preallocate_memory(self, *a, **k):
+        pass
+
+    def __call__(self, candidate):
+        candidate.start_task('label', ['real', 'pseudo'])
+        candidate.look_at(self.stimuli)
+        return Score(0.5)
+
+
+def _label_model(n_outside):
+    from tests.test_unified_adapter import _LegacyLabels
+
+    class _Answers(_LegacyLabels):
+        def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+            ids = list(stimuli['stimulus_id'])
+            answers = ['real'] * (len(ids) - n_outside) + ['unlisted'] * n_outside
+            return BehavioralAssembly([answers], dims=['choice', 'presentation'],
+                                      coords={'stimulus_id': ('presentation', ids)})
+    return VisionModelAdapter(_Answers([]))
+
+
+def test_the_score_of_a_label_benchmark_carries_the_replaced_answer_count(monkeypatch):
+    with pytest.warns(UserWarning, match='1 invalid answers'):
+        score = _score(monkeypatch, _label_model(1), _LabelBenchmark())
+    assert score.attrs['n_invalid'] == 1
+    assert 'random label' in score.attrs['answer_policy']
+
+
+def test_the_score_carries_a_zero_when_no_answer_was_replaced(monkeypatch):
+    score = _score(monkeypatch, _label_model(0), _LabelBenchmark())
+    assert score.attrs['n_invalid'] == 0
+    assert 'random label' in score.attrs['answer_policy']

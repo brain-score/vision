@@ -256,14 +256,15 @@ def _label_model(n_outside):
     return VisionModelAdapter(_Answers([]))
 
 
-def test_the_score_of_a_label_benchmark_carries_the_replaced_answer_count(monkeypatch):
-    with pytest.warns(UserWarning, match='1 invalid answers'):
-        score = _score(monkeypatch, _label_model(1), _LabelBenchmark())
+def test_the_score_of_a_label_benchmark_carries_the_count_of_old_labels_outside_the_list(monkeypatch):
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY
+    score = _score(monkeypatch, _label_model(1), _LabelBenchmark())
     assert score.attrs['n_invalid'] == 1
-    assert 'random label' in score.attrs['answer_policy']
+    assert score.attrs['answer_policy'] == OLD_LABEL_POLICY
 
 
-def test_the_score_carries_a_zero_when_no_answer_was_replaced(monkeypatch):
+def test_the_score_carries_a_zero_when_no_old_label_is_outside_the_list(monkeypatch):
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY
     score = _score(monkeypatch, _label_model(0), _LabelBenchmark())
     assert score.attrs['n_invalid'] == 0
-    assert 'random label' in score.attrs['answer_policy']
+    assert score.attrs['answer_policy'] == OLD_LABEL_POLICY

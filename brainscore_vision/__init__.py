@@ -121,7 +121,8 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
 
     # A legacy benchmark calls look_at and friends; it receives the permanent
     # facade, which runs those calls as sessions through the subject's participate.
-    from brainscore_core.legacy_facade import declared_visual_degrees, subject_for_benchmark
+    from brainscore_core.legacy_facade import (
+        declared_visual_degrees, record_replaced_answers, subject_for_benchmark)
     candidate = subject_for_benchmark(model, benchmark,
                                       visual_degrees=declared_visual_degrees(model))
 
@@ -166,6 +167,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         benchmark_identifier=benchmark_identifier,
     )
     score.attrs['compatibility'] = compatibility.as_attrs()
+    record_replaced_answers(score, candidate)
     try:  # attempt to look up the layer commitment if model uses a standard layer model
         score.attrs['comment'] = f"layers: {model.legacy_model.layer_model.region_layer_map}"
     except Exception:

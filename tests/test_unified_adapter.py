@@ -966,3 +966,70 @@ def test_the_choice_routes_forward_the_trial_count_and_the_variance_request(chan
                                settings={'number_of_trials': 3, 'require_variance': True})
     VisionModelAdapter(legacy).participate(session)
     assert legacy.looks == [{'number_of_trials': 3, 'require_variance': True}]
+
+
+def _twenty_stimuli(identifier):
+    ids = [f's{i}' for i in range(20)]
+    stimuli = StimulusSet(pd.DataFrame({'stimulus_id': ids, 'image_file_name': [f'{i}.png' for i in ids],
+                                        'image_label': ['real'] * 20}))
+    stimuli.identifier = identifier
+    stimuli.stimulus_paths = dict(zip(ids, stimuli['image_file_name']))
+    return stimuli
+
+
+def _label_run(n_outside, looks=1):
+    """An old model whose label task answers 'real' except for n_outside labels outside the list,
+    asked through the facade the score entry points give a legacy benchmark."""
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+
+    class _Answers(_LegacyLabels):
+        def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+            ids = list(stimuli['stimulus_id'])
+            answers = ['real'] * (len(ids) - n_outside) + ['unlisted'] * n_outside
+            return BehavioralAssembly([answers], dims=['choice', 'presentation'], coords={
+                'stimulus_id': ('presentation', ids)})
+
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_Answers([])), visual_degrees=8)
+    facade.start_task('label', ['real', 'pseudo'])
+    for call in range(looks):
+        facade.look_at(_twenty_stimuli(f'label-run-{n_outside}-{call}'))
+    return facade
+
+
+def test_a_label_outside_the_list_is_an_invalid_row_that_the_facade_replaces_and_counts():
+    from brainscore_core.legacy_facade import record_replaced_answers
+    from brainscore_core.metrics import Score
+    # The adapter marks the row: a label outside the list is a NaN row.
+    from brainscore_vision.compat.unified_adapter import _choice_from_labels
+    answer = BehavioralAssembly([['real', 'unlisted']], dims=['choice', 'presentation'],
+                                coords={'stimulus_id': ('presentation', ['a', 'b'])})
+    rows = _choice_from_labels(answer, ['real', 'pseudo'])
+    np.testing.assert_array_equal(rows.values[0], [1, 0])
+    assert np.isnan(rows.values[1]).all()
+    # Through the facade the row is replaced, counted once, and the count reaches the score.
+    with pytest.warns(UserWarning, match='1 invalid answers'):
+        facade = _label_run(1)
+    assert facade.n_invalid_answers == 1
+    score = Score(0.5)
+    record_replaced_answers(score, facade)
+    assert score.attrs['n_invalid'] == 1 and 'random label' in score.attrs['answer_policy']
+
+
+def test_the_count_is_the_sum_over_several_looks_and_a_new_facade_starts_at_zero():
+    with pytest.warns(UserWarning):
+        facade = _label_run(1, looks=3)
+    assert facade.n_invalid_answers == 3
+    assert _label_run(0).n_invalid_answers == 0
+
+
+def test_a_run_without_invalid_answers_writes_a_zero_on_the_score():
+    from brainscore_core.legacy_facade import record_replaced_answers
+    from brainscore_core.metrics import Score
+    score = Score(0.5)
+    record_replaced_answers(score, _label_run(0))
+    assert score.attrs['n_invalid'] == 0
+
+
+def test_above_the_limit_the_run_raises():
+    with pytest.raises(ValueError, match='outside the label set'):
+        _label_run(3)   # 15 percent of 20

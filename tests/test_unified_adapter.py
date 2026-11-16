@@ -977,27 +977,40 @@ def _twenty_stimuli(identifier):
     return stimuli
 
 
+class _OutsideLabels(_LegacyLabels):
+    """An old model whose label task answers 'real' except for n_outside labels outside the
+    list, or the given ``answers`` (an array of one label per stimulus). Its answer carries
+    every column of the stimulus set and an attribute of its own, as an old answer can."""
+
+    def __init__(self, n_outside=0, answers=None):
+        super().__init__([])
+        self.n_outside = n_outside
+        self.answers = answers
+
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+        n = len(stimuli)
+        answers = self.answers if self.answers is not None else \
+            ['real'] * (n - self.n_outside) + ['unlisted'] * self.n_outside
+        return BehavioralAssembly([answers], dims=['choice', 'presentation'], coords={
+            column: ('presentation', list(stimuli[column])) for column in stimuli.columns},
+            attrs={'old_model_note': 'kept'})
+
+
 def _label_run(n_outside, looks=1):
-    """An old model whose label task answers 'real' except for n_outside labels outside the list,
-    asked through the facade the score entry points give a legacy benchmark."""
+    """The old model above, asked through the facade the score entry points give a legacy
+    benchmark."""
     from brainscore_core.legacy_facade import LegacyBenchmarkFacade
-
-    class _Answers(_LegacyLabels):
-        def look_at(self, stimuli, number_of_trials=1, require_variance=False):
-            ids = list(stimuli['stimulus_id'])
-            answers = ['real'] * (len(ids) - n_outside) + ['unlisted'] * n_outside
-            return BehavioralAssembly([answers], dims=['choice', 'presentation'], coords={
-                'stimulus_id': ('presentation', ids)})
-
-    facade = LegacyBenchmarkFacade(VisionModelAdapter(_Answers([])), visual_degrees=8)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_OutsideLabels(n_outside)), visual_degrees=8)
     facade.start_task('label', ['real', 'pseudo'])
     for call in range(looks):
         facade.look_at(_twenty_stimuli(f'label-run-{n_outside}-{call}'))
     return facade
 
 
-def test_a_label_outside_the_list_is_an_invalid_row_that_the_facade_replaces_and_counts():
-    from brainscore_core.legacy_facade import record_replaced_answers
+def test_a_label_outside_the_list_reaches_the_old_metric_unchanged_and_is_counted():
+    """Owner decision 2026-11-16: no random label for an old model's label outside the list."""
+    import warnings
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY, record_replaced_answers
     from brainscore_core.metrics import Score
     # The adapter marks the row: a label outside the list is a NaN row.
     from brainscore_vision.compat.unified_adapter import _choice_from_labels
@@ -1006,18 +1019,123 @@ def test_a_label_outside_the_list_is_an_invalid_row_that_the_facade_replaces_and
     rows = _choice_from_labels(answer, ['real', 'pseudo'])
     np.testing.assert_array_equal(rows.values[0], [1, 0])
     assert np.isnan(rows.values[1]).all()
-    # Through the facade the row is replaced, counted once, and the count reaches the score.
-    with pytest.warns(UserWarning, match='1 invalid answers'):
+    # Through the facade the row is not replaced; it is counted, and the count reaches the score.
+    with warnings.catch_warnings():
+        warnings.simplefilter('error', UserWarning)
         facade = _label_run(1)
     assert facade.n_invalid_answers == 1
     score = Score(0.5)
     record_replaced_answers(score, facade)
-    assert score.attrs['n_invalid'] == 1 and 'random label' in score.attrs['answer_policy']
+    assert score.attrs['n_invalid'] == 1 and score.attrs['answer_policy'] == OLD_LABEL_POLICY
+
+
+def _own_and_given(answers, labels, identifier):
+    """The old model's own look_at answer and the facade's answer for the same stimuli."""
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    stimuli = _twenty_stimuli(identifier)
+    own = _OutsideLabels(answers=answers).look_at(stimuli)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_OutsideLabels(answers=answers)), visual_degrees=8)
+    facade.start_task('label', labels)
+    return own, facade.look_at(stimuli), facade
+
+
+_REAL = ['real'] * 15
+
+
+@pytest.mark.parametrize('answers', [
+    _REAL + ['unlisted'] * 5,                                    # str
+    np.array(_REAL + ['unlisted'] * 5),                          # numpy str ('<U8')
+    np.array([b'real'] * 15 + [b'unlisted'] * 5),                # bytes: never text, all outside
+    np.array([1] * 15 + [7] * 5),                                # integers: all outside
+], ids=['str', 'numpy-str', 'bytes', 'int'])
+def test_the_facade_gives_the_old_benchmark_the_old_models_own_answer(answers):
+    """The proof: with labels outside the list, the facade's answer equals the old model's own
+    look_at answer in values, numpy dtype, dims, index level names, every presentation
+    coordinate with its values and order, and attrs; the count on the score is true."""
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY, record_replaced_answers
+    from brainscore_core.metrics import Score
+    labels = ['real', 'pseudo']
+    own, given, facade = _own_and_given(answers, labels, f'own-answer-{type(answers[0]).__name__}')
+    assert given.dims == own.dims
+    assert given.dtype == own.dtype
+    np.testing.assert_array_equal(given.values, own.values)
+    assert list(given.indexes['presentation'].names) == list(own.indexes['presentation'].names)
+    for name in own.indexes['presentation'].names:
+        assert list(given[name].values) == list(own[name].values)
+    assert given.attrs == own.attrs
+    outside = sum(1 for value in np.asarray(own.values).reshape(-1)
+                  if not any(value == label for label in labels))
+    score = Score(0.5)
+    record_replaced_answers(score, facade)
+    assert score.attrs['n_invalid'] == outside > 0
+    assert score.attrs['answer_policy'] == OLD_LABEL_POLICY
+
+
+def test_the_integers_1_and_7_are_outside_the_options_1_and_7():
+    """Inside the list means equal to a label: the integer 1 is not the text '1'."""
+    answers = np.array([1, 7] + [1] * 18)
+    own, given, facade = _own_and_given(answers, ['1', '7', 'other'], 'own-answer-integers')
+    assert facade.n_invalid_answers == 20
+    np.testing.assert_array_equal(given.values, own.values)
+    assert given.dtype == own.dtype
+    from brainscore_vision.compat.unified_adapter import _choice_from_labels
+    two = BehavioralAssembly([[1, 7]], dims=['choice', 'presentation'],
+                             coords={'stimulus_id': ('presentation', ['a', 'b'])})
+    assert np.isnan(_choice_from_labels(two, ['1', '7']).values).all()   # two labels outside
+
+
+def test_a_null_label_is_refused_before_anything_is_stored():
+    """A stated limit: the stored choice format reads a null raw answer (None, float NaN) as no
+    answer, so the row would be dropped without a word; the adapter refuses it instead."""
+    from brainscore_vision.compat.unified_adapter import _choice_from_labels
+    answer = BehavioralAssembly([[1.0, np.nan]], dims=['choice', 'presentation'],
+                                coords={'stimulus_id': ('presentation', ['a', 'b'])})
+    with pytest.raises(ValueError, match=r"stimulus 'b' is nan: the stored choice format cannot "
+                                         r"carry a null label .* must return a label for every row"):
+        _choice_from_labels(answer, ['cat', 'dog'])
+
+
+def test_a_float_label_that_is_not_nan_passes_unchanged_and_counts_as_outside():
+    answers = np.array([2.5] * 20)
+    own, given, facade = _own_and_given(answers, ['cat', 'dog'], 'own-answer-floats')
+    np.testing.assert_array_equal(given.values, own.values)
+    assert given.dtype == own.dtype and facade.n_invalid_answers == 20
+
+
+def test_the_width_of_a_padded_text_array_is_not_kept():
+    """A stated limit: the facade gives equal values and the same kind of numpy type, but a
+    padded fixed-width text array ('<U10' for shorter labels) comes back as the width of its
+    longest label, because the presentation index keeps scalar values only."""
+    answers = np.array(_REAL + ['unlisted'] * 5, dtype='<U10')
+    own, given, _ = _own_and_given(answers, ['real', 'pseudo'], 'own-answer-padded')
+    np.testing.assert_array_equal(given.values, own.values)
+    assert own.dtype == np.dtype('<U10') and given.dtype == np.dtype('<U8')
+
+
+def test_an_old_model_with_one_label_row_for_each_trial_is_refused():
+    """A recorded limit, older than the label change: core's rule for stored answers allows a
+    stimulus as many answer rows as the table has it, so an old model that returns one label
+    row for each trial (several rows for one stimulus) is refused. No shipped old model does
+    it: the standard label behavior returns one row for each stimulus."""
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+
+    class _TrialRows(_LegacyLabels):
+        def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+            ids = [i for i in stimuli['stimulus_id'] for _ in range(number_of_trials)]
+            return BehavioralAssembly([['real'] * len(ids)], dims=['choice', 'presentation'], coords={
+                'stimulus_id': ('presentation', ids),
+                'trial': ('presentation', list(range(number_of_trials)) * len(stimuli))})
+
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_TrialRows([])), visual_degrees=8)
+    facade.start_task('label', ['real', 'pseudo'])
+    with pytest.raises(ValueError) as refused:
+        facade.look_at(_twenty_stimuli('trial-rows'), number_of_trials=3)
+    assert str(refused.value) == ("output event on 'behavior:choice' failed the channel catalog: "
+                                  "stimulus 's0' is answered more often than the table has it (1)")
 
 
 def test_the_count_is_the_sum_over_several_looks_and_a_new_facade_starts_at_zero():
-    with pytest.warns(UserWarning):
-        facade = _label_run(1, looks=3)
+    facade = _label_run(1, looks=3)
     assert facade.n_invalid_answers == 3
     assert _label_run(0).n_invalid_answers == 0
 
@@ -1030,9 +1148,9 @@ def test_a_run_without_invalid_answers_writes_a_zero_on_the_score():
     assert score.attrs['n_invalid'] == 0
 
 
-def test_above_the_limit_the_run_raises():
-    with pytest.raises(ValueError, match='outside the label set'):
-        _label_run(3)   # 15 percent of 20
+@pytest.mark.parametrize('n_outside', [3, 20])   # 15 and 100 percent of 20
+def test_no_share_of_labels_outside_the_list_stops_an_old_models_run(n_outside):
+    assert _label_run(n_outside).n_invalid_answers == n_outside
 
 
 # --- the answer of an old benchmark carries the stimulus columns -----------------------

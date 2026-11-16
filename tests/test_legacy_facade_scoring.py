@@ -256,14 +256,57 @@ def _label_model(n_outside):
     return VisionModelAdapter(_Answers([]))
 
 
-def test_the_score_of_a_label_benchmark_carries_the_replaced_answer_count(monkeypatch):
-    with pytest.warns(UserWarning, match='1 invalid answers'):
-        score = _score(monkeypatch, _label_model(1), _LabelBenchmark())
+def test_the_score_of_a_label_benchmark_carries_the_count_of_old_labels_outside_the_list(monkeypatch):
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY
+    score = _score(monkeypatch, _label_model(1), _LabelBenchmark())
     assert score.attrs['n_invalid'] == 1
-    assert 'random label' in score.attrs['answer_policy']
+    assert score.attrs['answer_policy'] == OLD_LABEL_POLICY
 
 
-def test_the_score_carries_a_zero_when_no_answer_was_replaced(monkeypatch):
+def test_the_score_carries_a_zero_when_no_old_label_is_outside_the_list(monkeypatch):
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY
     score = _score(monkeypatch, _label_model(0), _LabelBenchmark())
     assert score.attrs['n_invalid'] == 0
-    assert 'random label' in score.attrs['answer_policy']
+    assert score.attrs['answer_policy'] == OLD_LABEL_POLICY
+
+
+class _LabelsThenProbabilities:
+    """An old benchmark that asks one old model for labels and then for probabilities in one
+    score call, with or without reset() between the two tasks."""
+    identifier = 'legacy-labels-then-probabilities'
+
+    def __init__(self, reset):
+        from tests.test_unified_adapter import _choice_stimuli
+        self.reset = reset
+        self.stimuli = _choice_stimuli()
+
+    def preallocate_memory(self, *a, **k):
+        pass
+
+    def __call__(self, candidate):
+        candidate.start_task('label', ['real', 'pseudo'])
+        candidate.look_at(self.stimuli)
+        if self.reset:
+            candidate.reset()
+        candidate.start_task('probabilities', fitting_stimuli=self.stimuli)
+        candidate.look_at(self.stimuli)
+        return Score(0.5)
+
+
+@pytest.mark.parametrize('reset', [False, True])
+def test_one_benchmark_that_asks_for_labels_and_probabilities_gets_a_score_with_both_policies(
+        monkeypatch, reset):
+    """The facade keeps every policy it applied, in the order of first use; the count is the sum."""
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY, REPLACED_ANSWER_POLICY
+    from tests.test_unified_adapter import _LegacyForcedChoice, _LegacyLabels
+
+    class _Both(_LegacyLabels):
+        def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+            if self.tasks and self.tasks[-1] == 'probabilities':
+                return _LegacyForcedChoice.look_at(self, stimuli)
+            return super().look_at(stimuli, number_of_trials)
+
+    score = _score(monkeypatch, VisionModelAdapter(_Both(['real', 'unlisted', 'pseudo'])),
+                   _LabelsThenProbabilities(reset))
+    assert score.attrs['n_invalid'] == 1
+    assert score.attrs['answer_policy'] == f'{OLD_LABEL_POLICY}; {REPLACED_ANSWER_POLICY}'

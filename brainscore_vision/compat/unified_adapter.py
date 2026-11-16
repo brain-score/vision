@@ -329,24 +329,40 @@ def _choice_from_labels(answer, labels):
     """The legacy label task's answer as a stored choice: one-hot rows over ``labels``.
 
     The legacy answer has dims ``('choice', 'presentation')`` and one label per
-    stimulus. The stored rows keep every presentation coordinate of the answer, in its
-    order, and the label itself as the raw answer. A label outside ``labels`` is an
-    invalid row (NaN).
+    stimulus. A label is inside ``labels`` when it equals one of them (plain equality on
+    the old model's own value: the integer 1 is not the text '1', bytes are not text);
+    a label outside ``labels`` is an invalid row (NaN). The stored rows keep every
+    presentation coordinate of the answer, in its order, the old model's own value of
+    each label as the raw answer, and the attributes of the answer except ``response``
+    (the key of the stored answer's record, which core sets and compares). Two limits: a
+    null label (None or a float NaN, core's test for a raw answer with no answer) is refused,
+    since the stored choice format would make it a missing row and the row would not reach
+    the old benchmark; a run recorder refuses an answer whose labels are bytes (its codec has
+    no encoding for bytes).
     """
     import numpy as np
     from brainscore_core.response_formats import response_record
     from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
-    chosen = [str(label) for label in np.asarray(answer.values).reshape(-1)]
+    given = list(np.asarray(answer.values).reshape(-1))
     labels = list(labels)
-    one_hot = np.full((len(chosen), len(labels)), np.nan, dtype=np.float32)
-    for row, label in enumerate(chosen):
-        if label in labels:
-            one_hot[row] = 0.0
-            one_hot[row, labels.index(label)] = 1.0
     coords = _presentation_columns(answer)
-    coords.update({'choice': labels, 'raw_answer': ('presentation', chosen)})
-    return BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords=coords,
-                              attrs={'response': response_record('behavior:choice', 'legacy')})
+    for row, value in enumerate(given):
+        if value is None or (isinstance(value, float) and value != value):   # core's null raw answer
+            stimulus = coords['stimulus_id'][1][row] if 'stimulus_id' in coords else row
+            raise ValueError(
+                f"Legacy model's label for stimulus {stimulus!r} is {value!r}: the stored choice "
+                "format cannot carry a null label (it would be a missing answer). The old model "
+                "must return a label for every row.")
+    one_hot = np.full((len(given), len(labels)), np.nan, dtype=np.float32)
+    for row, value in enumerate(given):
+        inside = [column for column, label in enumerate(labels) if bool(value == label)]
+        if inside:
+            one_hot[row] = 0.0
+            one_hot[row, inside[0]] = 1.0
+    coords.update({'choice': labels, 'raw_answer': ('presentation', given)})
+    attrs = {key: value for key, value in answer.attrs.items() if key != 'response'}
+    attrs['response'] = response_record('behavior:choice', 'legacy')
+    return BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords=coords, attrs=attrs)
 
 
 def _probabilities_from_rows(rows, labels):

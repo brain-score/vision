@@ -185,7 +185,8 @@ class VisionModelAdapter(Subject):
         """Answer a Choice task on ``behavior:probabilities`` from the legacy probabilities task.
 
         The rows are the legacy model's own, put in the order of the task's labels and
-        cast to float32, the dtype of the format (the record says so). The labels must
+        cast to float32, this adapter's output type (the record says so); the format
+        keeps float64 when a subject gives it. The labels must
         be the labels of the fitting stimuli; otherwise the task is refused before the
         legacy model is set up.
         """
@@ -370,8 +371,9 @@ def _choice_from_labels(answer, labels):
 
 def _probabilities_from_rows(rows, labels):
     """The legacy probabilities task's rows as stored probabilities: the task's label
-    order, float32 (the format's dtype; the record names the cast), the legacy
-    presentation coordinates and each source row as its raw answer."""
+    order, float32 (this adapter's output type; the record names the cast; the format
+    keeps float64 when a subject gives it), the legacy presentation coordinates and
+    each source row as its raw answer."""
     import numpy as np
     from brainscore_core.response_formats import response_record
     from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly

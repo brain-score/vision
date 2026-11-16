@@ -1083,12 +1083,14 @@ def test_old_metrics_read_the_stimulus_columns_of_an_answer_through_the_adapter(
     assert list(answer.sortby('stimulus_id')['stimulus_id'].values) == ['a', 'b', 'c', 'd']   # as BMD
 
 
-def test_the_choice_of_probability_rows_keeps_every_presentation_column():
+def test_a_fitted_choice_session_stores_the_same_presentation_index_as_before():
+    """The facade attaches columns; the stored answer of a new-style fitted choice session (as ROAR
+    makes it) keeps its index: the rows' stimulus_id and the record levels only."""
     from brainscore_core.responses import Choice
     from brainscore_core.streaming_helpers import stimulus_session
-    legacy = _LegacyForcedChoice()
     task = TaskContext(response=Choice(['real', 'pseudo']), fitting_stimuli=_choice_stimuli())
     session = stimulus_session(_choice_stimuli(), ['behavior:choice'], task)
-    VisionModelAdapter(legacy).participate(session)
+    VisionModelAdapter(_LegacyForcedChoice()).participate(session)
     choice = session.collect('behavior:choice')
-    assert list(choice.indexes['presentation'].names)[:2] == ['stimulus_id', 'position']
+    assert list(choice.indexes['presentation'].names) == [
+        'stimulus_id', 'raw_answer', 'response_state', 'response_reason']

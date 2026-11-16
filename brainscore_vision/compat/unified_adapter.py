@@ -389,10 +389,9 @@ def _choice_from_rows(rows, labels):
         if ok and columns[index] in labels:
             one_hot[row] = 0.0
             one_hot[row, labels.index(columns[index])] = 1.0
-    coords = _presentation_columns(rows)
-    coords.update({'choice': labels,
-                   'raw_answer': ('presentation', [str([float(v) for v in row]) for row in values])})
-    return BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords=coords,
+    return BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords={
+        'stimulus_id': ('presentation', list(rows['stimulus_id'].values)), 'choice': labels,
+        'raw_answer': ('presentation', [str([float(v) for v in row]) for row in values])},
         attrs={'response': response_record(
             'behavior:choice', 'legacy', conversion='argmax', source_format='behavior:probabilities',
             parameters={'tie': 'first', 'option_order': 'legacy'})})

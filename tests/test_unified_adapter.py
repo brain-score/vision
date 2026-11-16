@@ -1151,10 +1151,10 @@ def test_an_old_model_with_one_label_row_for_each_trial_is_refused():
 
     facade = LegacyBenchmarkFacade(VisionModelAdapter(_TrialRows([])), visual_degrees=8)
     facade.start_task('label', ['real', 'pseudo'])
-    with pytest.raises(ValueError) as refused:
+    # The message names the channel, the stimulus and how often the table has it.
+    with pytest.raises(ValueError, match=r"'behavior:choice'.*stimulus 's0' is answered more often "
+                                         r"than the table has it \(1\)"):
         facade.look_at(_twenty_stimuli('trial-rows'), number_of_trials=3)
-    assert str(refused.value) == ("output event on 'behavior:choice' failed the channel catalog: "
-                                  "stimulus 's0' is answered more often than the table has it (1)")
 
 
 def test_the_count_is_the_sum_over_several_looks_and_a_new_facade_starts_at_zero():

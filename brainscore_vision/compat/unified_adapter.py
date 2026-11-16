@@ -346,13 +346,6 @@ def _choice_from_labels(answer, labels):
     given = list(np.asarray(answer.values).reshape(-1))
     labels = list(labels)
     coords = _presentation_columns(answer)
-    for row, value in enumerate(given):
-        if value is None or (isinstance(value, float) and value != value):   # core's null raw answer
-            stimulus = coords['stimulus_id'][1][row] if 'stimulus_id' in coords else row
-            raise ValueError(
-                f"Legacy model's label for stimulus {stimulus!r} is {value!r}: the stored choice "
-                "format cannot carry a null label (it would be a missing answer). The old model "
-                "must return a label for every row.")
     one_hot = np.full((len(given), len(labels)), np.nan, dtype=np.float32)
     for row, value in enumerate(given):
         inside = [column for column, label in enumerate(labels) if bool(value == label)]
@@ -362,7 +355,17 @@ def _choice_from_labels(answer, labels):
     coords.update({'choice': labels, 'raw_answer': ('presentation', given)})
     attrs = {key: value for key, value in answer.attrs.items() if key != 'response'}
     attrs['response'] = response_record('behavior:choice', 'legacy')
-    return BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords=coords, attrs=attrs)
+    stored = BehavioralAssembly(one_hot, dims=['presentation', 'choice'], coords=coords, attrs=attrs)
+    # Core's null test for a raw answer, on the values as the stored answer holds them (the
+    # coordinate can promote a value, for example a float32 NaN in an object array to a float).
+    for row, value in enumerate(stored['raw_answer'].values):
+        if value is None or (isinstance(value, float) and value != value):
+            stimulus = coords['stimulus_id'][1][row] if 'stimulus_id' in coords else row
+            raise ValueError(
+                f"Legacy model's label for stimulus {stimulus!r} is {value!r}: the stored choice "
+                "format cannot carry a null label (it would be a missing answer). The old model "
+                "must return a label for every row.")
+    return stored
 
 
 def _probabilities_from_rows(rows, labels):

@@ -1033,3 +1033,64 @@ def test_a_run_without_invalid_answers_writes_a_zero_on_the_score():
 def test_above_the_limit_the_run_raises():
     with pytest.raises(ValueError, match='outside the label set'):
         _label_run(3)   # 15 percent of 20
+
+
+# --- the answer of an old benchmark carries the stimulus columns -----------------------
+
+def _columns_stimuli():
+    stimuli = StimulusSet(pd.DataFrame({
+        'stimulus_id': ['a', 'b', 'c', 'd'], 'image_file_name': ['a.png', 'b.png', 'c.png', 'd.png'],
+        'animal': ['cat', 'dog', 'cat', 'dog'], 'image_type': ['w', 'w', 'f', 'f']}))
+    stimuli.identifier = 'adapter-columns'
+    stimuli.stimulus_paths = dict(zip(stimuli['stimulus_id'], stimuli['image_file_name']))
+    return stimuli
+
+
+class _FullColumnLabels(_LegacyForcedChoice):
+    """An old model whose label answer carries every column of the stimulus set, as in old Brain-Score."""
+    identifier = 'legacy-full-columns'
+
+    def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+        coords = {name: ('presentation', list(stimuli[name])) for name in stimuli.columns}
+        return BehavioralAssembly([['cat', 'dog', 'cat', 'dog']], dims=['choice', 'presentation'], coords=coords)
+
+
+def test_an_old_model_through_the_adapter_gets_the_same_answer_as_before_the_repair():
+    """The facade adds columns an answer lacks; this answer lacks none, so it is the answer of the adapter
+    turned back to labels, as before."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade, _labels_from_choice
+    from brainscore_core.responses import Choice
+    from brainscore_core.streaming_helpers import stimulus_session
+    stimuli = _columns_stimuli()
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_FullColumnLabels()), visual_degrees=8)
+    facade.start_task('label', ['cat', 'dog'])
+    session = stimulus_session(stimuli, ['behavior:choice'], TaskContext(response=Choice(['cat', 'dog'])))
+    VisionModelAdapter(_FullColumnLabels()).participate(session)
+    before = _labels_from_choice(session.collect('behavior:choice'))          # no stimuli: the old turn back
+    xr.testing.assert_identical(facade.look_at(stimuli), before)
+    assert list(before.indexes['presentation'].names) == list(stimuli.columns)
+
+
+def test_old_metrics_read_the_stimulus_columns_of_an_answer_through_the_adapter():
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_FullColumnLabels()), visual_degrees=8)
+    facade.start_task('label', ['cat', 'dog'])
+    answer = facade.look_at(_columns_stimuli())
+    scores = [float((answer.sel(animal=cat, image_type='w').values == cat).mean())
+              for cat in sorted(set(answer['animal'].values))]      # as the Baker metric reads 'animal'
+    assert scores == [1.0, 1.0]
+    assert list(answer.sortby('stimulus_id')['stimulus_id'].values) == ['a', 'b', 'c', 'd']   # as BMD
+
+
+def test_a_fitted_choice_session_stores_the_same_presentation_index_as_before():
+    """The facade attaches columns; the stored answer of a new-style fitted choice session (as ROAR
+    makes it) keeps its index: the rows' stimulus_id and the record levels only."""
+    from brainscore_core.responses import Choice
+    from brainscore_core.streaming_helpers import stimulus_session
+    task = TaskContext(response=Choice(['real', 'pseudo']), fitting_stimuli=_choice_stimuli())
+    session = stimulus_session(_choice_stimuli(), ['behavior:choice'], task)
+    VisionModelAdapter(_LegacyForcedChoice()).participate(session)
+    choice = session.collect('behavior:choice')
+    assert list(choice.indexes['presentation'].names) == [
+        'stimulus_id', 'raw_answer', 'response_state', 'response_reason']

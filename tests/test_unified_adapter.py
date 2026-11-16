@@ -1084,15 +1084,38 @@ def test_the_integers_1_and_7_are_outside_the_options_1_and_7():
     assert np.isnan(_choice_from_labels(two, ['1', '7']).values).all()   # two labels outside
 
 
-def test_a_null_label_is_refused_before_anything_is_stored():
+@pytest.mark.parametrize('values, stimulus', [
+    ([1.0, np.nan], 'b'),                                                    # float64 NaN
+    (np.array([1.0, None], dtype=object), 'b'),                              # None
+    (np.array([np.float32(np.nan), 1.0], dtype=object), 'a'),                # stored as a float NaN
+    (np.array([np.float32(np.nan), np.int64(1)], dtype=object), 'a'),        # stored as a float NaN
+], ids=['float64-nan', 'none', 'object-float32-nan-and-float', 'object-float32-nan-and-int64'])
+def test_a_null_label_is_refused_before_anything_is_stored(values, stimulus):
     """A stated limit: the stored choice format reads a null raw answer (None, float NaN) as no
-    answer, so the row would be dropped without a word; the adapter refuses it instead."""
+    answer, so the row would be dropped without a word; the adapter refuses it instead. The test
+    reads the values as the stored answer holds them: the coordinate turns a float32 NaN in an
+    object array into a float NaN."""
     from brainscore_vision.compat.unified_adapter import _choice_from_labels
-    answer = BehavioralAssembly([[1.0, np.nan]], dims=['choice', 'presentation'],
+    answer = BehavioralAssembly([values], dims=['choice', 'presentation'],
                                 coords={'stimulus_id': ('presentation', ['a', 'b'])})
-    with pytest.raises(ValueError, match=r"stimulus 'b' is nan: the stored choice format cannot "
-                                         r"carry a null label .* must return a label for every row"):
+    with pytest.raises(ValueError, match=rf"stimulus '{stimulus}' is .*: the stored choice format "
+                                         r"cannot carry a null label .* must return a label for every row"):
         _choice_from_labels(answer, ['cat', 'dog'])
+
+
+def test_a_float32_nan_that_the_stored_answer_keeps_passes_with_its_row():
+    """A homogeneous float32 array keeps its NaN as a float32, which is not null for core: both
+    rows reach the old benchmark and both count as outside."""
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    stimuli = _twenty_stimuli('float32-nan').iloc[:2]
+    stimuli = StimulusSet(stimuli)
+    stimuli.identifier = 'float32-nan-two'
+    stimuli.stimulus_paths = dict(zip(stimuli['stimulus_id'], stimuli['image_file_name']))
+    answers = np.array([np.nan, 1.0], dtype=np.float32)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_OutsideLabels(answers=answers)), visual_degrees=8)
+    facade.start_task('label', ['cat', 'dog'])
+    given = facade.look_at(stimuli)
+    assert given.shape == (1, 2) and given.dtype == np.float32 and facade.n_invalid_answers == 2
 
 
 def test_a_float_label_that_is_not_nan_passes_unchanged_and_counts_as_outside():

@@ -1084,6 +1084,24 @@ def test_the_integers_1_and_7_are_outside_the_options_1_and_7():
     assert np.isnan(_choice_from_labels(two, ['1', '7']).values).all()   # two labels outside
 
 
+def test_a_null_label_is_refused_before_anything_is_stored():
+    """A stated limit: the stored choice format reads a null raw answer (None, float NaN) as no
+    answer, so the row would be dropped without a word; the adapter refuses it instead."""
+    from brainscore_vision.compat.unified_adapter import _choice_from_labels
+    answer = BehavioralAssembly([[1.0, np.nan]], dims=['choice', 'presentation'],
+                                coords={'stimulus_id': ('presentation', ['a', 'b'])})
+    with pytest.raises(ValueError, match=r"stimulus 'b' is nan: the stored choice format cannot "
+                                         r"carry a null label .* must return a label for every row"):
+        _choice_from_labels(answer, ['cat', 'dog'])
+
+
+def test_a_float_label_that_is_not_nan_passes_unchanged_and_counts_as_outside():
+    answers = np.array([2.5] * 20)
+    own, given, facade = _own_and_given(answers, ['cat', 'dog'], 'own-answer-floats')
+    np.testing.assert_array_equal(given.values, own.values)
+    assert given.dtype == own.dtype and facade.n_invalid_answers == 20
+
+
 def test_the_width_of_a_padded_text_array_is_not_kept():
     """A stated limit: the facade gives equal values and the same kind of numpy type, but a
     padded fixed-width text array ('<U10' for shorter labels) comes back as the width of its

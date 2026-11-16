@@ -334,22 +334,31 @@ def _choice_from_labels(answer, labels):
     a label outside ``labels`` is an invalid row (NaN). The stored rows keep every
     presentation coordinate of the answer, in its order, the old model's own value of
     each label as the raw answer, and the attributes of the answer except ``response``
-    (the key of the stored answer's record, which core sets and compares). Scoring works
-    for every label type; a run recorder refuses an answer whose labels are bytes (its codec
-    has no encoding for bytes).
+    (the key of the stored answer's record, which core sets and compares). Two limits: a
+    null label (None or a float NaN, core's test for a raw answer with no answer) is refused,
+    since the stored choice format would make it a missing row and the row would not reach
+    the old benchmark; a run recorder refuses an answer whose labels are bytes (its codec has
+    no encoding for bytes).
     """
     import numpy as np
     from brainscore_core.response_formats import response_record
     from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
     given = list(np.asarray(answer.values).reshape(-1))
     labels = list(labels)
+    coords = _presentation_columns(answer)
+    for row, value in enumerate(given):
+        if value is None or (isinstance(value, float) and value != value):   # core's null raw answer
+            stimulus = coords['stimulus_id'][1][row] if 'stimulus_id' in coords else row
+            raise ValueError(
+                f"Legacy model's label for stimulus {stimulus!r} is {value!r}: the stored choice "
+                "format cannot carry a null label (it would be a missing answer). The old model "
+                "must return a label for every row.")
     one_hot = np.full((len(given), len(labels)), np.nan, dtype=np.float32)
     for row, value in enumerate(given):
         inside = [column for column, label in enumerate(labels) if bool(value == label)]
         if inside:
             one_hot[row] = 0.0
             one_hot[row, inside[0]] = 1.0
-    coords = _presentation_columns(answer)
     coords.update({'choice': labels, 'raw_answer': ('presentation', given)})
     attrs = {key: value for key, value in answer.attrs.items() if key != 'response'}
     attrs['response'] = response_record('behavior:choice', 'legacy')

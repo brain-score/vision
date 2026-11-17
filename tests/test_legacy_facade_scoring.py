@@ -48,11 +48,26 @@ class _NeuralBenchmark:
         return score
 
 
+def _labelled_fitting():
+    fitting = _vision_stimulus_set()
+    fitting['image_label'] = ['cat', 'dog']
+    return fitting
+
+
+def _probability_rows():
+    """The answer of an old probabilities task: rows over the fitted labels, float64."""
+    return BehavioralAssembly(np.array([[0.75, 0.25], [0.375, 0.625]]), dims=['presentation', 'choice'],
+                              coords={'stimulus_id': ('presentation', ['s0', 's1']),
+                                      'image_path': ('presentation', ['s0.png', 's1.png']),
+                                      'object_name': ('presentation', ['cat', 'dog']),
+                                      'choice': ['cat', 'dog']})
+
+
 class _BehavioralBenchmark:
     identifier = 'legacy-behavior'
 
     def __init__(self):
-        self.fitting = _vision_stimulus_set()
+        self.fitting = _labelled_fitting()
         self.test = _vision_stimulus_set()
 
     def preallocate_memory(self, *a, **k):
@@ -91,15 +106,16 @@ def test_variance_request_is_forwarded_only_when_asked(monkeypatch):
 
 
 def test_adapted_legacy_model_runs_a_behavioral_benchmark(monkeypatch):
+    import xarray as xr
     legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
-    legacy.look_at.return_value = BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'])
+    legacy.look_at.return_value = _probability_rows()
     benchmark = _BehavioralBenchmark()
     score = _score(monkeypatch, VisionModelAdapter(legacy), benchmark)
     legacy.start_task.assert_called_once_with('probabilities', benchmark.fitting)
     args, kwargs = legacy.look_at.call_args
     assert args[0] is benchmark.test and args[1] == 3 and kwargs == {}
     legacy.start_recording.assert_not_called()
-    assert score.attrs['output'] is legacy.look_at.return_value
+    xr.testing.assert_identical(score.attrs['output'], legacy.look_at.return_value)
 
 
 class _NativeSubject(Subject):
@@ -155,7 +171,7 @@ class _MalaniaLikeBenchmark:
     identifier = 'legacy-malania'
 
     def __init__(self):
-        self.fitting = _vision_stimulus_set()
+        self.fitting = _labelled_fitting()
         self.conditions = [_vision_stimulus_set(), _vision_stimulus_set()]
 
     def preallocate_memory(self, *a, **k):
@@ -173,7 +189,7 @@ class _MalaniaLikeBenchmark:
 
 def test_fitting_settings_reach_the_legacy_model_once(monkeypatch):
     legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
-    legacy.look_at.return_value = BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'])
+    legacy.look_at.return_value = _probability_rows()
     benchmark = _MalaniaLikeBenchmark()
     _score(monkeypatch, VisionModelAdapter(legacy), benchmark)
     legacy.start_task.assert_called_once_with('probabilities', benchmark.fitting,

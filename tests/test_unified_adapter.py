@@ -716,7 +716,7 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
         adapter = VisionModelAdapter(legacy)
         stimuli = _vision_stimulus_set()
         behavioral = LegacyBenchmarkFacade(adapter, visual_degrees=8)
-        behavioral.start_task('probabilities', stimuli)
+        behavioral.start_task('odd_one_out')
         choices = behavioral.look_at(stimuli)
         assert isinstance(choices, BehavioralAssembly)
         assert list(choices.values) == ['cat', 'dog']          # the legacy model's answer
@@ -732,7 +732,7 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
         stimuli = _vision_stimulus_set()
 
         def run(model):
-            model.start_task('probabilities', stimuli)
+            model.start_task('odd_one_out')
             model.look_at(stimuli)
             model.start_task('passive')
             model.start_recording('IT', time_bins=[(70, 170)])

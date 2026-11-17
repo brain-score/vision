@@ -15,7 +15,7 @@ from PIL import Image
 from brainscore_core.contract import TaskContext
 from brainscore_core.responses import Choice
 from brainscore_core.streaming_helpers import stimulus_session
-from brainscore_core.supported_data_standards.brainio.assemblies import NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_vision.compat.unified_adapter import VisionModelAdapter
 from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper, load_preprocess_images
@@ -210,3 +210,76 @@ def test_the_behavior_arbiter_of_a_model_commitment_gives_the_same_label_answer(
     facade = LegacyBenchmarkFacade(VisionModelAdapter(arbiter), visual_degrees=8)
     facade.start_task('label', LABELS)
     xr.testing.assert_identical(facade.look_at(table), expected)
+
+
+class _OldWithMetadata:
+    """An old model whose probabilities answer carries more than the format keeps."""
+    identifier = 'old-with-metadata'
+
+    def __init__(self, metadata):
+        self.metadata = metadata
+
+    def start_task(self, task, fitting_stimuli=None, **settings):
+        self.labels = list(dict.fromkeys(fitting_stimuli['image_label']))
+
+    def look_at(self, stimuli, number_of_trials=1, **settings):
+        ids = list(stimuli['stimulus_id'])
+        coords = {column: ('presentation', list(stimuli[column])) for column in stimuli.columns}
+        coords.update({'truth': ('presentation', ['dog'] * len(ids)), 'choice': self.labels})
+        if self.metadata == 'scalar coordinate':
+            coords['units'] = 'unitless'
+        if self.metadata == 'raw_answer':
+            coords['raw_answer'] = ('presentation', [f'old {i}' for i in ids])
+        answer = BehavioralAssembly(np.tile(np.linspace(1, 2, len(self.labels)) / np.linspace(1, 2, len(self.labels)).sum(),
+                                            (len(ids), 1)), dims=['presentation', 'choice'], coords=coords)
+        if self.metadata == 'attribute':
+            answer.attrs['calibration'] = {'temperature': 3}
+        return answer
+
+
+@pytest.mark.parametrize('metadata', ['attribute', 'scalar coordinate', 'raw_answer'])
+def test_the_facade_gives_the_old_answer_with_its_metadata(metadata):
+    """An old answer's attributes, its coordinates on other dimensions and its coordinates whose
+    names the format uses for its own columns reach the old benchmark as the old model gave them."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().copy()
+    table.identifier = 'legacy-formats-metadata'
+    old = _OldWithMetadata(metadata)
+    old.start_task('probabilities', fitting())
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_OldWithMetadata(metadata)), visual_degrees=8)
+    facade.start_task('probabilities', fitting())
+    xr.testing.assert_identical(facade.look_at(table), old.look_at(table))
+
+
+class _OldOnLabel:
+    """An old model that fits on a table whose label column is named 'label'."""
+    identifier = 'old-on-label'
+
+    def __init__(self):
+        self.calls = []
+
+    def start_task(self, task, fitting_stimuli=None, **settings):
+        self.calls.append(('start_task', task, list(fitting_stimuli['label'])))
+        self.labels = list(dict.fromkeys(fitting_stimuli['label']))
+
+    def look_at(self, stimuli, number_of_trials=1, **settings):
+        self.calls.append(('look_at', list(stimuli['stimulus_id'])))
+        ids = list(stimuli['stimulus_id'])
+        return BehavioralAssembly(np.full((len(ids), len(self.labels)), 1 / len(self.labels)),
+                                  dims=['presentation', 'choice'],
+                                  coords={**{c: ('presentation', list(stimuli[c])) for c in stimuli.columns},
+                                          'choice': self.labels})
+
+
+def test_an_old_model_fitted_on_a_label_column_answers_through_the_facade():
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().rename(columns={'image_label': 'label'})
+    table.identifier = 'legacy-formats-label-column'
+    old, plain = _OldOnLabel(), _OldOnLabel()
+    plain.start_task('probabilities', table)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', table)
+    xr.testing.assert_identical(facade.look_at(table), plain.look_at(table))
+    assert old.calls == plain.calls

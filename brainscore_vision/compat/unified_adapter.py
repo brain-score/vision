@@ -195,7 +195,10 @@ class VisionModelAdapter(Subject):
                 f"Legacy model '{self.identifier}' gives behavior:probabilities from its "
                 "probabilities task, which is fitted on TaskContext.fitting_stimuli; the task "
                 "gives none.", channels={'behavior:probabilities'}, task_type=task.task_type)
-        fitted = set(str(label) for label in task.fitting_stimuli['image_label'])
+        # The label column of an old probabilities task: image_label, else label (the facade's rule).
+        fitting = task.fitting_stimuli
+        column = 'image_label' if 'image_label' in fitting.columns else 'label'
+        fitted = set(str(label) for label in fitting[column])
         if fitted != set(task.response.labels):
             raise ExecutionNotFeasibleError(
                 f"Legacy model '{self.identifier}': the probabilities task is fitted on the "
@@ -371,10 +374,23 @@ def _choice_from_labels(answer, labels):
     return stored
 
 
+# The coordinates core adds to a stored answer; an old answer's own coordinate of such a name
+# travels in the legacy metadata, so that core reads the format's own column.
+_STORED_NAMES = ('raw_answer', 'response_state', 'response_reason', 'answer_valid', 'parse_error')
+# The attribute that carries what the stored format does not keep of an old answer.
+_LEGACY_METADATA = 'legacy_metadata'
+
+
 def _probabilities_from_rows(rows, labels):
     """The legacy probabilities task's rows as stored probabilities: the task's label
     order, the legacy model's own values and float type (float64), the legacy
-    presentation coordinates and each source row as its raw answer."""
+    presentation coordinates and each source row as its raw answer.
+
+    What the format does not keep of the old answer travels in ``attrs['legacy_metadata']``,
+    for the legacy facade to give the old benchmark the old answer back: its attributes, its
+    coordinates on other dimensions, its presentation coordinates whose names core uses for
+    its own columns (``raw_answer`` and the trial states), and the order of its coordinates.
+    The attribute is set only when there is something to carry."""
     import numpy as np
     from brainscore_core.response_formats import response_record
     from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
@@ -382,13 +398,20 @@ def _probabilities_from_rows(rows, labels):
     columns = [str(c) for c in rows['choice'].values]
     source = np.asarray(rows.values)
     ordered = source[:, [columns.index(label) for label in labels]]
-    coords = _presentation_columns(rows)
+    presentation = _presentation_columns(rows)
+    carried = {name: (coord.dims, coord.values) for name, coord in rows.coords.items()
+               if name not in ('presentation', 'choice') and coord.dims != ('presentation',)}
+    carried.update({name: ('presentation', np.asarray(rows[name].values))
+                    for name in presentation if name in _STORED_NAMES})
+    coords = {name: column for name, column in presentation.items() if name not in _STORED_NAMES}
     coords.update({'choice': list(labels),
                    'raw_answer': ('presentation', [str([float(v) for v in row]) for row in source])})
-    return BehavioralAssembly(ordered, dims=['presentation', 'choice'], coords=coords,
-                              attrs={'response': response_record(
-                                  'behavior:probabilities', 'legacy',
-                                  parameters={'option_order': 'task'})})
+    attrs = {'response': response_record('behavior:probabilities', 'legacy',
+                                         parameters={'option_order': 'task'})}
+    if carried or rows.attrs:
+        attrs[_LEGACY_METADATA] = {'attrs': dict(rows.attrs), 'coords': carried,
+                                  'presentation': list(presentation), 'order': list(rows.coords)}
+    return BehavioralAssembly(ordered, dims=['presentation', 'choice'], coords=coords, attrs=attrs)
 
 
 def _choice_from_rows(rows, labels):

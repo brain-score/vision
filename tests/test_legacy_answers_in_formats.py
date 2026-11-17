@@ -300,6 +300,14 @@ class _OldLayout:
         row = np.linspace(1, 2, len(self.labels)) / np.linspace(1, 2, len(self.labels)).sum()
         answer = BehavioralAssembly(np.tile(row, (len(ids), 1)), dims=['presentation', 'choice'],
                                     coords={'stimulus_id': ('presentation', ids), 'choice': self.labels})
+        if self.layout.startswith('no stimulus ids'):
+            answer = BehavioralAssembly(answer.values, dims=['presentation', 'choice'], coords={'choice': self.labels})
+        if self.layout == 'no stimulus ids, trial numbers':
+            answer = answer.assign_coords(trial=('presentation', list(range(len(ids)))))
+        if self.layout == 'no stimulus ids, a trial-number index':
+            answer = answer.assign_coords(presentation=list(range(len(ids))))
+        if self.layout == 'no stimulus ids, a subset':
+            answer = answer.isel(presentation=[0, 2])
         if self.layout == 'coordinate attribute':
             answer = answer.assign_coords(units='unitless')
             answer.coords['units'].attrs['definition'] = 'old coordinate'
@@ -315,7 +323,9 @@ class _OldLayout:
 
 
 @pytest.mark.parametrize('layout', ['coordinate attribute', 'choice coordinate', 'added raw_answer',
-                                    'added raw_answer on a subset', 'added raw_answer reversed'])
+                                    'added raw_answer on a subset', 'added raw_answer reversed',
+                                    'no stimulus ids, trial numbers', 'no stimulus ids, a trial-number index',
+                                    'no stimulus ids, a subset'])
 def test_the_old_benchmark_receives_the_old_models_own_answer_object(layout):
     """Whatever legal layout the old answer has, the facade hands the old benchmark that very
     object (nothing to add here: the scored table has no other column)."""
@@ -330,3 +340,35 @@ def test_the_old_benchmark_receives_the_old_models_own_answer_object(layout):
     answer = facade.look_at(scored)
     assert answer is old.returned
     xr.testing.assert_identical(answer, plain.look_at(scored))
+
+
+def test_the_answer_event_records_what_the_old_model_returned():
+    """In any session, the probabilities answer event's meta holds the old model's own answer
+    object; the stored answer is the format's."""
+    old = _OldLayout('added raw_answer')
+    session = stimulus_session(fitting(), ['behavior:probabilities'],
+                               TaskContext(response=Choice(LABELS), fitting_stimuli=fitting()))
+    VisionModelAdapter(old).participate(session)
+    (event,) = [e for e in session.emitted if e.channel == 'behavior:probabilities']
+    assert event.meta['legacy_answer'] is old.returned
+    assert 'legacy_answer' not in session.collect('behavior:probabilities').attrs
+
+
+def _stored(layout):
+    session = stimulus_session(fitting(), ['behavior:probabilities'],
+                               TaskContext(response=Choice(LABELS), fitting_stimuli=fitting()))
+    VisionModelAdapter(_OldLayout(layout)).participate(session)
+    return session.collect('behavior:probabilities')
+
+
+@pytest.mark.parametrize('layout', ['no stimulus ids, trial numbers', 'no stimulus ids, a trial-number index'])
+def test_an_old_answer_in_table_order_without_stimulus_ids_takes_the_table_ids(layout):
+    stored = _stored(layout)
+    assert list(stored['stimulus_id'].values) == list(fitting()['stimulus_id'])
+    assert set(stored['response_state'].values) == {'valid'}
+
+
+def test_a_shorter_old_answer_without_stimulus_ids_leaves_every_trial_missing_with_the_cause():
+    stored = _stored('no stimulus ids, a subset')
+    assert set(stored['response_state'].values) == {'missing'}
+    assert all('stimulus id' in reason for reason in stored['response_reason'].values)

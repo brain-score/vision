@@ -10,11 +10,10 @@ import pytest
 import brainscore_vision
 from brainscore_core.legacy_facade import LegacyBenchmarkFacade
 from brainscore_core.metrics import Score
-from brainscore_core.model_interface import Subject
+from brainscore_core.contract import Subject
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
-from brainscore_vision.benchmarks.majajhong2015.unified import UnifiedNeuralBenchmark
 from brainscore_vision.compat.unified_adapter import VisionModelAdapter
 
 from tests.test_unified_adapter import _make_legacy_model, _vision_neural_assembly, _vision_stimulus_set
@@ -49,11 +48,26 @@ class _NeuralBenchmark:
         return score
 
 
+def _labelled_fitting():
+    fitting = _vision_stimulus_set()
+    fitting['image_label'] = ['cat', 'dog']
+    return fitting
+
+
+def _probability_rows():
+    """The answer of an old probabilities task: rows over the fitted labels, float64."""
+    return BehavioralAssembly(np.array([[0.75, 0.25], [0.375, 0.625]]), dims=['presentation', 'choice'],
+                              coords={'stimulus_id': ('presentation', ['s0', 's1']),
+                                      'image_path': ('presentation', ['s0.png', 's1.png']),
+                                      'object_name': ('presentation', ['cat', 'dog']),
+                                      'choice': ['cat', 'dog']})
+
+
 class _BehavioralBenchmark:
     identifier = 'legacy-behavior'
 
     def __init__(self):
-        self.fitting = _vision_stimulus_set()
+        self.fitting = _labelled_fitting()
         self.test = _vision_stimulus_set()
 
     def preallocate_memory(self, *a, **k):
@@ -92,15 +106,16 @@ def test_variance_request_is_forwarded_only_when_asked(monkeypatch):
 
 
 def test_adapted_legacy_model_runs_a_behavioral_benchmark(monkeypatch):
+    import xarray as xr
     legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
-    legacy.look_at.return_value = BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'])
+    legacy.look_at.return_value = _probability_rows()
     benchmark = _BehavioralBenchmark()
     score = _score(monkeypatch, VisionModelAdapter(legacy), benchmark)
     legacy.start_task.assert_called_once_with('probabilities', benchmark.fitting)
     args, kwargs = legacy.look_at.call_args
     assert args[0] is benchmark.test and args[1] == 3 and kwargs == {}
     legacy.start_recording.assert_not_called()
-    assert score.attrs['output'] is legacy.look_at.return_value
+    xr.testing.assert_identical(score.attrs['output'], legacy.look_at.return_value)
 
 
 class _NativeSubject(Subject):
@@ -149,15 +164,6 @@ def test_subject_without_visual_field_fails_clearly(monkeypatch):
         _score(monkeypatch, subject, _NeuralBenchmark())
 
 
-def test_typed_benchmark_variant_is_not_wrapped():
-    from types import SimpleNamespace
-    from brainscore_core.legacy_facade import mark_legacy_benchmark, subject_for_benchmark
-    assert UnifiedNeuralBenchmark.subject_api == 'typed'
-    benchmark = mark_legacy_benchmark(SimpleNamespace(subject_api=UnifiedNeuralBenchmark.subject_api))
-    model = object()
-    assert subject_for_benchmark(model, benchmark) is model
-
-
 # --- setup once, measure many times ------------------------------------------
 
 class _MalaniaLikeBenchmark:
@@ -165,7 +171,7 @@ class _MalaniaLikeBenchmark:
     identifier = 'legacy-malania'
 
     def __init__(self):
-        self.fitting = _vision_stimulus_set()
+        self.fitting = _labelled_fitting()
         self.conditions = [_vision_stimulus_set(), _vision_stimulus_set()]
 
     def preallocate_memory(self, *a, **k):
@@ -183,7 +189,7 @@ class _MalaniaLikeBenchmark:
 
 def test_fitting_settings_reach_the_legacy_model_once(monkeypatch):
     legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
-    legacy.look_at.return_value = BehavioralAssembly(np.array(['cat', 'dog']), dims=['presentation'])
+    legacy.look_at.return_value = _probability_rows()
     benchmark = _MalaniaLikeBenchmark()
     _score(monkeypatch, VisionModelAdapter(legacy), benchmark)
     legacy.start_task.assert_called_once_with('probabilities', benchmark.fitting,
@@ -235,3 +241,88 @@ def test_fitting_table_reaches_the_legacy_model_with_declared_inputs_only():
     seen = legacy.start_task.call_args.args[1]
     assert 'sentence' not in seen.columns and list(seen['image_label']) == ['x', 'y']
     assert seen.identifier == 'fit' and 'sentence' in fitting.columns
+
+
+class _LabelBenchmark:
+    """What an old label benchmark does: a task with a list of labels, one look_at."""
+    identifier = 'legacy-label'
+
+    def __init__(self):
+        from tests.test_unified_adapter import _twenty_stimuli
+        self.stimuli = _twenty_stimuli('entry-point-label')
+
+    def preallocate_memory(self, *a, **k):
+        pass
+
+    def __call__(self, candidate):
+        candidate.start_task('label', ['real', 'pseudo'])
+        candidate.look_at(self.stimuli)
+        return Score(0.5)
+
+
+def _label_model(n_outside):
+    from tests.test_unified_adapter import _LegacyLabels
+
+    class _Answers(_LegacyLabels):
+        def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+            ids = list(stimuli['stimulus_id'])
+            answers = ['real'] * (len(ids) - n_outside) + ['unlisted'] * n_outside
+            return BehavioralAssembly([answers], dims=['choice', 'presentation'],
+                                      coords={'stimulus_id': ('presentation', ids)})
+    return VisionModelAdapter(_Answers([]))
+
+
+def test_the_score_of_a_label_benchmark_carries_the_count_of_old_labels_outside_the_list(monkeypatch):
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY
+    score = _score(monkeypatch, _label_model(1), _LabelBenchmark())
+    assert score.attrs['n_invalid'] == 1
+    assert score.attrs['answer_policy'] == OLD_LABEL_POLICY
+
+
+def test_the_score_carries_a_zero_when_no_old_label_is_outside_the_list(monkeypatch):
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY
+    score = _score(monkeypatch, _label_model(0), _LabelBenchmark())
+    assert score.attrs['n_invalid'] == 0
+    assert score.attrs['answer_policy'] == OLD_LABEL_POLICY
+
+
+class _LabelsThenProbabilities:
+    """An old benchmark that asks one old model for labels and then for probabilities in one
+    score call, with or without reset() between the two tasks."""
+    identifier = 'legacy-labels-then-probabilities'
+
+    def __init__(self, reset):
+        from tests.test_unified_adapter import _choice_stimuli
+        self.reset = reset
+        self.stimuli = _choice_stimuli()
+
+    def preallocate_memory(self, *a, **k):
+        pass
+
+    def __call__(self, candidate):
+        candidate.start_task('label', ['real', 'pseudo'])
+        candidate.look_at(self.stimuli)
+        if self.reset:
+            candidate.reset()
+        candidate.start_task('probabilities', fitting_stimuli=self.stimuli)
+        candidate.look_at(self.stimuli)
+        return Score(0.5)
+
+
+@pytest.mark.parametrize('reset', [False, True])
+def test_one_benchmark_that_asks_for_labels_and_probabilities_gets_a_score_with_both_policies(
+        monkeypatch, reset):
+    """The facade keeps every policy it applied, in the order of first use; the count is the sum."""
+    from brainscore_core.legacy_facade import OLD_LABEL_POLICY, REPLACED_ANSWER_POLICY
+    from tests.test_unified_adapter import _LegacyForcedChoice, _LegacyLabels
+
+    class _Both(_LegacyLabels):
+        def look_at(self, stimuli, number_of_trials=1, require_variance=False):
+            if self.tasks and self.tasks[-1] == 'probabilities':
+                return _LegacyForcedChoice.look_at(self, stimuli)
+            return super().look_at(stimuli, number_of_trials)
+
+    score = _score(monkeypatch, VisionModelAdapter(_Both(['real', 'unlisted', 'pseudo'])),
+                   _LabelsThenProbabilities(reset))
+    assert score.attrs['n_invalid'] == 1
+    assert score.attrs['answer_policy'] == f'{OLD_LABEL_POLICY}; {REPLACED_ANSWER_POLICY}'

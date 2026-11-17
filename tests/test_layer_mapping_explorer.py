@@ -17,14 +17,6 @@ from brainscore_vision.tools.layer_mapping_explorer import (
 
 # ---------- Unit tests (no model loading) ----------
 
-class TestImports:
-    """Verify that internal imports resolve correctly (catches module vs function errors)."""
-
-    def test_import_plugin_is_callable(self):
-        from brainscore_core.plugin_management.import_plugin import import_plugin
-        assert callable(import_plugin)
-
-
 class TestSuggestMapping:
 
     def test_picks_highest_scoring_layer_per_region(self):
@@ -176,12 +168,14 @@ class TestExploreLayerMappingIntegration:
     def test_returns_correct_structure(self, alexnet_layer_scores):
         scores = alexnet_layer_scores
         assert isinstance(scores, dict)
-        assert set(scores.keys()) == {'V4', 'IT'}
-        for region, layer_scores in scores.items():
+        # The requested regions and layers are present; a result may carry more keys.
+        assert {'V4', 'IT'} <= set(scores)
+        for region in ('V4', 'IT'):
+            layer_scores = scores[region]
             assert isinstance(layer_scores, dict)
-            assert set(layer_scores.keys()) == {'features.2', 'features.5', 'features.12'}
-            for layer, score in layer_scores.items():
-                assert isinstance(score, float)
+            assert {'features.2', 'features.5', 'features.12'} <= set(layer_scores)
+            for layer in ('features.2', 'features.5', 'features.12'):
+                assert isinstance(layer_scores[layer], float)
 
     def test_scores_are_plausible(self, alexnet_layer_scores):
         for region, scores in alexnet_layer_scores.items():

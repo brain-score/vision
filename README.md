@@ -86,7 +86,7 @@ extractor still uses name-based caching. Score caching is separate: activation
 checks do not invalidate every saved score after a code change.
 
 Set `RESULTCACHING_DISABLE=1` to rerun without result caching, or delete the
-specific cached result. See the [activation caching guide](https://github.com/KartikP/brainscore-unified/blob/unified-model-interface-v2/docs/caching.md)
+specific cached result. See the [activation caching guide](https://github.com/KartikP/brainscore-unified/blob/unified-model-interface-v2/docs/reference/caching.md)
 for supported paths, storage configuration, and weight-editing limits.
 </details>
 

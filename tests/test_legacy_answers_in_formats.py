@@ -1,0 +1,450 @@
+"""Old vision answers in the response formats, with the real old classes.
+
+The label task (``LabelBehavior`` over a real ``PytorchWrapper`` on a tiny network with a
+1000-unit ``logits`` layer) and the probabilities task (``ProbabilitiesMapping``) answer
+through the vision adapter. No weights, no downloads; core and vision only.
+"""
+import functools
+
+import numpy as np
+import pandas as pd
+import pytest
+import torch
+from PIL import Image
+
+from brainscore_core.contract import TaskContext
+from brainscore_core.responses import Choice
+from brainscore_core.streaming_helpers import stimulus_session
+from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly, NeuroidAssembly
+from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+from brainscore_vision.compat.unified_adapter import VisionModelAdapter
+from brainscore_vision.model_helpers.activations.pytorch import PytorchWrapper, load_preprocess_images
+from brainscore_vision.model_helpers.brain_transformation.behavior import (
+    LabelBehavior, ProbabilitiesMapping)
+
+LABELS = ['car', 'cat', 'dog']
+TRUTH = ['dog', 'cat', 'car', 'dog', 'cat', 'car', 'cat', 'dog']
+CONDITION = ['a', 'a', 'b', 'b', 'c', 'c', 'a', 'b']
+
+
+def stimuli(folder, identifier='legacy-formats'):
+    rng = np.random.default_rng(0)
+    ids = [f's{i}' for i in range(len(TRUTH))]
+    paths = []
+    for sid in ids:
+        path = folder / f'{sid}.png'
+        Image.fromarray(rng.integers(0, 255, (8, 8, 3), dtype=np.uint8)).save(path)
+        paths.append(str(path))
+    table = StimulusSet(pd.DataFrame({'stimulus_id': ids, 'truth': TRUTH, 'condition': CONDITION}))
+    table.identifier = identifier
+    table.stimulus_paths = dict(zip(ids, paths))
+    return table
+
+
+def label_model(name='tiny-label'):
+    """The real label path: LabelBehavior over a real PytorchWrapper (1000 logits)."""
+    torch.manual_seed(0)
+    net = torch.nn.Sequential()
+    net.add_module('flat', torch.nn.Flatten())
+    net.add_module('logits', torch.nn.Linear(3 * 8 * 8, 1000))
+    wrapper = PytorchWrapper(identifier=name, model=net, batch_size=4,
+                             preprocessing=functools.partial(load_preprocess_images, image_size=8))
+    model = LabelBehavior(name, wrapper)
+    model.visual_degrees = lambda: 8
+    return model
+
+
+def _features(stimuli, layers, number_of_trials=1, require_variance=False):
+    values = np.stack([[float(int(sid.strip('sf'))), float(len(label))]
+                       for sid, label in zip(stimuli['stimulus_id'], stimuli['image_label'])])
+    return NeuroidAssembly(values, dims=['presentation', 'neuroid'], coords={
+        'stimulus_id': ('presentation', list(stimuli['stimulus_id'])),
+        'image_label': ('presentation', list(stimuli['image_label'])),
+        'neuroid_id': ('neuroid', [0, 1]), 'layer': ('neuroid', ['L', 'L'])})
+
+
+def fitting():
+    table = StimulusSet(pd.DataFrame({'stimulus_id': [f'f{i}' for i in range(9)],
+                                      'image_label': ['dog', 'cat', 'car'] * 3}))
+    table.identifier = 'legacy-formats-fit'
+    return table
+
+
+def test_the_label_task_stores_the_old_labels_in_order_with_every_coordinate(tmp_path):
+    table = stimuli(tmp_path)
+    old = label_model('tiny-label-old')
+    old.start_task('label', LABELS)
+    expected = old.look_at(table)
+    session = stimulus_session(table, ['behavior:choice'], TaskContext(response=Choice(LABELS)))
+    VisionModelAdapter(label_model('tiny-label-new')).participate(session)
+    stored = session.collect('behavior:choice')
+    labels = list(stored['choice'].values)
+    assert [labels[i] for i in np.argmax(stored.values, axis=1)] == list(expected.values[0])
+    assert list(stored['raw_answer'].values) == list(expected.values[0])
+    for name in expected.indexes['presentation'].names:          # every coordinate an old metric reads
+        assert list(stored[name].values) == list(expected[name].values), name
+    assert list(stored['response_state'].values) == ['valid'] * len(TRUTH)
+
+
+def test_the_probabilities_task_stores_the_old_rows_with_their_digits():
+    table = fitting().copy()
+    table.identifier = 'legacy-formats-test'
+    old = ProbabilitiesMapping('old', _features, 'L')
+    old.start_task('probabilities', fitting())
+    expected = old.look_at(table)
+    session = stimulus_session(table, ['behavior:probabilities'],
+                               TaskContext(response=Choice(LABELS), fitting_stimuli=fitting()))
+    VisionModelAdapter(ProbabilitiesMapping('new', _features, 'L')).participate(session)
+    stored = session.collect('behavior:probabilities')
+    columns = list(expected['choice'].values)
+    reordered = expected.values[:, [columns.index(label) for label in LABELS]]
+    assert stored.values.dtype == expected.values.dtype == np.float64
+    assert stored.values.tobytes() == np.ascontiguousarray(reordered).tobytes()
+    assert stored.attrs['response']['parameters']['option_order'] == 'task'
+
+
+def _old_and_new_label_answers(folder):
+    """The label answer of the plain old model, and the one the facade gives an old benchmark
+    now (a choice among the labels, through the vision adapter and a core session)."""
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = stimuli(folder)
+    old = label_model('tiny-label-plain')
+    old.start_task('label', LABELS)
+    expected = old.look_at(table)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(label_model('tiny-label-facade')), visual_degrees=8)
+    facade.start_task('label', LABELS)
+    return expected, facade.look_at(table), facade
+
+
+def test_the_facade_gives_an_old_label_benchmark_the_old_answer_exactly(tmp_path):
+    import xarray as xr
+    expected, received, facade = _old_and_new_label_answers(tmp_path)
+    assert facade._task.response == Choice(LABELS)                 # asked as a choice
+    assert received.dims == expected.dims == ('choice', 'presentation')
+    assert received.values.dtype == expected.values.dtype
+    np.testing.assert_array_equal(received.values, expected.values)
+    assert list(received.indexes['presentation'].names) == list(expected.indexes['presentation'].names)
+    for name in expected.indexes['presentation'].names:
+        np.testing.assert_array_equal(received[name].values, expected[name].values, err_msg=name)
+    xr.testing.assert_identical(received, expected)
+
+
+def test_the_old_label_metrics_give_the_identical_number(tmp_path):
+    """accuracy (Geirhos engineering, Hermann, Scialom) and error consistency (Geirhos,
+    Scialom) on the old answer and on the facade's answer."""
+    from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+    from brainscore_vision.metrics.accuracy.metric import Accuracy
+    from brainscore_vision.metrics.error_consistency.metric import ErrorConsistency
+    expected, received, _ = _old_and_new_label_answers(tmp_path)
+    truth = np.array(TRUTH)
+    assert float(Accuracy()(received, truth)) == float(Accuracy()(expected, truth))
+    ids = [f's{i}' for i in range(len(TRUTH))]
+    human = {'h1': ['dog', 'cat', 'cat', 'dog', 'car', 'car', 'cat', 'cat'],
+             'h2': ['dog', 'dog', 'car', 'cat', 'cat', 'car', 'cat', 'dog']}
+    target = BehavioralAssembly(
+        [label for subject in human for label in human[subject]],
+        coords={'stimulus_id': ('presentation', ids * 2), 'truth': ('presentation', TRUTH * 2),
+                'condition': ('presentation', CONDITION * 2),
+                'subject': ('presentation', [s for s in human for _ in ids])},
+        dims=['presentation'])
+    old_score = ErrorConsistency()(expected.squeeze('choice'), target)
+    new_score = ErrorConsistency()(received.squeeze('choice'), target)
+    assert float(new_score) == float(old_score)
+    np.testing.assert_array_equal(new_score.attrs['raw'].values, old_score.attrs['raw'].values)
+
+
+def test_a_subject_without_a_choice_output_is_refused_on_a_label_task(tmp_path):
+    from brainscore_core.compatibility import ExecutionNotFeasibleError
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+
+    class _BareOnly(VisionModelAdapter):
+        @property
+        def out_channels(self):
+            return {'behavior'}
+
+    facade = LegacyBenchmarkFacade(_BareOnly(label_model()), visual_degrees=8)
+    facade.start_task('label', LABELS)
+    with pytest.raises(ExecutionNotFeasibleError, match="declares no 'behavior:choice' output"):
+        facade.look_at(stimuli(tmp_path))
+
+
+def test_the_imagenet_label_task_and_odd_one_out_stay_on_bare_behavior():
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(label_model()), visual_degrees=8)
+    facade.start_task('label', 'imagenet')
+    assert facade._task.response is None and facade._task.task_type == 'label'
+    facade.start_task('odd_one_out')
+    assert facade._task.response is None
+
+
+@pytest.mark.parametrize('settings', [{}, {'number_of_trials': 1}])
+def test_the_probabilities_task_through_the_facade_gives_the_plain_old_answer(settings):
+    """The old benchmark receives the same object as from the plain old model, over two calls."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().copy()
+    table.identifier = 'legacy-formats-facade'
+    old = ProbabilitiesMapping('plain', _features, 'L')
+    old.start_task('probabilities', fitting(), **settings)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(ProbabilitiesMapping('p', _features, 'L')),
+                                   visual_degrees=8)
+    facade.start_task('probabilities', fitting(), **settings)
+    for rows in (table, table.iloc[2:5]):
+        xr.testing.assert_identical(facade.look_at(rows), old.look_at(rows))
+
+
+def test_the_behavior_arbiter_of_a_model_commitment_gives_the_same_label_answer(tmp_path):
+    """The arbiter a ModelCommitment builds dispatches the label task to LabelBehavior."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    from brainscore_vision.model_helpers.brain_transformation.behavior import BehaviorArbiter
+    table = stimuli(tmp_path)
+    old = label_model('tiny-arbiter-plain')
+    old.start_task('label', LABELS)
+    expected = old.look_at(table)
+    class _Arbiter(BehaviorArbiter):      # a ModelCommitment names it; the arbiter alone has no name
+        identifier = 'tiny-arbiter'
+
+    arbiter = _Arbiter({'label': label_model('tiny-arbiter'),
+                        'probabilities': ProbabilitiesMapping('tiny-arbiter', _features, 'L')})
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(arbiter), visual_degrees=8)
+    facade.start_task('label', LABELS)
+    xr.testing.assert_identical(facade.look_at(table), expected)
+
+
+class _OldWithMetadata:
+    """An old model whose probabilities answer carries more than the format keeps."""
+    identifier = 'old-with-metadata'
+
+    def __init__(self, metadata):
+        self.metadata = metadata
+
+    def start_task(self, task, fitting_stimuli=None, **settings):
+        self.labels = list(dict.fromkeys(fitting_stimuli['image_label']))
+
+    def look_at(self, stimuli, number_of_trials=1, **settings):
+        ids = list(stimuli['stimulus_id'])
+        coords = {column: ('presentation', list(stimuli[column])) for column in stimuli.columns}
+        coords.update({'truth': ('presentation', ['dog'] * len(ids)), 'choice': self.labels})
+        if self.metadata == 'scalar coordinate':
+            coords['units'] = 'unitless'
+        if self.metadata == 'raw_answer':
+            coords['raw_answer'] = ('presentation', [f'old {i}' for i in ids])
+        answer = BehavioralAssembly(np.tile(np.linspace(1, 2, len(self.labels)) / np.linspace(1, 2, len(self.labels)).sum(),
+                                            (len(ids), 1)), dims=['presentation', 'choice'], coords=coords)
+        if self.metadata == 'attribute':
+            answer.attrs['calibration'] = {'temperature': 3}
+        return answer
+
+
+@pytest.mark.parametrize('metadata', ['attribute', 'scalar coordinate', 'raw_answer'])
+def test_the_facade_gives_the_old_answer_with_its_metadata(metadata):
+    """An old answer's attributes, its coordinates on other dimensions and its coordinates whose
+    names the format uses for its own columns reach the old benchmark as the old model gave them."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().copy()
+    table.identifier = 'legacy-formats-metadata'
+    old = _OldWithMetadata(metadata)
+    old.start_task('probabilities', fitting())
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(_OldWithMetadata(metadata)), visual_degrees=8)
+    facade.start_task('probabilities', fitting())
+    xr.testing.assert_identical(facade.look_at(table), old.look_at(table))
+
+
+class _OldOnLabel:
+    """An old model that fits on a table whose label column is named 'label'."""
+    identifier = 'old-on-label'
+
+    def __init__(self):
+        self.calls = []
+
+    def start_task(self, task, fitting_stimuli=None, **settings):
+        self.calls.append(('start_task', task, list(fitting_stimuli['label'])))
+        self.labels = list(dict.fromkeys(fitting_stimuli['label']))
+
+    def look_at(self, stimuli, number_of_trials=1, **settings):
+        self.calls.append(('look_at', list(stimuli['stimulus_id'])))
+        ids = list(stimuli['stimulus_id'])
+        return BehavioralAssembly(np.full((len(ids), len(self.labels)), 1 / len(self.labels)),
+                                  dims=['presentation', 'choice'],
+                                  coords={**{c: ('presentation', list(stimuli[c])) for c in stimuli.columns},
+                                          'choice': self.labels})
+
+
+def test_an_old_model_fitted_on_a_label_column_answers_through_the_facade():
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().rename(columns={'image_label': 'label'})
+    table.identifier = 'legacy-formats-label-column'
+    old, plain = _OldOnLabel(), _OldOnLabel()
+    plain.start_task('probabilities', table)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', table)
+    xr.testing.assert_identical(facade.look_at(table), plain.look_at(table))
+    assert old.calls == plain.calls
+
+
+class _OldLayout:
+    """An old model whose answer has one legal xarray layout; it keeps the object it returned."""
+    identifier = 'old-layout'
+
+    def __init__(self, layout):
+        self.layout = layout
+
+    def start_task(self, task, fitting_stimuli=None, **settings):
+        self.labels = list(dict.fromkeys(fitting_stimuli['image_label']))
+
+    def look_at(self, stimuli, number_of_trials=1, **settings):
+        ids = list(stimuli['stimulus_id'])
+        row = np.linspace(1, 2, len(self.labels)) / np.linspace(1, 2, len(self.labels)).sum()
+        answer = BehavioralAssembly(np.tile(row, (len(ids), 1)), dims=['presentation', 'choice'],
+                                    coords={'stimulus_id': ('presentation', ids), 'choice': self.labels})
+        if self.layout.startswith('no stimulus ids'):
+            answer = BehavioralAssembly(answer.values, dims=['presentation', 'choice'], coords={'choice': self.labels})
+        if self.layout == 'no stimulus ids, trial numbers':
+            answer = answer.assign_coords(trial=('presentation', list(range(len(ids)))))
+        if self.layout == 'no stimulus ids, a trial-number index':
+            answer = answer.assign_coords(presentation=list(range(len(ids))))
+        if self.layout == 'no stimulus ids, a subset':
+            answer = answer.isel(presentation=[0, 2])
+        if self.layout == 'coordinate attribute':
+            answer = answer.assign_coords(units='unitless')
+            answer.coords['units'].attrs['definition'] = 'old coordinate'
+        if self.layout == 'choice coordinate':
+            answer = answer.assign_coords(category_number=('choice', list(range(len(self.labels)))))
+        if self.layout.startswith('added raw_answer'):
+            rows = {'added raw_answer': list(range(len(ids))), 'added raw_answer on a subset': [0, 2],
+                    'added raw_answer reversed': list(range(len(ids)))[::-1]}[self.layout]
+            answer = answer.isel(presentation=rows)
+            answer = answer.assign_coords(raw_answer=('presentation', [f'own {i}' for i in rows]))
+        self.returned = answer
+        return answer
+
+
+@pytest.mark.parametrize('layout', ['coordinate attribute', 'choice coordinate', 'added raw_answer',
+                                    'added raw_answer on a subset', 'added raw_answer reversed',
+                                    'no stimulus ids, trial numbers', 'no stimulus ids, a trial-number index',
+                                    'no stimulus ids, a subset'])
+def test_the_old_benchmark_receives_the_old_models_own_answer_object(layout):
+    """Whatever legal layout the old answer has, the facade hands the old benchmark that very
+    object (nothing to add here: the scored table has no other column)."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    scored = StimulusSet(pd.DataFrame({'stimulus_id': [f's{i}' for i in range(4)]}))
+    scored.identifier = 'legacy-formats-layout'
+    old, plain = _OldLayout(layout), _OldLayout(layout)
+    plain.start_task('probabilities', fitting())
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', fitting())
+    answer = facade.look_at(scored)
+    assert answer is old.returned
+    xr.testing.assert_identical(answer, plain.look_at(scored))
+
+
+def test_the_answer_event_records_what_the_old_model_returned():
+    """In any session, the probabilities answer event's meta holds the old model's own answer
+    object; the stored answer is the format's."""
+    old = _OldLayout('added raw_answer')
+    session = stimulus_session(fitting(), ['behavior:probabilities'],
+                               TaskContext(response=Choice(LABELS), fitting_stimuli=fitting()))
+    VisionModelAdapter(old).participate(session)
+    (event,) = [e for e in session.emitted if e.channel == 'behavior:probabilities']
+    assert event.meta['legacy_answer'] is old.returned
+    assert 'legacy_answer' not in session.collect('behavior:probabilities').attrs
+
+
+def _stored(layout):
+    session = stimulus_session(fitting(), ['behavior:probabilities'],
+                               TaskContext(response=Choice(LABELS), fitting_stimuli=fitting()))
+    VisionModelAdapter(_OldLayout(layout)).participate(session)
+    return session.collect('behavior:probabilities')
+
+
+@pytest.mark.parametrize('layout', ['no stimulus ids, trial numbers', 'no stimulus ids, a trial-number index'])
+def test_an_old_answer_in_table_order_without_stimulus_ids_takes_the_table_ids(layout):
+    stored = _stored(layout)
+    assert list(stored['stimulus_id'].values) == list(fitting()['stimulus_id'])
+    assert set(stored['response_state'].values) == {'valid'}
+
+
+def test_a_shorter_old_answer_without_stimulus_ids_leaves_every_trial_missing_with_the_cause():
+    stored = _stored('no stimulus ids, a subset')
+    assert set(stored['response_state'].values) == {'missing'}
+    assert all('stimulus id' in reason for reason in stored['response_reason'].values)
+
+
+def _images(folder, ids, labels=None):
+    rng = np.random.default_rng(len(ids))
+    paths = []
+    for sid in ids:
+        path = folder / f'{sid}.png'
+        Image.fromarray(rng.integers(0, 255, (8, 8, 3), dtype=np.uint8)).save(path)
+        paths.append(str(path))
+    columns = {'stimulus_id': ids, **({'image_label': labels} if labels else {})}
+    table = StimulusSet(pd.DataFrame(columns))
+    table.identifier = f'legacy-formats-trials-{len(ids)}-{bool(labels)}'
+    table.stimulus_paths = dict(zip(ids, paths))
+    return table
+
+
+def _trial_model(name):
+    """The real probabilities path: ProbabilitiesMapping over a real PytorchWrapper."""
+    torch.manual_seed(0)
+    net = torch.nn.Sequential()
+    net.add_module('flat', torch.nn.Flatten())
+    net.add_module('features', torch.nn.Linear(3 * 8 * 8, 4))
+    wrapper = PytorchWrapper(identifier=name, model=net, batch_size=4,
+                             preprocessing=functools.partial(load_preprocess_images, image_size=8))
+    wrapper._extractor.set_visual_degrees(8)   # as a model commitment does
+    return ProbabilitiesMapping(name, wrapper, 'features')
+
+
+def test_an_old_benchmark_that_asks_several_trials_of_each_image_receives_the_old_answer(tmp_path):
+    """Malania2007's call shape: a fit with two trials and variance, then a look_at with ten
+    trials and variance. The old answer has ten rows for each stimulus; the old benchmark
+    receives that very answer, and the format states each trial as missing with the cause."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    fit = _images(tmp_path, [f'f{i}' for i in range(6)], ['left', 'right'] * 3)
+    shown = _images(tmp_path, [0, 1, 2])
+    settings = {'number_of_trials': 10, 'require_variance': True}
+    plain = _trial_model('trials-plain')
+    plain.start_task('probabilities', fit, number_of_trials=2, require_variance=True)
+    expected = plain.look_at(shown, **settings)
+    old = _trial_model('trials-facade')
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', fit, number_of_trials=2, require_variance=True)
+    answer = facade.look_at(shown, **settings)
+    xr.testing.assert_identical(answer, expected)
+    assert len(answer['presentation']) == 10 * len(shown)
+
+    session = stimulus_session(shown, ['behavior:probabilities'],
+                               TaskContext(response=Choice(['left', 'right']), fitting_stimuli=fit),
+                               settings=settings)
+    VisionModelAdapter(_trial_model('trials-session')).participate(session)
+    stored = session.collect('behavior:probabilities')
+    assert set(stored['response_state'].values) == {'missing'}
+    assert all('answers for this stimulus' in reason for reason in stored['response_reason'].values)
+
+
+@pytest.mark.parametrize('fit_settings, look_settings', [
+    ({}, {'number_of_trials': 1}),                                               # Coggan, Maniquet
+    ({'number_of_trials': 1}, {'number_of_trials': 1}),                          # Lonnqvist
+    ({}, {'number_of_trials': 2}),                                               # Rajalingham2018
+    ({}, {'number_of_trials': 3}),                                               # Ferguson
+    ({'number_of_trials': 2, 'require_variance': True},
+     {'number_of_trials': 10, 'require_variance': True}),                        # Malania
+])
+def test_each_old_probabilities_call_shape_gives_the_old_answer_through_the_facade(
+        tmp_path, fit_settings, look_settings):
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    fit = _images(tmp_path, [f'f{i}' for i in range(6)], ['left', 'right'] * 3)
+    shown = _images(tmp_path, ['s0', 's1', 's2'])
+    plain = _trial_model('shape-plain')
+    plain.start_task('probabilities', fitting_stimuli=fit, **fit_settings)
+    old = _trial_model('shape-facade')
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', fitting_stimuli=fit, **fit_settings)
+    xr.testing.assert_identical(facade.look_at(shown, **look_settings), plain.look_at(shown, **look_settings))

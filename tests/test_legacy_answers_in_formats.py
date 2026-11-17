@@ -86,7 +86,7 @@ def test_the_label_task_stores_the_old_labels_in_order_with_every_coordinate(tmp
     assert list(stored['response_state'].values) == ['valid'] * len(TRUTH)
 
 
-def test_the_probabilities_task_stores_the_old_rows_cast_to_float32():
+def test_the_probabilities_task_stores_the_old_rows_with_their_digits():
     table = fitting().copy()
     table.identifier = 'legacy-formats-test'
     old = ProbabilitiesMapping('old', _features, 'L')
@@ -98,9 +98,9 @@ def test_the_probabilities_task_stores_the_old_rows_cast_to_float32():
     stored = session.collect('behavior:probabilities')
     columns = list(expected['choice'].values)
     reordered = expected.values[:, [columns.index(label) for label in LABELS]]
-    np.testing.assert_array_equal(stored.values, reordered.astype(np.float32))
-    assert expected.values.dtype == np.float64 and stored.values.dtype == np.float32
-    assert stored.attrs['response']['parameters'] == {'cast': 'float64 to float32', 'option_order': 'task'}
+    assert stored.values.dtype == expected.values.dtype == np.float64
+    assert stored.values.tobytes() == np.ascontiguousarray(reordered).tobytes()
+    assert stored.attrs['response']['parameters']['option_order'] == 'task'
 
 
 def _old_and_new_label_answers(folder):

@@ -9,6 +9,6 @@
 | Define custom session behavior | `Subject.participate(session)`, with declared input/output channels |
 | Combine recording and interventions | `Experiment` with a compatible protocol and tools |
 
-`brainscore.BrainScoreModel` is a `Subject` implementation. A native `Subject` does not need `process()` or a region mapping; a benchmark using those methods requires an implementation that provides them.
+`brainscore.BrainScoreModel` is a `Subject` implementation. A native `Subject` does not need `process()` or a region mapping: `brainscore.score` gives an existing benchmark that calls such methods a facade that runs each call as a session through `participate`.
 
-See the [UMI getting-started guide](https://github.com/KartikP/brainscore-unified/blob/unified-model-interface-v2/docs/getting_started.md). The domain documentation remains useful for existing benchmark and submission workflows.
+See the [UMI manual](https://github.com/KartikP/brainscore-unified/blob/unified-model-interface-v2/docs/README.md). The domain documentation remains useful for existing benchmark and submission workflows.

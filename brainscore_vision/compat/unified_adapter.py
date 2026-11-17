@@ -394,24 +394,56 @@ def _probabilities_from_rows(rows, labels, stimuli=None):
     """The legacy probabilities task's rows as stored probabilities: the task's label
     order, the legacy model's own values and float type (float64), the legacy
     presentation coordinates (without the names core uses for its own columns) and each
-    source row as its raw answer. An old answer with no stimulus ids answers the presented
-    table in its order: it takes the table's ids (the old answer object itself is unchanged)."""
+    source row as its raw answer. The old answer object itself is never changed.
+
+    The stimulus ids are the values that resolve against the presented table's ids (a
+    ``stimulus_id`` coordinate or level, or the simple presentation index), not a name or a
+    shape. Rows whose ids resolve are answered; the table's other trials are stored as
+    missing by the session. An old answer with no resolvable ids answers the table in its
+    order when it has one row for each trial: it takes the table's ids. With fewer rows and
+    no resolvable ids no row can be matched to a trial: every trial is stored as missing,
+    with that reason, and nothing is refused."""
     import numpy as np
     from brainscore_core.response_formats import response_record
     from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
+    record = response_record('behavior:probabilities', 'legacy', parameters={'option_order': 'task'})
     rows = rows.transpose('presentation', 'choice')
     columns = [str(c) for c in rows['choice'].values]
     source = np.asarray(rows.values)
     ordered = source[:, [columns.index(label) for label in labels]]
     coords = {name: column for name, column in _presentation_columns(rows).items()
               if name not in _STORED_NAMES}
-    if 'stimulus_id' not in coords and stimuli is not None and len(stimuli) == len(source):
-        coords = {'stimulus_id': ('presentation', list(stimuli['stimulus_id'])), **coords}
+    presented = None if stimuli is None else list(stimuli['stimulus_id'])
+    if presented is not None:
+        known = set(presented)
+        ids = list(coords.get('stimulus_id', ('presentation', []))[1])
+        kept = [index for index, stimulus_id in enumerate(ids) if _hashable(stimulus_id) and stimulus_id in known]
+        if not kept:
+            coords.pop('stimulus_id', None)
+            if len(source) != len(presented):
+                reason = (f'the old answer has {len(source)} rows for {len(presented)} trials and no '
+                          'stimulus id that names a trial of this session, so no row can be matched to a trial')
+                return BehavioralAssembly(np.full((len(presented), len(labels)), np.nan), dims=['presentation', 'choice'],
+                                          coords={'stimulus_id': ('presentation', presented),
+                                                  'raw_answer': ('presentation', [None] * len(presented)),
+                                                  'response_reason': ('presentation', [reason] * len(presented)),
+                                                  'choice': list(labels)}, attrs={'response': record})
+            coords = {'stimulus_id': ('presentation', presented), **coords}
+            kept = list(range(len(source)))
+        elif len(kept) < len(ids):
+            coords = {name: ('presentation', [column[1][index] for index in kept]) for name, column in coords.items()}
+        source, ordered = source[kept], ordered[kept]
     coords.update({'choice': list(labels),
                    'raw_answer': ('presentation', [str([float(v) for v in row]) for row in source])})
-    return BehavioralAssembly(ordered, dims=['presentation', 'choice'], coords=coords,
-                              attrs={'response': response_record('behavior:probabilities', 'legacy',
-                                                                 parameters={'option_order': 'task'})})
+    return BehavioralAssembly(ordered, dims=['presentation', 'choice'], coords=coords, attrs={'response': record})
+
+
+def _hashable(value) -> bool:
+    try:
+        hash(value)
+    except TypeError:
+        return False
+    return True
 
 
 def _choice_from_rows(rows, labels):

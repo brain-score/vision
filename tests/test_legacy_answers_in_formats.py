@@ -283,3 +283,50 @@ def test_an_old_model_fitted_on_a_label_column_answers_through_the_facade():
     facade.start_task('probabilities', table)
     xr.testing.assert_identical(facade.look_at(table), plain.look_at(table))
     assert old.calls == plain.calls
+
+
+class _OldLayout:
+    """An old model whose answer has one legal xarray layout; it keeps the object it returned."""
+    identifier = 'old-layout'
+
+    def __init__(self, layout):
+        self.layout = layout
+
+    def start_task(self, task, fitting_stimuli=None, **settings):
+        self.labels = list(dict.fromkeys(fitting_stimuli['image_label']))
+
+    def look_at(self, stimuli, number_of_trials=1, **settings):
+        ids = list(stimuli['stimulus_id'])
+        row = np.linspace(1, 2, len(self.labels)) / np.linspace(1, 2, len(self.labels)).sum()
+        answer = BehavioralAssembly(np.tile(row, (len(ids), 1)), dims=['presentation', 'choice'],
+                                    coords={'stimulus_id': ('presentation', ids), 'choice': self.labels})
+        if self.layout == 'coordinate attribute':
+            answer = answer.assign_coords(units='unitless')
+            answer.coords['units'].attrs['definition'] = 'old coordinate'
+        if self.layout == 'choice coordinate':
+            answer = answer.assign_coords(category_number=('choice', list(range(len(self.labels)))))
+        if self.layout.startswith('added raw_answer'):
+            rows = {'added raw_answer': list(range(len(ids))), 'added raw_answer on a subset': [0, 2],
+                    'added raw_answer reversed': list(range(len(ids)))[::-1]}[self.layout]
+            answer = answer.isel(presentation=rows)
+            answer = answer.assign_coords(raw_answer=('presentation', [f'own {i}' for i in rows]))
+        self.returned = answer
+        return answer
+
+
+@pytest.mark.parametrize('layout', ['coordinate attribute', 'choice coordinate', 'added raw_answer',
+                                    'added raw_answer on a subset', 'added raw_answer reversed'])
+def test_the_old_benchmark_receives_the_old_models_own_answer_object(layout):
+    """Whatever legal layout the old answer has, the facade hands the old benchmark that very
+    object (nothing to add here: the scored table has no other column)."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    scored = StimulusSet(pd.DataFrame({'stimulus_id': [f's{i}' for i in range(4)]}))
+    scored.identifier = 'legacy-formats-layout'
+    old, plain = _OldLayout(layout), _OldLayout(layout)
+    plain.start_task('probabilities', fitting())
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', fitting())
+    answer = facade.look_at(scored)
+    assert answer is old.returned
+    xr.testing.assert_identical(answer, plain.look_at(scored))

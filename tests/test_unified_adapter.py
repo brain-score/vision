@@ -716,7 +716,7 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
         adapter = VisionModelAdapter(legacy)
         stimuli = _vision_stimulus_set()
         behavioral = LegacyBenchmarkFacade(adapter, visual_degrees=8)
-        behavioral.start_task('probabilities', stimuli)
+        behavioral.start_task('odd_one_out')
         choices = behavioral.look_at(stimuli)
         assert isinstance(choices, BehavioralAssembly)
         assert list(choices.values) == ['cat', 'dog']          # the legacy model's answer
@@ -732,7 +732,7 @@ class TestBehaviorDoesNotLeakIntoNeuralSessions:
         stimuli = _vision_stimulus_set()
 
         def run(model):
-            model.start_task('probabilities', stimuli)
+            model.start_task('odd_one_out')
             model.look_at(stimuli)
             model.start_task('passive')
             model.start_recording('IT', time_bins=[(70, 170)])
@@ -818,7 +818,7 @@ class TestVisionAdapterChoice:
         assert (record['origin'], record['method'], record['conversion'], record['parameters']) == (
             'native', 'legacy', None, {})
 
-    def test_the_probabilities_task_answers_natively_cast_to_float32_in_the_task_order(self):
+    def test_the_probabilities_task_answers_natively_in_float64_in_the_task_order(self):
         from brainscore_core.responses import Choice
         from brainscore_core.streaming_helpers import stimulus_session
         legacy = _LegacyForcedChoice()
@@ -828,10 +828,11 @@ class TestVisionAdapterChoice:
         rows = session.collect('behavior:probabilities')
         assert legacy.tasks == ['probabilities']
         assert list(rows['choice'].values) == ['real', 'pseudo']          # the task's order
-        np.testing.assert_array_equal(rows.values, np.float32([[0.8, 0.2], [0.3, 0.7], [0.5, 0.5]]))
+        assert rows.values.dtype == np.float64
+        assert rows.values.tolist() == [[0.8, 0.2], [0.3, 0.7], [0.5, 0.5]]
         record = rows.attrs['response']
-        assert (record['origin'], record['method'], record['parameters']) == (
-            'native', 'legacy', {'cast': 'float64 to float32', 'option_order': 'task'})
+        assert (record['origin'], record['method'], record['parameters']['option_order']) == (
+            'native', 'legacy', 'task')
         assert list(rows['raw_answer'].values) == ['[0.2, 0.8]', '[0.7, 0.3]', '[0.5, 0.5]']
 
     def test_probabilities_for_other_labels_than_the_fitting_set_are_refused_before_set_up(self):

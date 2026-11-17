@@ -86,7 +86,7 @@ def test_the_label_task_stores_the_old_labels_in_order_with_every_coordinate(tmp
     assert list(stored['response_state'].values) == ['valid'] * len(TRUTH)
 
 
-def test_the_probabilities_task_stores_the_old_rows_cast_to_float32():
+def test_the_probabilities_task_stores_the_old_rows_with_their_digits():
     table = fitting().copy()
     table.identifier = 'legacy-formats-test'
     old = ProbabilitiesMapping('old', _features, 'L')
@@ -98,9 +98,9 @@ def test_the_probabilities_task_stores_the_old_rows_cast_to_float32():
     stored = session.collect('behavior:probabilities')
     columns = list(expected['choice'].values)
     reordered = expected.values[:, [columns.index(label) for label in LABELS]]
-    np.testing.assert_array_equal(stored.values, reordered.astype(np.float32))
-    assert expected.values.dtype == np.float64 and stored.values.dtype == np.float32
-    assert stored.attrs['response']['parameters'] == {'cast': 'float64 to float32', 'option_order': 'task'}
+    assert stored.values.dtype == expected.values.dtype == np.float64
+    assert stored.values.tobytes() == np.ascontiguousarray(reordered).tobytes()
+    assert stored.attrs['response']['parameters']['option_order'] == 'task'
 
 
 def _old_and_new_label_answers(folder):
@@ -168,15 +168,29 @@ def test_a_subject_without_a_choice_output_is_refused_on_a_label_task(tmp_path):
         facade.look_at(stimuli(tmp_path))
 
 
-def test_the_imagenet_label_task_and_the_probabilities_task_stay_on_bare_behavior():
+def test_the_imagenet_label_task_and_odd_one_out_stay_on_bare_behavior():
     from brainscore_core.legacy_facade import LegacyBenchmarkFacade
     facade = LegacyBenchmarkFacade(VisionModelAdapter(label_model()), visual_degrees=8)
     facade.start_task('label', 'imagenet')
     assert facade._task.response is None and facade._task.task_type == 'label'
-    facade.start_task('probabilities', fitting())
-    assert facade._task.response is None and facade._task.task_type == 'probabilities'
     facade.start_task('odd_one_out')
     assert facade._task.response is None
+
+
+@pytest.mark.parametrize('settings', [{}, {'number_of_trials': 1}])
+def test_the_probabilities_task_through_the_facade_gives_the_plain_old_answer(settings):
+    """The old benchmark receives the same object as from the plain old model, over two calls."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().copy()
+    table.identifier = 'legacy-formats-facade'
+    old = ProbabilitiesMapping('plain', _features, 'L')
+    old.start_task('probabilities', fitting(), **settings)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(ProbabilitiesMapping('p', _features, 'L')),
+                                   visual_degrees=8)
+    facade.start_task('probabilities', fitting(), **settings)
+    for rows in (table, table.iloc[2:5]):
+        xr.testing.assert_identical(facade.look_at(rows), old.look_at(rows))
 
 
 def test_the_behavior_arbiter_of_a_model_commitment_gives_the_same_label_answer(tmp_path):

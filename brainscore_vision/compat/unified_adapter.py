@@ -184,9 +184,8 @@ class VisionModelAdapter(Subject):
     def _answer_probabilities(self, session, task, settings) -> None:
         """Answer a Choice task on ``behavior:probabilities`` from the legacy probabilities task.
 
-        The rows are the legacy model's own, put in the order of the task's labels and
-        cast to float32, this adapter's output type (the record says so); the format
-        keeps float64 when a subject gives it. The labels must
+        The rows are the legacy model's own, in their own float type (float64), put in
+        the order of the task's labels; the format keeps them as given. The labels must
         be the labels of the fitting stimuli; otherwise the task is refused before the
         legacy model is set up.
         """
@@ -309,9 +308,12 @@ def _shared_labels(task, identifier, channel):
 
 
 def _legacy_choice_task(task):
-    """The legacy task for a fitted Choice task: ``'probabilities'``, as a legacy forced choice."""
+    """The legacy task for a fitted Choice task: ``'probabilities'``, as a legacy forced choice,
+    with the fitting settings of the task (``metadata['task_settings']``, as an old benchmark
+    passed them to ``start_task``)."""
     return TaskContext(task_type='probabilities', fitting_stimuli=task.fitting_stimuli,
-                       label_set=list(task.response.labels), instruction=task.instruction)
+                       label_set=list(task.response.labels), instruction=task.instruction,
+                       metadata=dict(task.metadata))
 
 
 def _presentation_columns(assembly):
@@ -371,9 +373,8 @@ def _choice_from_labels(answer, labels):
 
 def _probabilities_from_rows(rows, labels):
     """The legacy probabilities task's rows as stored probabilities: the task's label
-    order, float32 (this adapter's output type; the record names the cast; the format
-    keeps float64 when a subject gives it), the legacy presentation coordinates and
-    each source row as its raw answer."""
+    order, the legacy model's own values and float type (float64), the legacy
+    presentation coordinates and each source row as its raw answer."""
     import numpy as np
     from brainscore_core.response_formats import response_record
     from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
@@ -384,11 +385,10 @@ def _probabilities_from_rows(rows, labels):
     coords = _presentation_columns(rows)
     coords.update({'choice': list(labels),
                    'raw_answer': ('presentation', [str([float(v) for v in row]) for row in source])})
-    return BehavioralAssembly(ordered.astype(np.float32), dims=['presentation', 'choice'], coords=coords,
+    return BehavioralAssembly(ordered, dims=['presentation', 'choice'], coords=coords,
                               attrs={'response': response_record(
                                   'behavior:probabilities', 'legacy',
-                                  parameters={'cast': f'{source.dtype} to float32',
-                                              'option_order': 'task'})})
+                                  parameters={'option_order': 'task'})})
 
 
 def _choice_from_rows(rows, labels):

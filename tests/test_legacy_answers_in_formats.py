@@ -168,15 +168,29 @@ def test_a_subject_without_a_choice_output_is_refused_on_a_label_task(tmp_path):
         facade.look_at(stimuli(tmp_path))
 
 
-def test_the_imagenet_label_task_and_the_probabilities_task_stay_on_bare_behavior():
+def test_the_imagenet_label_task_and_odd_one_out_stay_on_bare_behavior():
     from brainscore_core.legacy_facade import LegacyBenchmarkFacade
     facade = LegacyBenchmarkFacade(VisionModelAdapter(label_model()), visual_degrees=8)
     facade.start_task('label', 'imagenet')
     assert facade._task.response is None and facade._task.task_type == 'label'
-    facade.start_task('probabilities', fitting())
-    assert facade._task.response is None and facade._task.task_type == 'probabilities'
     facade.start_task('odd_one_out')
     assert facade._task.response is None
+
+
+@pytest.mark.parametrize('settings', [{}, {'number_of_trials': 1}])
+def test_the_probabilities_task_through_the_facade_gives_the_plain_old_answer(settings):
+    """The old benchmark receives the same object as from the plain old model, over two calls."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().copy()
+    table.identifier = 'legacy-formats-facade'
+    old = ProbabilitiesMapping('plain', _features, 'L')
+    old.start_task('probabilities', fitting(), **settings)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(ProbabilitiesMapping('p', _features, 'L')),
+                                   visual_degrees=8)
+    facade.start_task('probabilities', fitting(), **settings)
+    for rows in (table, table.iloc[2:5]):
+        xr.testing.assert_identical(facade.look_at(rows), old.look_at(rows))
 
 
 def test_the_behavior_arbiter_of_a_model_commitment_gives_the_same_label_answer(tmp_path):

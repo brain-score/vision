@@ -308,9 +308,12 @@ def _shared_labels(task, identifier, channel):
 
 
 def _legacy_choice_task(task):
-    """The legacy task for a fitted Choice task: ``'probabilities'``, as a legacy forced choice."""
+    """The legacy task for a fitted Choice task: ``'probabilities'``, as a legacy forced choice,
+    with the fitting settings of the task (``metadata['task_settings']``, as an old benchmark
+    passed them to ``start_task``)."""
     return TaskContext(task_type='probabilities', fitting_stimuli=task.fitting_stimuli,
-                       label_set=list(task.response.labels), instruction=task.instruction)
+                       label_set=list(task.response.labels), instruction=task.instruction,
+                       metadata=dict(task.metadata))
 
 
 def _presentation_columns(assembly):

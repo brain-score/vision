@@ -195,7 +195,10 @@ class VisionModelAdapter(Subject):
                 f"Legacy model '{self.identifier}' gives behavior:probabilities from its "
                 "probabilities task, which is fitted on TaskContext.fitting_stimuli; the task "
                 "gives none.", channels={'behavior:probabilities'}, task_type=task.task_type)
-        fitted = set(str(label) for label in task.fitting_stimuli['image_label'])
+        # The label column of an old probabilities task: image_label, else label (the facade's rule).
+        fitting = task.fitting_stimuli
+        column = 'image_label' if 'image_label' in fitting.columns else 'label'
+        fitted = set(str(label) for label in fitting[column])
         if fitted != set(task.response.labels):
             raise ExecutionNotFeasibleError(
                 f"Legacy model '{self.identifier}': the probabilities task is fitted on the "

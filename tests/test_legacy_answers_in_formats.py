@@ -250,3 +250,36 @@ def test_the_facade_gives_the_old_answer_with_its_metadata(metadata):
     facade = LegacyBenchmarkFacade(VisionModelAdapter(_OldWithMetadata(metadata)), visual_degrees=8)
     facade.start_task('probabilities', fitting())
     xr.testing.assert_identical(facade.look_at(table), old.look_at(table))
+
+
+class _OldOnLabel:
+    """An old model that fits on a table whose label column is named 'label'."""
+    identifier = 'old-on-label'
+
+    def __init__(self):
+        self.calls = []
+
+    def start_task(self, task, fitting_stimuli=None, **settings):
+        self.calls.append(('start_task', task, list(fitting_stimuli['label'])))
+        self.labels = list(dict.fromkeys(fitting_stimuli['label']))
+
+    def look_at(self, stimuli, number_of_trials=1, **settings):
+        self.calls.append(('look_at', list(stimuli['stimulus_id'])))
+        ids = list(stimuli['stimulus_id'])
+        return BehavioralAssembly(np.full((len(ids), len(self.labels)), 1 / len(self.labels)),
+                                  dims=['presentation', 'choice'],
+                                  coords={**{c: ('presentation', list(stimuli[c])) for c in stimuli.columns},
+                                          'choice': self.labels})
+
+
+def test_an_old_model_fitted_on_a_label_column_answers_through_the_facade():
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    table = fitting().rename(columns={'image_label': 'label'})
+    table.identifier = 'legacy-formats-label-column'
+    old, plain = _OldOnLabel(), _OldOnLabel()
+    plain.start_task('probabilities', table)
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', table)
+    xr.testing.assert_identical(facade.look_at(table), plain.look_at(table))
+    assert old.calls == plain.calls

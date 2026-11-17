@@ -372,3 +372,79 @@ def test_a_shorter_old_answer_without_stimulus_ids_leaves_every_trial_missing_wi
     stored = _stored('no stimulus ids, a subset')
     assert set(stored['response_state'].values) == {'missing'}
     assert all('stimulus id' in reason for reason in stored['response_reason'].values)
+
+
+def _images(folder, ids, labels=None):
+    rng = np.random.default_rng(len(ids))
+    paths = []
+    for sid in ids:
+        path = folder / f'{sid}.png'
+        Image.fromarray(rng.integers(0, 255, (8, 8, 3), dtype=np.uint8)).save(path)
+        paths.append(str(path))
+    columns = {'stimulus_id': ids, **({'image_label': labels} if labels else {})}
+    table = StimulusSet(pd.DataFrame(columns))
+    table.identifier = f'legacy-formats-trials-{len(ids)}-{bool(labels)}'
+    table.stimulus_paths = dict(zip(ids, paths))
+    return table
+
+
+def _trial_model(name):
+    """The real probabilities path: ProbabilitiesMapping over a real PytorchWrapper."""
+    torch.manual_seed(0)
+    net = torch.nn.Sequential()
+    net.add_module('flat', torch.nn.Flatten())
+    net.add_module('features', torch.nn.Linear(3 * 8 * 8, 4))
+    wrapper = PytorchWrapper(identifier=name, model=net, batch_size=4,
+                             preprocessing=functools.partial(load_preprocess_images, image_size=8))
+    wrapper._extractor.set_visual_degrees(8)   # as a model commitment does
+    return ProbabilitiesMapping(name, wrapper, 'features')
+
+
+def test_an_old_benchmark_that_asks_several_trials_of_each_image_receives_the_old_answer(tmp_path):
+    """Malania2007's call shape: a fit with two trials and variance, then a look_at with ten
+    trials and variance. The old answer has ten rows for each stimulus; the old benchmark
+    receives that very answer, and the format states each trial as missing with the cause."""
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    fit = _images(tmp_path, [f'f{i}' for i in range(6)], ['left', 'right'] * 3)
+    shown = _images(tmp_path, [0, 1, 2])
+    settings = {'number_of_trials': 10, 'require_variance': True}
+    plain = _trial_model('trials-plain')
+    plain.start_task('probabilities', fit, number_of_trials=2, require_variance=True)
+    expected = plain.look_at(shown, **settings)
+    old = _trial_model('trials-facade')
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', fit, number_of_trials=2, require_variance=True)
+    answer = facade.look_at(shown, **settings)
+    xr.testing.assert_identical(answer, expected)
+    assert len(answer['presentation']) == 10 * len(shown)
+
+    session = stimulus_session(shown, ['behavior:probabilities'],
+                               TaskContext(response=Choice(['left', 'right']), fitting_stimuli=fit),
+                               settings=settings)
+    VisionModelAdapter(_trial_model('trials-session')).participate(session)
+    stored = session.collect('behavior:probabilities')
+    assert set(stored['response_state'].values) == {'missing'}
+    assert all('answers for this stimulus' in reason for reason in stored['response_reason'].values)
+
+
+@pytest.mark.parametrize('fit_settings, look_settings', [
+    ({}, {'number_of_trials': 1}),                                               # Coggan, Maniquet
+    ({'number_of_trials': 1}, {'number_of_trials': 1}),                          # Lonnqvist
+    ({}, {'number_of_trials': 2}),                                               # Rajalingham2018
+    ({}, {'number_of_trials': 3}),                                               # Ferguson
+    ({'number_of_trials': 2, 'require_variance': True},
+     {'number_of_trials': 10, 'require_variance': True}),                        # Malania
+])
+def test_each_old_probabilities_call_shape_gives_the_old_answer_through_the_facade(
+        tmp_path, fit_settings, look_settings):
+    import xarray as xr
+    from brainscore_core.legacy_facade import LegacyBenchmarkFacade
+    fit = _images(tmp_path, [f'f{i}' for i in range(6)], ['left', 'right'] * 3)
+    shown = _images(tmp_path, ['s0', 's1', 's2'])
+    plain = _trial_model('shape-plain')
+    plain.start_task('probabilities', fitting_stimuli=fit, **fit_settings)
+    old = _trial_model('shape-facade')
+    facade = LegacyBenchmarkFacade(VisionModelAdapter(old), visual_degrees=8)
+    facade.start_task('probabilities', fitting_stimuli=fit, **fit_settings)
+    xr.testing.assert_identical(facade.look_at(shown, **look_settings), plain.look_at(shown, **look_settings))

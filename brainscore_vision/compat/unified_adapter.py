@@ -187,9 +187,9 @@ class VisionModelAdapter(Subject):
         The rows are the legacy model's own, in their own float type (float64), put in
         the order of the task's labels; the format keeps them as given. The labels must
         be the labels of the fitting stimuli; otherwise the task is refused before the
-        legacy model is set up. A session from the legacy facade with the setting
-        ``legacy_answer`` also gets the old model's own answer object in the meta of the
-        answer event (``meta['legacy_answer']``), which the facade gives the old benchmark.
+        legacy model is set up. The meta of the answer event holds the adapter's own record of
+        what the old model returned: the old model's own answer object
+        (``meta['legacy_answer']``). The legacy facade gives that object to the old benchmark.
         """
         _shared_labels(task, self.identifier, 'behavior:probabilities')
         if task.fitting_stimuli is None:
@@ -211,11 +211,9 @@ class VisionModelAdapter(Subject):
         stimuli = session_stimuli(session, events)
         rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1),
                             require_variance=settings.get('require_variance', False))
-        meta = {'driver': 'legacy'}
-        if settings.get('legacy_answer'):
-            # The legacy facade asked for the old model's own answer: it hands this very
-            # object to the old benchmark; the stored answer is the format's.
-            meta['legacy_answer'] = rows
+        # The adapter's own record of what the old model returned, in every session; the legacy
+        # facade hands this very object to an old benchmark. The stored answer is the format's.
+        meta = {'driver': 'legacy', 'legacy_answer': rows}
         session.respond(StreamEvent('behavior:probabilities',
                                     _probabilities_from_rows(rows, task.response.labels, stimuli),
                                     events[-1].t_ms if events else None, meta=meta))

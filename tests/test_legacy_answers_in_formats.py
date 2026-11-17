@@ -330,3 +330,15 @@ def test_the_old_benchmark_receives_the_old_models_own_answer_object(layout):
     answer = facade.look_at(scored)
     assert answer is old.returned
     xr.testing.assert_identical(answer, plain.look_at(scored))
+
+
+def test_the_answer_event_records_what_the_old_model_returned():
+    """In any session, the probabilities answer event's meta holds the old model's own answer
+    object; the stored answer is the format's."""
+    old = _OldLayout('added raw_answer')
+    session = stimulus_session(fitting(), ['behavior:probabilities'],
+                               TaskContext(response=Choice(LABELS), fitting_stimuli=fitting()))
+    VisionModelAdapter(old).participate(session)
+    (event,) = [e for e in session.emitted if e.channel == 'behavior:probabilities']
+    assert event.meta['legacy_answer'] is old.returned
+    assert 'legacy_answer' not in session.collect('behavior:probabilities').attrs

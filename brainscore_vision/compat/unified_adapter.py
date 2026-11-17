@@ -402,11 +402,16 @@ def _probabilities_from_rows(rows, labels, stimuli=None):
     missing by the session. An old answer with no resolvable ids answers the table in its
     order when it has one row for each trial: it takes the table's ids. With fewer rows and
     no resolvable ids no row can be matched to a trial: every trial is stored as missing,
-    with that reason, and nothing is refused."""
+    with that reason, and nothing is refused. The format holds one answer for each table row:
+    a stimulus answered more often than the table shows it (several trials of one image:
+    ``number_of_trials`` with ``require_variance``) has its trials stored as missing, with
+    that reason; the old object keeps every trial."""
     import numpy as np
     from brainscore_core.response_formats import response_record
     from brainscore_core.supported_data_standards.brainio.assemblies import BehavioralAssembly
     record = response_record('behavior:probabilities', 'legacy', parameters={'option_order': 'task'})
+    from collections import Counter
+    repeated = {}
     rows = rows.transpose('presentation', 'choice')
     columns = [str(c) for c in rows['choice'].values]
     source = np.asarray(rows.values)
@@ -430,11 +435,28 @@ def _probabilities_from_rows(rows, labels, stimuli=None):
                                                   'choice': list(labels)}, attrs={'response': record})
             coords = {'stimulus_id': ('presentation', presented), **coords}
             kept = list(range(len(source)))
-        elif len(kept) < len(ids):
-            coords = {name: ('presentation', [column[1][index] for index in kept]) for name, column in coords.items()}
+        else:
+            # One answer for each table row: a stimulus the old model answered more often than
+            # the table shows it (several trials of one image, number_of_trials with
+            # require_variance) cannot be stated as valid rows; its trials are missing, with the cause.
+            shown, given = Counter(presented), Counter(ids[index] for index in kept)
+            repeated = {stimulus_id: count for stimulus_id, count in given.items() if count > shown[stimulus_id]}
+            kept = [index for index in kept if ids[index] not in repeated]
+            if len(kept) < len(ids):
+                coords = {name: ('presentation', [column[1][index] for index in kept]) for name, column in coords.items()}
         source, ordered = source[kept], ordered[kept]
     coords.update({'choice': list(labels),
                    'raw_answer': ('presentation', [str([float(v) for v in row]) for row in source])})
+    if presented is not None and repeated:
+        missing = [stimulus_id for stimulus_id in presented if stimulus_id in repeated]
+        reasons = [f'the old model gave {repeated[stimulus_id]} answers for this stimulus and the table shows it '
+                   f'{shown[stimulus_id]} time(s); the format holds one answer for each trial' for stimulus_id in missing]
+        for name, column in coords.items():
+            if name != 'choice':
+                extra = missing if name == 'stimulus_id' else [None] * len(missing)
+                coords[name] = ('presentation', list(column[1]) + extra)
+        coords['response_reason'] = ('presentation', [''] * len(source) + reasons)
+        ordered = np.concatenate([ordered, np.full((len(missing), len(labels)), np.nan)])
     return BehavioralAssembly(ordered, dims=['presentation', 'choice'], coords=coords, attrs={'response': record})
 
 

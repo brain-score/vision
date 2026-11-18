@@ -1236,3 +1236,73 @@ def test_a_fitted_choice_session_stores_the_same_presentation_index_as_before():
     choice = session.collect('behavior:choice')
     assert list(choice.indexes['presentation'].names) == [
         'stimulus_id', 'raw_answer', 'response_state', 'response_reason']
+
+
+class TestOneSessionAtATime:
+    """One adapter holds the task and recording state of one session (unified issue 81)."""
+
+    @staticmethod
+    def _session():
+        from brainscore_core.streaming_helpers import stimulus_session
+        return stimulus_session(_vision_stimulus_set(), ('neural:IT',))
+
+    def test_a_second_session_during_the_first_is_refused(self):
+        legacy = _make_legacy_model(identifier='busy-model', region_layer_map={'IT': 'layer4'})
+        adapter = VisionModelAdapter(legacy)
+        refusals = []
+
+        def look_at_that_starts_a_second_session(*args, **kwargs):
+            with pytest.raises(RuntimeError, match='one session at a time') as refusal:
+                adapter.participate(self._session())
+            refusals.append(str(refusal.value))
+            return _vision_neural_assembly()
+
+        legacy.look_at.side_effect = look_at_that_starts_a_second_session
+        first = self._session()
+        adapter.participate(first)
+        assert 'busy-model' in refusals[0]
+        assert len(first.emitted) == 1   # the refused call did not end the first session
+
+    def test_a_session_from_another_thread_is_refused(self):
+        import threading
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        adapter = VisionModelAdapter(legacy)
+        started, release, errors = threading.Event(), threading.Event(), []
+
+        def slow_look_at(*args, **kwargs):
+            started.set()
+            release.wait(5)
+            return _vision_neural_assembly()
+
+        legacy.look_at.side_effect = slow_look_at
+        first = threading.Thread(target=adapter.participate, args=(self._session(),))
+        first.start()
+        assert started.wait(5)
+        try:
+            adapter.participate(self._session())
+        except RuntimeError as error:
+            errors.append(error)
+        finally:
+            release.set()
+            first.join(5)
+        assert errors and 'one session at a time' in str(errors[0])
+
+    def test_a_new_session_runs_after_a_session_that_failed(self):
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        adapter = VisionModelAdapter(legacy)
+        legacy.look_at.side_effect = [ValueError('legacy failure'), _vision_neural_assembly()]
+        with pytest.raises(ValueError, match='legacy failure'):
+            adapter.participate(self._session())
+        session = self._session()
+        adapter.participate(session)
+        assert len(session.emitted) == 1
+
+    def test_two_sessions_in_sequence_run_as_before(self):
+        legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
+        adapter = VisionModelAdapter(legacy)
+        sessions = [self._session(), self._session()]
+        for session in sessions:
+            adapter.participate(session)
+        assert [len(session.emitted) for session in sessions] == [1, 1]
+        assert legacy.look_at.call_count == 2
+        legacy.start_recording.assert_called_once_with('IT', [(70, 170)])

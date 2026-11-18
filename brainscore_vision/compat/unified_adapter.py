@@ -5,6 +5,8 @@ and ``look_at`` calls a legacy benchmark makes. A legacy benchmark that is
 given the adapter directly calls ``look_at`` on it and gets the same calls.
 """
 
+import threading
+from contextlib import contextmanager
 from typing import Any, Dict, List, Set
 
 from brainscore_core.compatibility import ExecutionNotFeasibleError
@@ -16,6 +18,37 @@ from brainscore_core.streaming_helpers import (
     measurement_settings,
     session_stimuli,
 )
+
+# The adapters (by id) that are in a session now, each with the token of that session.
+_active_sessions = {}
+_active_sessions_lock = threading.Lock()
+
+
+@contextmanager
+def _one_session_at_a_time(adapter):
+    """Refuse a second session on ``adapter`` while its first one is running.
+
+    The legacy model keeps the task and the recording of one session, so a second
+    session at the same time (a nested call, or a call from another thread) would mix
+    them. Only the reservation of this call is removed at the end, so the adapter is
+    released however the session ends, and a refused call never releases the running one.
+    """
+    key, token = id(adapter), object()
+    try:
+        with _active_sessions_lock:
+            if key in _active_sessions:
+                raise RuntimeError(
+                    f'Subject {adapter.identifier!r} is already taking part in a session. '
+                    'One adapter runs one session at a time, because the legacy model keeps '
+                    'the task and recording state of that session. Wait for the running '
+                    'session to finish, or load a separate model for each session that runs '
+                    'at the same time.')
+            _active_sessions[key] = token
+        yield
+    finally:
+        with _active_sessions_lock:
+            if _active_sessions.get(key) is token:
+                del _active_sessions[key]
 
 
 class VisionModelAdapter(Subject):
@@ -106,54 +139,56 @@ class VisionModelAdapter(Subject):
         measurement. Only declared input streams reach the legacy model.
         A session that requests several ``neural:<region>`` channels gets, for
         each region in request order, the ``start_recording`` and ``look_at``
-        that a session for that region alone gets.
+        that a session for that region alone gets. One adapter runs one session at a
+        time: a second session that starts before the first ends is refused.
         """
-        session = session.declare_inputs(self.in_channels)
-        channels = tuple(session.outputs or ())
-        if not channels:
-            raise ValueError('A session for a legacy vision model must request an output channel.')
-        if len(channels) > 1 and not all(c.startswith('neural:') for c in channels):
-            # A refusal at session start, before any input is read: an error of the run.
+        with _one_session_at_a_time(self):
+            session = session.declare_inputs(self.in_channels)
+            channels = tuple(session.outputs or ())
+            if not channels:
+                raise ValueError('A session for a legacy vision model must request an output channel.')
+            if len(channels) > 1 and not all(c.startswith('neural:') for c in channels):
+                # A refusal at session start, before any input is read: an error of the run.
+                task = session.task
+                raise ExecutionNotFeasibleError(
+                    f'Session refused (task type '
+                    f'{getattr(task, "task_type", None) if task is not None else "none"!r}): a legacy '
+                    f'vision model answers one output channel per look_at, or several '
+                    f'neural:<region> channels; this session requests {sorted(channels)}. The pair '
+                    f'passed the declared compatibility check, so this limit is not expressed in '
+                    f'the declarations of the subject or the benchmark; there is no result.',
+                    channels=channels,
+                    task_type=getattr(task, 'task_type', None) if task is not None else None)
+            undeclared = [channel for channel in channels if channel not in self.out_channels]
+            if undeclared:
+                raise ValueError(f'Undeclared output channel {undeclared[0]!r}; declared: '
+                                 f'{sorted(self.out_channels)}')
             task = session.task
-            raise ExecutionNotFeasibleError(
-                f'Session refused (task type '
-                f'{getattr(task, "task_type", None) if task is not None else "none"!r}): a legacy '
-                f'vision model answers one output channel per look_at, or several '
-                f'neural:<region> channels; this session requests {sorted(channels)}. The pair '
-                f'passed the declared compatibility check, so this limit is not expressed in '
-                f'the declarations of the subject or the benchmark; there is no result.',
-                channels=channels,
-                task_type=getattr(task, 'task_type', None) if task is not None else None)
-        undeclared = [channel for channel in channels if channel not in self.out_channels]
-        if undeclared:
-            raise ValueError(f'Undeclared output channel {undeclared[0]!r}; declared: '
-                             f'{sorted(self.out_channels)}')
-        task = session.task
-        settings = measurement_settings(session)
-        if channels == ('behavior:choice',):
-            self._answer_choice(session, task, settings)
-            return
-        if channels == ('behavior:probabilities',):
-            self._answer_probabilities(session, task, settings)
-            return
-        if task is not None and task.task_type != 'passive':
-            self.start_task(task)
-        elif self._configured_task is not None and self._configured_task[0] != 'passive':
-            # An earlier session left the legacy model answering a task. A
-            # passive session leaves it the legacy way, as a legacy benchmark
-            # does with start_task('passive'). A fresh subject gets no call.
-            self.start_task('passive')
-        events = drain_session_inputs(session)
-        stimuli = session_stimuli(session, events)
-        for channel in channels:
-            if channel.startswith('neural:'):
-                self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
-            output = self.process(stimuli,
-                                  number_of_trials=settings.get('number_of_trials', 1),
-                                  require_variance=settings.get('require_variance', False))
-            session.respond(StreamEvent(channel, output,
-                                        events[-1].t_ms if events else None,
-                                        meta={'driver': 'legacy'}))
+            settings = measurement_settings(session)
+            if channels == ('behavior:choice',):
+                self._answer_choice(session, task, settings)
+                return
+            if channels == ('behavior:probabilities',):
+                self._answer_probabilities(session, task, settings)
+                return
+            if task is not None and task.task_type != 'passive':
+                self.start_task(task)
+            elif self._configured_task is not None and self._configured_task[0] != 'passive':
+                # An earlier session left the legacy model answering a task. A
+                # passive session leaves it the legacy way, as a legacy benchmark
+                # does with start_task('passive'). A fresh subject gets no call.
+                self.start_task('passive')
+            events = drain_session_inputs(session)
+            stimuli = session_stimuli(session, events)
+            for channel in channels:
+                if channel.startswith('neural:'):
+                    self.start_recording(channel.split(':', 1)[1], time_bins=session.time_bins)
+                output = self.process(stimuli,
+                                      number_of_trials=settings.get('number_of_trials', 1),
+                                      require_variance=settings.get('require_variance', False))
+                session.respond(StreamEvent(channel, output,
+                                            events[-1].t_ms if events else None,
+                                            meta={'driver': 'legacy'}))
 
     def _answer_choice(self, session, task, settings) -> None:
         """Answer a Choice task on ``behavior:choice`` from the legacy model's own task.

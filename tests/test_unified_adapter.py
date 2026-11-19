@@ -1319,3 +1319,5 @@ class TestOneSessionAtATime:
         assert region == 'IT'
         (time_bin,) = bins
         assert tuple(time_bin) == (70, 170)
+
+# A comment for a check of the test job. This line is not merged.

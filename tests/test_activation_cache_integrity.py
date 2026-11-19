@@ -66,7 +66,8 @@ def test_changed_contents_invalidate_real_cache(change, channel, tmp_path, monke
     before = extract()
     # A real hit must avoid the forward pass, not merely return equal values.
     with monkeypatch.context() as patch:
-        patch.setattr(wrapper._model, 'forward', lambda *a, **kw: pytest.fail('cache miss'))
+        # On the class: a forward replaced on the instance is a part of the model key.
+        patch.setattr(type(wrapper._model), 'forward', lambda *a, **kw: pytest.fail('cache miss'))
         np.testing.assert_array_equal(extract(), before)
     if change == 'new_model':
         wrapper = make_wrapper(2)

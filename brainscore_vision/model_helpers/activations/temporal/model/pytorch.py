@@ -36,6 +36,10 @@ class PytorchWrapper(ActivationWrapper):
         self._process_activation = default_process_activation if process_output is None else process_output
         super().__init__(identifier, preprocessing, *args, **kwargs)
 
+    def cache_config(self):
+        from brainscore_core.extraction_cache import wrapper_config
+        return wrapper_config(self, ())
+
     def forward(self, inputs : List[Any]) -> Any: 
         # this function gets a list of preprocessed inputs and does the forward pass
         import torch

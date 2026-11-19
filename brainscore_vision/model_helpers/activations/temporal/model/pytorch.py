@@ -37,8 +37,22 @@ class PytorchWrapper(ActivationWrapper):
         super().__init__(identifier, preprocessing, *args, **kwargs)
 
     def cache_config(self):
+        """The wrapper's part of the key: its code, every attribute (preprocessing and the output
+        callback included), the device, the model, and the autocast in force. Not settings: the identifier
+        (in the entry name), the model and device (their own parts) and the links to the extractor."""
+        import torch
         from brainscore_core.extraction_cache import wrapper_config
-        return wrapper_config(self, ())
+        extractor = vars(self).get('_extractor')
+        settings = [name for name, value in vars(self).items()
+                    if name not in ('identifier', '_model', '_device', '_extractor')
+                    and (extractor is None or getattr(value, '__self__', None) is not extractor)]
+        config = wrapper_config(self, settings)
+        try:
+            if torch.is_autocast_enabled(self._device.type):
+                config['autocast'] = str(torch.get_autocast_dtype(self._device.type))
+        except RuntimeError:                  # a device type autocast does not know
+            pass
+        return config
 
     def forward(self, inputs : List[Any]) -> Any: 
         # this function gets a list of preprocessed inputs and does the forward pass

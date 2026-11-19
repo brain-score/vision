@@ -1,3 +1,4 @@
+import inspect
 import os
 import logging
 
@@ -175,6 +176,24 @@ class BatchExecutor:
             all_indices.append(batch_indices)
             indices.extend(batch_indices)
         return indices, masks, all_batches
+
+    def cache_config(self, made_by=None):
+        """Every attribute that decides the activations: the activation function, preprocessing, batching
+        and the hooks in their order. Not settings: the stimuli of one call (cleared when it ends), the
+        thread pool and the logger (they keep the order of results). A hook that ``made_by`` (the inferencer)
+        made reads that inferencer's settings, which its own description holds: such a hook is described by
+        its code and its other closure values.
+        """
+        def hook(function):
+            closure = inspect.getclosurevars(function) if inspect.isfunction(function) else None
+            if made_by is None or closure is None or closure.nonlocals.get('self') is not made_by:
+                return function
+            return {'function': function.__qualname__, 'code': function.__code__, 'globals': closure.globals,
+                    'closure': {name: value for name, value in closure.nonlocals.items() if name != 'self'}}
+        settings = {name: value for name, value in vars(self).items()
+                    if name not in ('stimuli', '_mapper', '_logger', 'before_hooks', 'after_hooks')}
+        return {**settings, 'before_hooks': [hook(f) for f in self.before_hooks],
+                'after_hooks': [hook(f) for f in self.after_hooks]}
 
     def register_before_hook(self, hook: Callable[[Stimulus], Stimulus], index=None):
         # hook: Stimulus -> Stimulus

@@ -116,6 +116,19 @@ class Inferencer:
         to_add = "".join(to_add)
         return f"{self.__class__.__name__}{to_add}"
     
+    def cache_config(self):
+        """What decides the activations of this inferencer, for the key of a stored result.
+
+        Its class code, every attribute (its settings), and its executor (the activation function with
+        the wrapper that owns it, preprocessing, batching and hooks). Not settings: the executor link,
+        the logger, and ``_time_ends`` (the scratch of one ``BlockInferencer.inference``, set at its start).
+        """
+        from brainscore_core.extraction_cache import implementation_config
+        return {'implementation': implementation_config(type(self)),
+                'settings': {name: value for name, value in vars(self).items()
+                             if name not in ('_executor', '_logger', '_time_ends')},
+                'executor': self._executor.cache_config(made_by=self)}
+
     def set_visual_degrees(self, visual_degrees: float):
         self.visual_degrees = visual_degrees
 

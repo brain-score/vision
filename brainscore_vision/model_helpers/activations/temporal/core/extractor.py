@@ -11,7 +11,8 @@ import numpy as np
 from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
 from brainscore_core.supported_data_standards.brainio.assemblies import DataAssembly
 from brainscore_vision.model_helpers.utils import fullname
-from brainscore_core.extraction_cache import extraction_fingerprint, file_inputs
+from brainscore_core import extraction_cache
+from brainscore_core.extraction_cache import UncacheableConfiguration, extraction_fingerprint, file_inputs
 from result_caching import store_xarray
 from .inferencer import Inferencer
 from ..inputs import Stimulus
@@ -106,33 +107,49 @@ class ActivationsExtractor:
         # to be run individually, compute activations for those, and then expand the activations to all paths again.
         # This is done here, before storing, so that we only store the reduced activations.
         reduced_paths = self._reduce_paths(stimuli_paths)
-        signature = self._signature(reduced_paths) if self.identifier and stimuli_identifier else None
+        named = bool(self.identifier and stimuli_identifier)
+        signature = self._signature(reduced_paths, stimuli_identifier) if named else None
         if signature is not None:
-            fnc = functools.partial(self._from_paths_stored, identifier=self.identifier,
-                                    stimuli_identifier=stimuli_identifier, extraction_fingerprint=signature)
+            fnc = functools.partial(self._from_paths_stored, extraction_fingerprint=signature)
         else:
             self._logger.debug(f"self.identifier `{self.identifier}` or stimuli_identifier {stimuli_identifier} "
-                               f"are not set, will not store")
+                               f"are not set, or the store is off for this request: will not store")
             fnc = self._from_paths
+            if named:   # the stored body runs the files in sorted order: a named table runs so with the store off
+                reduced_paths = sorted(reduced_paths)
         activations = fnc(layers=layers, stimuli_paths=reduced_paths)
         activations = self._expand_paths(activations, original_paths=stimuli_paths)
         return activations
 
-    def _signature(self, paths):
-        """The fingerprint of the model state and of the bytes of the input files, or None (no store).
+    def _signature(self, paths, stimuli_identifier):
+        """The key of a stored result, or None (no store): one fingerprint of everything that decides it.
 
-        The stored activations are indexed by path, so the key reads the sorted set of
-        files: a new file at an old path, other rows or another model state is a miss.
-        A wrapper that states ``cache_config()`` (the temporal ``PytorchWrapper``)
-        gives its implementation, settings, device and weights, as in the ordinary helper.
+        It holds the model identifier and the table name (as the ordinary helper keys by them), the
+        inferencer's ``cache_config()`` (its code and settings, its executor with the activation function,
+        preprocessing, batching and hooks, and the wrapper with its weights, callbacks and autocast) and
+        the bytes of the sorted set of files (the stored activations are indexed by path). A part that
+        cannot be described exactly gives None. The entry file name is this one fingerprint, so it fits
+        the limit of one path component whatever the length of the names.
         """
-        owner = getattr(self.inferencer._executor.get_activations, '__self__', None)
-        provider = owner.cache_config() if hasattr(owner, 'cache_config') else None
-        return extraction_fingerprint({'configuration': {'provider': provider}, 'inputs': file_inputs(sorted(paths))},
-                                      cache_identifier=f'{fullname(self)}._from_paths_stored/identifier={self.identifier}')
+        cache_identifier = f'{fullname(self)}._from_paths_stored'
+        if not extraction_cache.is_enabled(cache_identifier):     # no description is built when the store is off
+            return None
+        describe = getattr(self.inferencer, 'cache_config', None)
+        if describe is None:
+            self._logger.warning(f'Activation cache bypassed: the inferencer {fullname(self.inferencer)} has no '
+                                 f'cache_config(); subclass Inferencer or define one to use the store.')
+            return None
+        try:
+            configuration = describe()
+        except UncacheableConfiguration as error:
+            self._logger.warning(f'Activation cache bypassed: {error}')
+            return None
+        return extraction_fingerprint({'identifier': self.identifier, 'stimuli_identifier': stimuli_identifier,
+                                       'configuration': configuration, 'inputs': file_inputs(sorted(paths))},
+                                      cache_identifier=cache_identifier)
 
     @store_xarray(identifier_ignore=['stimuli_paths', 'layers'], combine_fields={'layers': 'layer'})
-    def _from_paths_stored(self, identifier, layers, stimuli_identifier, stimuli_paths, extraction_fingerprint):
+    def _from_paths_stored(self, layers, stimuli_paths, extraction_fingerprint):
         stimuli_paths.sort()
         return self._from_paths(layers=layers, stimuli_paths=stimuli_paths)
 

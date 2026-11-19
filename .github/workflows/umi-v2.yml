@@ -1,7 +1,7 @@
 name: UMI v2
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [opened, synchronize, reopened, labeled, edited]
     branches: [unified-model-interface-v2]
   push:
     branches: [unified-model-interface-v2]
@@ -11,10 +11,12 @@ permissions:
 jobs:
   coordinated:
     name: UMI v2
-    # Update the workflow and runner revision together.
-    uses: KartikP/brainscore-unified/.github/workflows/offline-tests.yml@7cf4b8af40a7408c015c999816905524c48577da
+    # The unified release branch supplies the runner and the lock of the peers
+    # (install/peer-revisions.json). A pull request body can name partner pull
+    # requests in a "Candidate set:" line (see unified install/README.md).
+    uses: KartikP/brainscore-unified/.github/workflows/offline-tests.yml@unified-model-interface-v2
     with:
       candidate: vision
       candidate_repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
       candidate_revision: ${{ github.event.pull_request.head.sha || github.sha }}
-      unified_revision: 7cf4b8af40a7408c015c999816905524c48577da
+      unified_revision: unified-model-interface-v2

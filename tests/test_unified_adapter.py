@@ -1311,9 +1311,11 @@ class TestOneSessionAtATime:
         sessions = [self._session(), self._session()]
         for session in sessions:
             adapter.participate(session)
-        assert [len(session.emitted) for session in sessions] == [1, 1]
+        for session in sessions:
+            assert len(session.emitted) == 1
         assert legacy.look_at.call_count == 2
         assert legacy.start_recording.call_count == 1    # the same setup is not sent again
         region, bins = legacy.start_recording.call_args.args
         assert region == 'IT'
-        assert list(bins) == [(70, 170)]
+        (time_bin,) = bins
+        assert tuple(time_bin) == (70, 170)

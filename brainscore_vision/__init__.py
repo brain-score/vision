@@ -131,7 +131,9 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     try:
         # score_benchmark runs the benchmark's own preallocate_memory hook first;
         # our check_memory above is the probe-based estimate and they compose.
-        with weight_fingerprint_scope(), record_measures() as measures:
+        # A session no subject names belongs to the loaded subject (not the lookup key),
+        # also when this score runs inside another.
+        with weight_fingerprint_scope(), record_measures(subject=model.identifier) as measures:
             score: Score = score_benchmark(benchmark, candidate)
     except AssertionError as e:
         # Only append the cache-clearing hint when the AssertionError actually

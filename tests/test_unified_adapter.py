@@ -1275,7 +1275,12 @@ class TestOneSessionAtATime:
             return _vision_neural_assembly()
 
         legacy.look_at.side_effect = slow_look_at
-        first = threading.Thread(target=adapter.participate, args=(self._session(),))
+        first_session, outcome = self._session(), {}
+
+        def run_first():
+            adapter.participate(first_session)
+            outcome['first'] = 'done'
+        first = threading.Thread(target=run_first)
         first.start()
         assert started.wait(5)
         try:
@@ -1286,6 +1291,9 @@ class TestOneSessionAtATime:
             release.set()
             first.join(5)
         assert errors and 'one session at a time' in str(errors[0])
+        assert not first.is_alive()
+        assert outcome == {'first': 'done'}       # the first session finished successfully
+        assert len(first_session.emitted) == 1
 
     def test_a_new_session_runs_after_a_session_that_failed(self):
         legacy = _make_legacy_model(region_layer_map={'IT': 'layer4'})
@@ -1305,4 +1313,7 @@ class TestOneSessionAtATime:
             adapter.participate(session)
         assert [len(session.emitted) for session in sessions] == [1, 1]
         assert legacy.look_at.call_count == 2
-        legacy.start_recording.assert_called_once_with('IT', [(70, 170)])
+        assert legacy.start_recording.call_count == 1    # the same setup is not sent again
+        region, bins = legacy.start_recording.call_args.args
+        assert region == 'IT'
+        assert list(bins) == [(70, 170)]

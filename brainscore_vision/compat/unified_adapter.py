@@ -5,8 +5,6 @@ and ``look_at`` calls a legacy benchmark makes. A legacy benchmark that is
 given the adapter directly calls ``look_at`` on it and gets the same calls.
 """
 
-import threading
-from contextlib import contextmanager
 from typing import Any, Dict, List, Set
 
 from brainscore_core.compatibility import ExecutionNotFeasibleError
@@ -16,39 +14,9 @@ from brainscore_core.streaming_helpers import (
     declared_only,
     drain_session_inputs,
     measurement_settings,
+    one_session_at_a_time,
     session_stimuli,
 )
-
-# The adapters (by id) that are in a session now, each with the token of that session.
-_active_sessions = {}
-_active_sessions_lock = threading.Lock()
-
-
-@contextmanager
-def _one_session_at_a_time(adapter):
-    """Refuse a second session on ``adapter`` while its first one is running.
-
-    The legacy model keeps the task and the recording of one session, so a second
-    session at the same time (a nested call, or a call from another thread) would mix
-    them. Only the reservation of this call is removed at the end, so the adapter is
-    released however the session ends, and a refused call never releases the running one.
-    """
-    key, token = id(adapter), object()
-    try:
-        with _active_sessions_lock:
-            if key in _active_sessions:
-                raise RuntimeError(
-                    f'Subject {adapter.identifier!r} is already taking part in a session. '
-                    'One adapter runs one session at a time, because the legacy model keeps '
-                    'the task and recording state of that session. Wait for the running '
-                    'session to finish, or load a separate model for each session that runs '
-                    'at the same time.')
-            _active_sessions[key] = token
-        yield
-    finally:
-        with _active_sessions_lock:
-            if _active_sessions.get(key) is token:
-                del _active_sessions[key]
 
 
 class VisionModelAdapter(Subject):
@@ -140,9 +108,11 @@ class VisionModelAdapter(Subject):
         A session that requests several ``neural:<region>`` channels gets, for
         each region in request order, the ``start_recording`` and ``look_at``
         that a session for that region alone gets. One adapter runs one session at a
-        time: a second session that starts before the first ends is refused.
+        time: a second session that starts before the first ends is refused. The
+        guard is per adapter object; two adapters around one legacy model object
+        are not guarded against each other.
         """
-        with _one_session_at_a_time(self):
+        with one_session_at_a_time(self):
             session = session.declare_inputs(self.in_channels)
             channels = tuple(session.outputs or ())
             if not channels:

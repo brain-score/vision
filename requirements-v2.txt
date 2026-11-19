@@ -1,2 +1,3 @@
-# Unpublished v2 core, pinned for standalone CI and documentation builds.
-brainscore-core @ git+https://github.com/brain-score/core.git@0f69bd67abcbd6cd2225483c0ff15a8a327458bd
+# Unreleased v2 core: the tip of its release branch. CI takes the exact core
+# commit from the unified lock (install/peer-revisions.json in unified).
+brainscore-core @ git+https://github.com/brain-score/core.git@unified-model-interface-v2

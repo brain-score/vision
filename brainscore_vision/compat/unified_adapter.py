@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Set
 
 from brainscore_core.compatibility import ExecutionNotFeasibleError
 from brainscore_core.contract import Subject, TaskContext
+from brainscore_core.legacy_facade import fitted_labels
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
     declared_only,
@@ -154,9 +155,8 @@ class VisionModelAdapter(Subject):
             output = self.process(stimuli,
                                   number_of_trials=settings.get('number_of_trials', 1),
                                   require_variance=settings.get('require_variance', False))
-            session.respond(StreamEvent(channel, output,
-                                        events[-1].t_ms if events else None,
-                                        meta={'driver': 'legacy'}))
+            # One answer for the whole table has no time (rule 4.2), as in the core driver.
+            session.respond(StreamEvent(channel, output, None, meta={'driver': 'legacy'}))
 
     def _answer_choice(self, session, task, settings) -> None:
         """Answer a Choice task on ``behavior:choice`` from the legacy model's own task.
@@ -181,8 +181,7 @@ class VisionModelAdapter(Subject):
         stimuli = session_stimuli(session, events)
         rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1),
                             require_variance=settings.get('require_variance', False))
-        session.respond(StreamEvent('behavior:choice', answer(rows),
-                                    events[-1].t_ms if events else None, meta={'driver': 'legacy'}))
+        session.respond(StreamEvent('behavior:choice', answer(rows), None, meta={'driver': 'legacy'}))
 
     def _answer_probabilities(self, session, task, settings) -> None:
         """Answer a Choice task on ``behavior:probabilities`` from the legacy probabilities task.
@@ -200,10 +199,8 @@ class VisionModelAdapter(Subject):
                 f"Legacy model '{self.identifier}' gives behavior:probabilities from its "
                 "probabilities task, which is fitted on TaskContext.fitting_stimuli; the task "
                 "gives none.", channels={'behavior:probabilities'}, task_type=task.task_type)
-        # The label column of an old probabilities task: image_label, else label (the facade's rule).
-        fitting = task.fitting_stimuli
-        column = 'image_label' if 'image_label' in fitting.columns else 'label'
-        fitted = set(str(label) for label in fitting[column])
+        # The labels of an old probabilities task, by the facade's rule.
+        fitted = set(str(label) for label in fitted_labels('probabilities', task.fitting_stimuli))
         if fitted != set(task.response.labels):
             raise ExecutionNotFeasibleError(
                 f"Legacy model '{self.identifier}': the probabilities task is fitted on the "
@@ -219,7 +216,7 @@ class VisionModelAdapter(Subject):
         meta = {'driver': 'legacy', 'legacy_answer': rows}
         session.respond(StreamEvent('behavior:probabilities',
                                     _probabilities_from_rows(rows, task.response.labels, stimuli),
-                                    events[-1].t_ms if events else None, meta=meta))
+                                    None, meta=meta))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):

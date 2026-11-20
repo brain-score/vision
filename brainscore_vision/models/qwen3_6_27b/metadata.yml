@@ -1,0 +1,19 @@
+models:
+    qwen3.6-27b:
+        architecture: Transformer
+        model_family: qwen
+        total_parameter_count: 460730096
+        trainable_parameter_count: 460730096
+        total_layers: 282
+        trainable_layers: 112
+        model_size_mb: 921.46
+        training_dataset: null
+        task_specialization: vision-language modeling
+        brainscore_link: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/qwen3_6_27b
+        huggingface_link: https://huggingface.co/Qwen/Qwen3.6-27B
+        extra_notes: >-
+            Brain-Score loads only the pretrained vision encoder from the Qwen3.6-27B
+            checkpoint and evaluates six visual transformer blocks at a fixed 256 x 256
+            input resolution. Two mixed checkpoint shards are downloaded, but their
+            language tensors and the 27B language backbone are not loaded into memory.
+        runnable: true

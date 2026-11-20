@@ -1,0 +1,231 @@
+schema_version: '2.0'
+domain: vision
+models:
+  vits14_supervised_linhead:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/vits14_supervised_linhead
+        citation: Brain-Score vision plugin code, brainscore_vision/models/vits14_supervised_linhead
+      card:
+        kind: huggingface
+        url: https://huggingface.co/niels-c/vits14_supervised_linhead
+        citation: Hugging Face model card niels-c/vits14_supervised_linhead
+      method_paper:
+        kind: paper
+        url: https://arxiv.org/abs/2012.12877
+        citation: Touvron et al. (2021), Training data-efficient image transformers & distillation
+          through attention
+    model:
+      display_name: vits14_supervised_linhead
+      architecture:
+        family: vision_transformer
+        description: 'ViT-S/14 (timm VisionTransformer: 12 blocks, width 384, 6 heads, patch
+          14, no class token, average pooling of the final patch tokens) with a linear head
+          (fc) on the pooled 384-d features'
+      parameter_count: 22003816
+      parameter_count_exact: true
+      trainable_layers: All layers during supervised backbone training; linear head only (385,000
+        parameters) during the linear probe, with the backbone frozen and its supervised head
+        replaced
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: supervised
+        description: Backbone trained supervised from scratch with ImageNet-1k labels and
+          frozen; its head was replaced by a linear head trained with ImageNet-1k labels
+    training:
+      process: 'ViT-S/14 trained supervised from scratch on ImageNet-1k by the submitter for
+        300 epochs with the DeiT-S recipe, without repeated augmentation. The backbone was
+        then frozen and its head replaced by a linear ImageNet-1k head trained for 10 epochs
+        (linear probe, the same as for the I-JEPA ViT-S/14s; ImageNet-1k validation: 80.51%
+        top-1, 95.05% top-5)'
+      objective: ImageNet-1k classification (backbone and linear head)
+      loss: Cross-entropy with label smoothing 0.1 and Mixup/CutMix targets (backbone); cross-entropy
+        without label smoothing (linear head)
+      learning_rate: 'Backbone: AdamW, 1e-3 (5e-4 x 1024 / 512) peak after 5 warmup epochs,
+        cosine decay to 1e-5, weight decay 0.05, stochastic depth 0.1. Head: AdamW, 1e-3 peak
+        after 1 warmup epoch, cosine decay to 1e-6, weight decay 0'
+      batch_size: 1024 (backbone); 1024 (head)
+      preprocessing: 'Backbone training: random resized crop to 224x224 (scale 0.08 to 1.0),
+        RandAugment (2 ops, magnitude 9), random erasing 0.25, Mixup 0.8, CutMix 1.0. Head
+        training: random resized crop (scale 0.3 to 1.0) and horizontal flip. ImageNet mean/std
+        normalization. Brain-Score: whole image resized to 224x224 and normalized with ImageNet
+        mean/std (load_preprocess_images)'
+    data:
+      summary: ImageNet-1k training split with labels, for the backbone and the linear head
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: training
+        description: Supervised backbone training from scratch
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+        description: Linear head on the frozen backbone
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std (Brain-Score
+        load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits from the linear head (backbone.fc); transformer
+        block outputs exposed as 384x16x16 grids (backbone.blocks.{i}.grid)
+    provenance:
+      weights_provider: Hugging Face Hub (niels-c)
+      checkpoint: niels-c/vits14_supervised_linhead/vits14_supervised_linhead.safetensors
+      source_url: https://huggingface.co/niels-c/vits14_supervised_linhead
+    legal:
+      license: MIT
+    people:
+      creators:
+      - Niels C. Thiemann
+    use:
+      applications:
+      - Supervised control of the I-JEPA ViT-S/14 models on Brain-Score (same architecture
+        and probe)
+      - ImageNet-1k classification via a linear probe
+      users:
+      - Researchers comparing vision models with primate neural and behavioral data
+      limitations:
+      - Linear probe on a frozen backbone, not tuned for robustness or calibration
+      - Single training run (seed 0); differs from DeiT-S in patch size 14, no class token
+        and no repeated augmentation
+      biases:
+      - Inherits the biases of ImageNet-1k
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - card
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - card
+      - method_paper
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - card
+    - path: /training/process
+      status: probable
+      sources:
+      - card
+    - path: /training/objective
+      status: probable
+      sources:
+      - card
+      - method_paper
+    - path: /training/loss
+      status: probable
+      sources:
+      - card
+    - path: /training/learning_rate
+      status: probable
+      sources:
+      - card
+    - path: /training/batch_size
+      status: probable
+      sources:
+      - card
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /data/summary
+      status: probable
+      sources:
+      - card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /legal/license
+      status: probable
+      sources:
+      - card
+    - path: /people/creators
+      status: probable
+      sources:
+      - card
+    - path: /use/applications
+      status: probable
+      sources:
+      - card
+    - path: /use/users
+      status: probable
+      sources:
+      - card
+    - path: /use/limitations
+      status: probable
+      sources:
+      - card
+    - path: /use/biases
+      status: probable
+      sources:
+      - card

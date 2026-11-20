@@ -280,6 +280,7 @@ class TestPreflightInRunScore:
         del benchmark.required_modalities
         del benchmark.accepted_modalities
         del benchmark.required_input_channels
+        del benchmark.requested_output_channels
 
         with patch.object(brainscore_vision, 'benchmark_registry',
                           {'legacy-bench': lambda: benchmark}):

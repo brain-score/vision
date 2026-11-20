@@ -32,7 +32,7 @@ class PrecomputedFeatures(BrainModel):
     def start_task(self, task, fitting_stimuli=None):
         pass
 
-    def start_recording(self, region, *args, **kwargs):
+    def start_recording(self, recording_target: BrainModel.RecordingTarget, *args, **kwargs):
         pass
 
     def look_at(self, stimuli, number_of_trials=1):

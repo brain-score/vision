@@ -12,9 +12,9 @@ jobs:
   coordinated:
     name: UMI v2
     # Update the workflow and runner revision together.
-    uses: KartikP/brainscore-unified/.github/workflows/offline-tests.yml@1e866d70e2480fd86f770944e5205a3494a202eb
+    uses: KartikP/brainscore-unified/.github/workflows/offline-tests.yml@ee1f1ca02f6d52b7c1aeac131b29cc45ea0771ff
     with:
       candidate: vision
       candidate_repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
       candidate_revision: ${{ github.event.pull_request.head.sha || github.sha }}
-      unified_revision: 1e866d70e2480fd86f770944e5205a3494a202eb
+      unified_revision: ee1f1ca02f6d52b7c1aeac131b29cc45ea0771ff

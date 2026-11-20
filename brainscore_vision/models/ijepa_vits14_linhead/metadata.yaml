@@ -1,0 +1,228 @@
+schema_version: '2.0'
+domain: vision
+models:
+  ijepa_vits14_linhead:
+    sources:
+      plugin_code:
+        kind: other
+        url: https://github.com/brain-score/vision/tree/master/brainscore_vision/models/ijepa_vits14_linhead
+        citation: Brain-Score vision plugin code, brainscore_vision/models/ijepa_vits14_linhead
+      card:
+        kind: huggingface
+        url: https://huggingface.co/niels-c/ijepa_vits14_linhead
+        citation: Hugging Face model card niels-c/ijepa_vits14_linhead
+      method_paper:
+        kind: paper
+        url: https://arxiv.org/abs/2301.08243
+        citation: Assran et al. (2023), Self-Supervised Learning from Images with a Joint-Embedding
+          Predictive Architecture
+    model:
+      display_name: ijepa_vits14_linhead
+      architecture:
+        family: vision_transformer
+        description: 'ViT-S/14 (timm VisionTransformer: 12 blocks, width 384, 6 heads, patch
+          14, no class token, average pooling of the final patch tokens) with a linear head
+          (fc) on the pooled 384-d features'
+      parameter_count: 22003816
+      parameter_count_exact: true
+      trainable_layers: Linear head only (385,000 parameters); the I-JEPA backbone was frozen
+        during the linear probe
+      recurrent: false
+      input_resolution:
+        channels: 3
+        height: 224
+        width: 224
+      supervision:
+        type: self_supervised
+        description: Backbone pretrained self-supervised with I-JEPA (no labels) and frozen;
+          linear head trained with ImageNet-1k labels
+    training:
+      process: 'ViT-S/14 pretrained from scratch with I-JEPA on ImageNet-1k by the submitter,
+        224 of 400 epochs (intermediate checkpoint of the run); the EMA target encoder is
+        the exported backbone. The backbone was then frozen and a linear ImageNet-1k head
+        trained for 10 epochs (linear probe; ImageNet-1k validation: 27.24% top-1, 49.98%
+        top-5)'
+      objective: I-JEPA latent prediction of masked target blocks (backbone); ImageNet-1k
+        classification (linear head)
+      loss: Smooth L1 between predicted and EMA-target representations (backbone); cross-entropy
+        without label smoothing (linear head)
+      learning_rate: 'Backbone: AdamW, 2e-3 peak after 40 warmup epochs, cosine decay to 5e-6,
+        weight decay 0.04 to 0.4. Head: AdamW, 1e-3 peak after 1 warmup epoch, cosine decay
+        to 1e-6, weight decay 0'
+      batch_size: 1024 (backbone, 4 gradient-accumulation steps); 1024 (head)
+      preprocessing: 'Training: random resized crop to 224x224 (scale 0.3 to 1.0; random horizontal
+        flip for the head only), ImageNet mean/std normalization. Brain-Score: whole image
+        resized to 224x224 and normalized with ImageNet mean/std (load_preprocess_images)'
+    data:
+      summary: 'ImageNet-1k training split: images only for the I-JEPA backbone, labels for
+        the linear head'
+      training_datasets:
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: pretraining
+        description: Self-supervised I-JEPA backbone, without labels
+      - identifier: imagenet-1k
+        name: ImageNet-1k (ILSVRC-2012)
+        role: fine_tuning
+        description: Linear head on the frozen backbone
+    io:
+      modality: image
+      input_format: RGB image resized to 224x224 and normalized with ImageNet mean/std (Brain-Score
+        load_preprocess_images)
+      output_format: 1000-way ImageNet-1k logits from the linear head (backbone.fc); transformer
+        block outputs exposed as 384x16x16 grids (backbone.blocks.{i}.grid)
+    provenance:
+      weights_provider: Hugging Face Hub (niels-c)
+      checkpoint: niels-c/ijepa_vits14_linhead/ijepa_vits14_linhead.safetensors
+      source_url: https://huggingface.co/niels-c/ijepa_vits14_linhead
+    legal:
+      license: MIT
+    people:
+      creators:
+      - Niels C. Thiemann
+    use:
+      applications:
+      - Comparing self-supervised and supervised models on Brain-Score
+      - ImageNet-1k classification via a linear probe
+      users:
+      - Researchers comparing vision models with primate neural and behavioral data
+      limitations:
+      - Linear probe on a frozen backbone; low ImageNet-1k accuracy, not usable as a classifier
+      - I-JEPA recipe retuned by hand for the ViT-S; single training run (seed 0)
+      biases:
+      - Inherits the biases of ImageNet-1k
+    assertions:
+    - path: /model/display_name
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/family
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/architecture/description
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /model/parameter_count
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /model/parameter_count_exact
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/trainable_layers
+      status: probable
+      sources:
+      - card
+    - path: /model/recurrent
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/channels
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/height
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/input_resolution/width
+      status: probable
+      sources:
+      - plugin_code
+    - path: /model/supervision/type
+      status: probable
+      sources:
+      - card
+      - method_paper
+    - path: /model/supervision/description
+      status: probable
+      sources:
+      - card
+    - path: /training/process
+      status: probable
+      sources:
+      - card
+    - path: /training/objective
+      status: probable
+      sources:
+      - card
+      - method_paper
+    - path: /training/loss
+      status: probable
+      sources:
+      - card
+    - path: /training/learning_rate
+      status: probable
+      sources:
+      - card
+    - path: /training/batch_size
+      status: probable
+      sources:
+      - card
+    - path: /training/preprocessing
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /data/summary
+      status: probable
+      sources:
+      - card
+    - path: /data/training_datasets
+      status: probable
+      sources:
+      - card
+    - path: /io/modality
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/input_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /io/output_format
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/weights_provider
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/checkpoint
+      status: probable
+      sources:
+      - plugin_code
+    - path: /provenance/source_url
+      status: probable
+      sources:
+      - plugin_code
+      - card
+    - path: /legal/license
+      status: probable
+      sources:
+      - card
+    - path: /people/creators
+      status: probable
+      sources:
+      - card
+    - path: /use/applications
+      status: probable
+      sources:
+      - card
+    - path: /use/users
+      status: probable
+      sources:
+      - card
+    - path: /use/limitations
+      status: probable
+      sources:
+      - card
+    - path: /use/biases
+      status: probable
+      sources:
+      - card

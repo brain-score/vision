@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Set
 
 from brainscore_core.compatibility import ExecutionNotFeasibleError
 from brainscore_core.contract import Subject, TaskContext
+from brainscore_core.legacy_facade import fitted_labels
 from brainscore_core.streaming import StreamEvent
 from brainscore_core.streaming_helpers import (
     declared_only,
@@ -198,10 +199,8 @@ class VisionModelAdapter(Subject):
                 f"Legacy model '{self.identifier}' gives behavior:probabilities from its "
                 "probabilities task, which is fitted on TaskContext.fitting_stimuli; the task "
                 "gives none.", channels={'behavior:probabilities'}, task_type=task.task_type)
-        # The label column of an old probabilities task: image_label, else label (the facade's rule).
-        fitting = task.fitting_stimuli
-        column = 'image_label' if 'image_label' in fitting.columns else 'label'
-        fitted = set(str(label) for label in fitting[column])
+        # The labels of an old probabilities task, by the facade's rule.
+        fitted = set(str(label) for label in fitted_labels('probabilities', task.fitting_stimuli))
         if fitted != set(task.response.labels):
             raise ExecutionNotFeasibleError(
                 f"Legacy model '{self.identifier}': the probabilities task is fitted on the "

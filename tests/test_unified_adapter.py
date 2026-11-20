@@ -939,6 +939,19 @@ def test_a_legacy_model_that_refuses_probabilities_raises_its_own_error(tmp_path
     assert legacy.tasks == [] and session.emitted == []
 
 
+def test_fitting_stimuli_without_labels_give_an_error_with_a_remedy():
+    """A probabilities task fitted on a table with no label column is refused before set-up."""
+    from brainscore_core.responses import Choice
+    from brainscore_core.streaming_helpers import stimulus_session
+    legacy = _LegacyForcedChoice()
+    task = TaskContext(response=Choice(['real', 'pseudo']),
+                       fitting_stimuli=_choice_stimuli().drop(columns='image_label'))
+    session = stimulus_session(_choice_stimuli(), ['behavior:probabilities'], task)
+    with pytest.raises(ValueError, match="'image_label'"):
+        VisionModelAdapter(legacy).participate(session)
+    assert legacy.tasks == [] and session.emitted == []
+
+
 class _RecordsLookAt(_LegacyLabels):
     """A legacy model that keeps the arguments of each look_at."""
 

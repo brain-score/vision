@@ -1,0 +1,7 @@
+numpy
+netCDF4
+torch
+torchvision
+torchaudio
+transformers
+phys_readouts@ git+https://github.com/thekej/phys_readouts.git#egg=phys_readouts

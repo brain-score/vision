@@ -154,9 +154,8 @@ class VisionModelAdapter(Subject):
             output = self.process(stimuli,
                                   number_of_trials=settings.get('number_of_trials', 1),
                                   require_variance=settings.get('require_variance', False))
-            session.respond(StreamEvent(channel, output,
-                                        events[-1].t_ms if events else None,
-                                        meta={'driver': 'legacy'}))
+            # One answer for the whole table has no time (rule 4.2), as in the core driver.
+            session.respond(StreamEvent(channel, output, None, meta={'driver': 'legacy'}))
 
     def _answer_choice(self, session, task, settings) -> None:
         """Answer a Choice task on ``behavior:choice`` from the legacy model's own task.
@@ -181,8 +180,7 @@ class VisionModelAdapter(Subject):
         stimuli = session_stimuli(session, events)
         rows = self.process(stimuli, number_of_trials=settings.get('number_of_trials', 1),
                             require_variance=settings.get('require_variance', False))
-        session.respond(StreamEvent('behavior:choice', answer(rows),
-                                    events[-1].t_ms if events else None, meta={'driver': 'legacy'}))
+        session.respond(StreamEvent('behavior:choice', answer(rows), None, meta={'driver': 'legacy'}))
 
     def _answer_probabilities(self, session, task, settings) -> None:
         """Answer a Choice task on ``behavior:probabilities`` from the legacy probabilities task.
@@ -219,7 +217,7 @@ class VisionModelAdapter(Subject):
         meta = {'driver': 'legacy', 'legacy_answer': rows}
         session.respond(StreamEvent('behavior:probabilities',
                                     _probabilities_from_rows(rows, task.response.labels, stimuli),
-                                    events[-1].t_ms if events else None, meta=meta))
+                                    None, meta=meta))
 
     # Backwards-compatible: existing benchmarks call look_at() directly
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):

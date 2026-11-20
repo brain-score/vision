@@ -236,10 +236,29 @@ class DualRidgeCVRegression:
         return self._dual.predict(X)
 
 
+class _PLSRegression(PLSRegression):
+    """
+    PLSRegression for sources with fewer features than n_components.
+    scikit-learn raises for n_components > n_features, so the default of 25 failed on smaller sources.
+    Those sources are fit with as many components as the rank of the centred source,
+    since components beyond the rank only fit round-off. Larger sources are unchanged.
+    """
+
+    def fit(self, X, *args, **kwargs):
+        n_components = self.n_components
+        if np.shape(X)[1] < n_components:
+            X_values = np.asarray(X)
+            self.n_components = max(np.linalg.matrix_rank(X_values - X_values.mean(axis=0)), 1)
+        try:
+            return super().fit(X, *args, **kwargs)
+        finally:
+            self.n_components = n_components
+
+
 def pls_regression(regression_kwargs=None, xarray_kwargs=None):
     regression_defaults = dict(n_components=25, scale=False)
     regression_kwargs = {**regression_defaults, **(regression_kwargs or {})}
-    regression = PLSRegression(**regression_kwargs)
+    regression = _PLSRegression(**regression_kwargs)
     xarray_kwargs = xarray_kwargs or {}
     regression = XarrayRegression(regression, **xarray_kwargs)
     return regression

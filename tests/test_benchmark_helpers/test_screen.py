@@ -73,3 +73,41 @@ class TestImageConverter:
         assert (converted_image[224 - 48, 224 - 48] == gray).all()
         assert (converted_image[48, 224 - 48] == gray).all()
         assert (converted_image[224 - 48, 48] == gray).all()
+
+
+def test_two_writers_of_one_screen_folder_both_succeed_with_equal_images(tmp_path, monkeypatch):
+    """Two runs on one store convert the same table at once (the cloud runs of two models on one
+    benchmark): both succeed, and every image they name has the bytes of a run alone."""
+    import threading
+    import pandas as pd
+    from brainscore_core.supported_data_standards.brainio.stimuli import StimulusSet
+    from brainscore_vision.benchmark_helpers import screen
+    sources = tmp_path / 'sources'
+    sources.mkdir()
+    for index in range(40):
+        Image.new('RGB', (96, 96), (index * 6, 90, 200)).save(sources / f'image{index}.png')
+    ids = [f'image{index}' for index in range(40)]
+    table = StimulusSet(pd.DataFrame({'stimulus_id': ids}))
+    table.stimulus_paths = {stimulus_id: str(sources / f'{stimulus_id}.png') for stimulus_id in ids}
+    table.identifier = 'two-writers'
+    monkeypatch.setattr(screen, 'root_path', tmp_path / 'screen')
+    for _ in range(5):
+        start, results, errors = threading.Barrier(2), [], []
+
+        def convert():
+            start.wait()
+            try:
+                converted = screen._place_on_screen.__wrapped__(
+                    stimuli_identifier=table.identifier, stimulus_set=table,
+                    target_visual_degrees=8, source_visual_degrees=10)
+                results.append({i: Path(converted.get_stimulus(i)).read_bytes() for i in ids})
+            except Exception as error:
+                errors.append(error)
+        writers = [threading.Thread(target=convert) for _ in range(2)]
+        for writer in writers:
+            writer.start()
+        for writer in writers:
+            writer.join()
+        assert not errors and len(results) == 2
+        assert results[0] == results[1]
+    assert [path.name for path in (tmp_path / 'screen').iterdir()] == ['two-writers--target8.00--source10.00']

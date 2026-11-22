@@ -5,6 +5,7 @@ import copy
 import logging
 import os
 import shutil
+import tempfile
 from typing import Union
 
 import numpy as np
@@ -53,10 +54,11 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
     source_visual_degrees = _determine_visual_degrees(source_visual_degrees, stimulus_set)
 
     target_dir = root_path / converted_stimuli_id
-    if os.path.exists(target_dir):
-        shutil.rmtree(target_dir)
-    target_dir.mkdir(parents=True, exist_ok=False)
-    image_converter = ImageConverter(target_dir=target_dir)
+    # Write into a new folder beside the target and move it in whole, so that a second process on the
+    # same store never sees a half-written folder; a process that finds the complete folder uses it.
+    root_path.mkdir(parents=True, exist_ok=True)
+    work_dir = Path(tempfile.mkdtemp(prefix=f'.{converted_stimuli_id}.', dir=root_path))
+    image_converter = ImageConverter(target_dir=work_dir)
 
     converted_image_paths = {}
     for image_id, image_degrees in tqdm(zip(stimulus_set['stimulus_id'], source_visual_degrees),
@@ -65,6 +67,15 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
                                                              source_degrees=image_degrees,
                                                              target_degrees=target_visual_degrees)
         converted_image_paths[image_id] = converted_image_path
+    written = {image_id: Path(path).name for image_id, path in converted_image_paths.items()
+               if Path(path).parent == work_dir}
+    if target_dir.exists() and not all((target_dir / name).is_file() for name in written.values()):
+        shutil.rmtree(target_dir, ignore_errors=True)  # left half written by a run before this rule
+    try:
+        os.replace(work_dir, target_dir)
+    except OSError:  # another process moved its complete folder in first
+        shutil.rmtree(work_dir)
+    converted_image_paths.update({image_id: str(target_dir / name) for image_id, name in written.items()})
     converted_stimuli = StimulusSet(stimulus_set.copy(deep=True))  # without copy, it will link to the previous stim set
     converted_stimuli.stimulus_paths = converted_image_paths
     converted_stimuli.identifier = converted_stimuli_id

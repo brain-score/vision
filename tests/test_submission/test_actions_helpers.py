@@ -42,7 +42,13 @@ def test_get_statuses_result_len():
     assert all('context' in entry and 'state' in entry for entry in data)
 
 def test_get_statuses_result():
-    data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")
+    # Fixed rows, not a live call: GitHub can change `updated_at` of old statuses, and the
+    # newest row then is no longer the final one.
+    data = [
+        {'context': 'Vision Unittests, Plugins', 'state': 'success', 'updated_at': '2026-02-10T19:32:19Z'},
+        {'context': 'Vision Unittests, Non-Plugins', 'state': 'failure', 'updated_at': '2026-02-10T19:40:00Z'},
+        {'context': 'Vision Unittests, Plugins', 'state': 'pending', 'updated_at': '2026-02-10T19:02:38Z'},
+    ]
     jenkins_plugintests_result = get_statuses_result('Vision Unittests, Plugins', data)
     assert jenkins_plugintests_result == 'success'
 

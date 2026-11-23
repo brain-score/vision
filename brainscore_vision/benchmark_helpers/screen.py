@@ -1,7 +1,9 @@
 """
 Methods to feed visual input to a system-under-test through the screen
 """
+import contextlib
 import copy
+import filecmp
 import logging
 import os
 import shutil
@@ -55,14 +57,14 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
 
     target_dir = root_path / converted_stimuli_id
     # Write into a new folder beside the target and move it in whole, so that a second process on the
-    # same store never sees a half-written folder; a process that finds the complete folder uses it.
-    # Limit: two processes that both find a folder left half written by an older run can remove each
-    # other's folder; the run then fails at the first missing file and passes when it is run again.
+    # same store never sees a half-written folder. A folder that is there already is used only when it
+    # holds every new file with the same bytes; else the new folder takes its place.
     root_path.mkdir(parents=True, exist_ok=True)
     work_dir = Path(tempfile.mkdtemp(prefix=f'.{converted_stimuli_id}.', dir=root_path))
     image_converter = ImageConverter(target_dir=work_dir)
 
     converted_image_paths = {}
+    aside = Path(f'{work_dir}.old')
     try:
         for image_id, image_degrees in tqdm(zip(stimulus_set['stimulus_id'], source_visual_degrees),
                                             total=len(stimulus_set), desc='convert image degrees'):
@@ -70,22 +72,27 @@ def _place_on_screen(stimuli_identifier: str, stimulus_set: StimulusSet,
                                                                  source_degrees=image_degrees,
                                                                  target_degrees=target_visual_degrees)
             converted_image_paths[image_id] = converted_image_path
-    except BaseException:
-        shutil.rmtree(work_dir, ignore_errors=True)
-        raise
-    written = {image_id: Path(path).name for image_id, path in converted_image_paths.items()
-               if Path(path).parent == work_dir}
-    def complete():
-        return target_dir.is_dir() and all((target_dir / name).is_file() for name in written.values())
-    if target_dir.is_dir() and not complete():
-        shutil.rmtree(target_dir)  # left half written by a run before this rule
-    try:
-        os.replace(work_dir, target_dir)
-    except OSError as error:  # another process moved its complete folder in first, or the move failed
-        shutil.rmtree(work_dir)
-        if not complete():
+        written = {image_id: Path(path).name for image_id, path in converted_image_paths.items()
+                   if Path(path).parent == work_dir}
+
+        def place():
+            try:
+                os.replace(work_dir, target_dir)
+                return True
+            except OSError:  # the folder is there: from another process, or from an older run
+                return target_dir.is_dir() and all((target_dir / name).is_file() and filecmp.cmp(
+                    work_dir / name, target_dir / name, shallow=False) for name in written.values())
+        placed = place()
+        if not placed and target_dir.is_dir():  # a file differs or is missing: the new folder takes its place
+            with contextlib.suppress(FileNotFoundError):  # another process moved it aside first
+                os.replace(target_dir, aside)
+            placed = place()
+        if not placed:
             raise OSError(f"Cannot place the converted images in {target_dir}: it is not a folder with every "
-                          f"converted image. Delete {target_dir} and run again.") from error
+                          f"converted image. Delete {target_dir} and run again.")
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+        shutil.rmtree(aside, ignore_errors=True)
     converted_image_paths.update({image_id: str(target_dir / name) for image_id, name in written.items()})
     converted_stimuli = StimulusSet(stimulus_set.copy(deep=True))  # without copy, it will link to the previous stim set
     converted_stimuli.stimulus_paths = converted_image_paths

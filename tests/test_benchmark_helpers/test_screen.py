@@ -117,6 +117,18 @@ def test_a_run_that_finds_a_half_written_screen_folder_gives_the_images_of_a_run
     assert _convert(table) == alone
 
 
+def test_a_screen_folder_with_every_name_and_other_bytes_gives_the_new_bytes(tmp_path, monkeypatch):
+    """A folder from an older conversion (other bytes under the same names) is replaced, not used."""
+    table = _table(tmp_path, count=3)
+    alone = _alone(tmp_path, monkeypatch, table)
+    old = tmp_path / 'screen' / 'two-writers--target8.00--source10.00'
+    old.mkdir(parents=True)
+    for name, _ in alone.values():
+        (old / name).write_bytes(b'older conversion')
+    assert _convert(table) == alone
+    assert [path.name for path in (tmp_path / 'screen').iterdir()] == ['two-writers--target8.00--source10.00']
+
+
 def test_a_screen_folder_path_that_is_a_file_gives_an_error_and_no_paths(tmp_path, monkeypatch):
     import pytest
     table = _table(tmp_path, count=3)
@@ -144,10 +156,12 @@ def test_a_conversion_that_fails_leaves_no_work_folder(tmp_path, monkeypatch):
 def test_two_writers_of_one_screen_folder_both_succeed_with_equal_images(tmp_path, monkeypatch):
     """Two runs on one store convert the same table at once (the cloud runs of two models on one
     benchmark): both succeed, and every image they name has the name and bytes of a run alone."""
+    import shutil
     import threading
     table = _table(tmp_path)
     alone = _alone(tmp_path, monkeypatch, table)
     for _ in range(5):
+        shutil.rmtree(tmp_path / 'screen', ignore_errors=True)  # each round starts from no folder
         start, results, errors = threading.Barrier(2), [], []
 
         def convert():

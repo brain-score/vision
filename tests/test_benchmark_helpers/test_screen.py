@@ -156,10 +156,12 @@ def test_a_conversion_that_fails_leaves_no_work_folder(tmp_path, monkeypatch):
 def test_two_writers_of_one_screen_folder_both_succeed_with_equal_images(tmp_path, monkeypatch):
     """Two runs on one store convert the same table at once (the cloud runs of two models on one
     benchmark): both succeed, and every image they name has the name and bytes of a run alone."""
+    import shutil
     import threading
     table = _table(tmp_path)
     alone = _alone(tmp_path, monkeypatch, table)
     for _ in range(5):
+        shutil.rmtree(tmp_path / 'screen', ignore_errors=True)  # each round starts from no folder
         start, results, errors = threading.Barrier(2), [], []
 
         def convert():

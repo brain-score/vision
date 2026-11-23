@@ -266,6 +266,15 @@ class TestVisionAdapterStartTask:
 
         legacy.start_task.assert_called_once_with('probabilities', fitting)
 
+    def test_start_task_takes_the_old_keyword_names(self):
+        """The old interface names the arguments task and fitting_stimuli; a caller may name them."""
+        legacy = _make_legacy_model()
+        adapter = VisionModelAdapter(legacy)
+
+        adapter.start_task(task='probabilities', fitting_stimuli='fitting_data')
+
+        legacy.start_task.assert_called_once_with('probabilities', 'fitting_data')
+
     def test_start_task_legacy_with_kwargs(self):
         """Some benchmarks pass number_of_trials as kwarg."""
         legacy = _make_legacy_model()

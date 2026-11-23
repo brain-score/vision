@@ -222,18 +222,18 @@ class VisionModelAdapter(Subject):
     def look_at(self, stimuli, number_of_trials=1, require_variance=False):
         return self.process(stimuli, number_of_trials, require_variance)
 
-    def start_task(self, task_or_type, fitting_stimuli=None,
+    def start_task(self, task, fitting_stimuli=None,
                    **kwargs) -> None:
         # Accept both calling conventions:
         #   New: start_task(TaskContext(...)); fitting settings a legacy
         #        benchmark passed travel in metadata['task_settings']
         #   Legacy: start_task(task, fitting_stimuli, **settings)
-        if isinstance(task_or_type, TaskContext):
-            task_type = task_or_type.task_type
-            fitting = task_or_type.fitting_stimuli
-            settings = dict(task_or_type.metadata.get('task_settings', {}))
+        if isinstance(task, TaskContext):
+            task_type = task.task_type
+            fitting = task.fitting_stimuli
+            settings = dict(task.metadata.get('task_settings', {}))
         else:
-            task_type, fitting, settings = task_or_type, fitting_stimuli, dict(kwargs)
+            task_type, fitting, settings = task, fitting_stimuli, dict(kwargs)
         key = (task_type, id(fitting), repr(sorted(settings.items())))
         if key == self._configured_task:
             return

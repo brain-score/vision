@@ -107,8 +107,9 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     model: BrainModel = load_model(model_identifier)
     requested_channels = requested_output_channels_for_score(benchmark)
 
-    # The one place N/A is made: the declaration check, before any compute
-    # (rules 5.6, 5.7). A refusal during the run below is an error.
+    # N/A is made before any compute (rules 5.6, 5.7): at the declaration check, and for
+    # an old benchmark's task refused before any input reached the subject (below). Any
+    # other refusal during the run is an error.
     try:
         compatibility = check_compatibility(model, benchmark)
     except CompatibilityError as error:
@@ -122,7 +123,8 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
     # A legacy benchmark calls look_at and friends; it receives the permanent
     # facade, which runs those calls as sessions through the subject's participate.
     from brainscore_core.legacy_facade import (
-        declared_visual_degrees, record_replaced_answers, subject_for_benchmark)
+        LegacyBenchmarkFacade, declared_visual_degrees, record_replaced_answers,
+        subject_for_benchmark)
     candidate = subject_for_benchmark(model, benchmark,
                                       visual_degrees=declared_visual_degrees(model))
 
@@ -135,6 +137,13 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         # also when this score runs inside another.
         with weight_fingerprint_scope(), record_measures(subject=model.identifier) as measures:
             score: Score = score_benchmark(benchmark, candidate)
+    except CompatibilityError as error:
+        if not isinstance(candidate, LegacyBenchmarkFacade):
+            raise       # a benchmark's own CompatibilityError after compute is an error
+        # An old benchmark's task or recording refused before any input reached the subject.
+        score = na_score(error)
+        score.attrs.update(model_identifier=model_identifier, benchmark_identifier=benchmark_identifier)
+        return score
     except AssertionError as e:
         # Only append the cache-clearing hint when the AssertionError actually
         # looks like a stimulus-path mismatch from a stale activations cache.

@@ -5,7 +5,7 @@
 | Goal | Interface |
 | --- | --- |
 | Score an existing model | `brainscore.score(model_identifier, benchmark_identifier)` |
-| Reuse extraction and task helpers | `brainscore.BrainScoreModel`, with `process`, task setup and recording methods |
+| Reuse extraction and task helpers | `brainscore.BrainScoreModel`, run through sessions (`neural_response`, `behavioral_response`) |
 | Define custom session behavior | `Subject.participate(session)`, with declared input/output channels |
 | Combine recording and interventions | `Experiment` with a compatible protocol and tools |
 

@@ -154,7 +154,7 @@ def test_the_old_label_metrics_give_the_identical_number(tmp_path):
 
 
 def test_a_subject_without_a_choice_output_is_refused_on_a_label_task(tmp_path):
-    from brainscore_core.compatibility import ExecutionNotFeasibleError
+    from brainscore_core.compatibility import CompatibilityError
     from brainscore_core.legacy_facade import LegacyBenchmarkFacade
 
     class _BareOnly(VisionModelAdapter):
@@ -164,7 +164,7 @@ def test_a_subject_without_a_choice_output_is_refused_on_a_label_task(tmp_path):
 
     facade = LegacyBenchmarkFacade(_BareOnly(label_model()), visual_degrees=8)
     facade.start_task('label', LABELS)
-    with pytest.raises(ExecutionNotFeasibleError, match="declares no 'behavior:choice' output"):
+    with pytest.raises(CompatibilityError, match="declares no 'behavior:choice' output"):  # before any input: N/A
         facade.look_at(stimuli(tmp_path))
 
 

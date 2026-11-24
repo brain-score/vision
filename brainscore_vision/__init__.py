@@ -117,8 +117,9 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         score.attrs['model_identifier'] = model_identifier
         score.attrs['benchmark_identifier'] = benchmark_identifier
         return score
+    memory_check = 'not run: check_mem=False'     # recorded on the score: no silent fallback
     if check_mem:
-        check_memory(model, benchmark)
+        memory_check = check_memory(model, benchmark)
 
     # A legacy benchmark calls look_at and friends; it receives the permanent
     # facade, which runs those calls as sessions through the subject's participate.
@@ -178,6 +179,7 @@ def _run_score(model_identifier: str, benchmark_identifier: str,
         benchmark_identifier=benchmark_identifier,
     )
     score.attrs['compatibility'] = compatibility.as_attrs()
+    score.attrs['memory_check'] = memory_check
     record_replaced_answers(score, candidate)
     try:  # attempt to look up the layer commitment if model uses a standard layer model
         score.attrs['comment'] = f"layers: {model.legacy_model.layer_model.region_layer_map}"

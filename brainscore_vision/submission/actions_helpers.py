@@ -21,7 +21,9 @@ BASE_URL = "https://api.github.com/repos/brain-score/vision"
 
 
 def get_data(url: str) -> dict:
-    r = requests.get(url)
+    token = os.environ.get("GITHUB_TOKEN")
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    r = requests.get(url, headers=headers)
     assert r.status_code == 200, f'{r.status_code}: {r.reason}'
     return r.json()
 

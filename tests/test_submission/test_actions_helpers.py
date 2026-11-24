@@ -42,7 +42,11 @@ def test_get_statuses_result_len():
     assert all('context' in entry and 'state' in entry for entry in data)
 
 def test_get_statuses_result():
-    data = get_data(f"{BASE_URL}/statuses/{PR_HEAD_SHA}")
+    data = [
+        {'context': 'Vision Unittests, Plugins', 'state': 'failure', 'updated_at': '2026-01-01T00:00:00Z'},
+        {'context': 'Vision Unittests, Plugins', 'state': 'success', 'updated_at': '2026-01-02T00:00:00Z'},
+        {'context': 'Vision Unittests, Non-Plugins', 'state': 'failure', 'updated_at': '2026-01-03T00:00:00Z'},
+    ]
     jenkins_plugintests_result = get_statuses_result('Vision Unittests, Plugins', data)
     assert jenkins_plugintests_result == 'success'
 

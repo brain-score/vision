@@ -25,6 +25,9 @@ on:
 
 permissions: write-all
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   check_trigger:
     name: Check what triggered this workflow. If it was the addition of a 'failure-notified' label, skip the rest of workflow.
